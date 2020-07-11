@@ -20,7 +20,6 @@
 #ifdef USE_STB
 #include "StbImage.h"
 #endif
-#include "File.h"
 #include "OpenGLObject.h"
 #include "OpenGLBufferObjects.h"
 #include "OpenGLViewer.h"
@@ -228,26 +227,6 @@ void OpenGLWindow::Redisplay()
 
 void OpenGLWindow::Display_Offscreen()
 {
-#ifndef USE_STB
-    std::cerr<<"Error: stb is required for image io"<<std::endl;
-#else
-    ////render to image
-    if((!display_offscreen_interactive&&frame_offscreen!=frame_offscreen_rendered)||display_offscreen_interactive){
-        int w=win_w;int h=win_h;
-        int num_pixel=w*h;int num_comp=3;
-        GLubyte* pixels=new GLubyte[num_comp*num_pixel];
-        GLubyte* pixels_flipped_y=new GLubyte[num_comp*num_pixel];
-        glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-        for(int i=0;i<h;i++){int offset=w*num_comp*(h-i-1);
-            std::memcpy(pixels_flipped_y+offset,pixels+w*num_comp*i,w*num_comp);}
-        int wrt_frame=display_offscreen_interactive?frame_offscreen_rendered++:frame_offscreen;
-        if(!File::Directory_Exists(offscreen_output_dir.c_str()))File::Create_Directory(offscreen_output_dir);
-        std::stringstream ss;ss<<offscreen_output_dir<<"/"<<std::setfill('0')<<std::setw(4)<<wrt_frame<<".png";
-        std::cout<<"Offscreen render to image "<<ss.str()<<std::endl;
-        int rst=Stb::Write_Png(ss.str().c_str(),w,h,num_comp,pixels_flipped_y,0);
-        delete pixels;delete pixels_flipped_y;
-        if(!display_offscreen_interactive)frame_offscreen_rendered=frame_offscreen;}
-#endif
 }
 
 void OpenGLWindow::Display_Text()

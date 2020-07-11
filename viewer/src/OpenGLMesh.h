@@ -43,22 +43,6 @@ template<class T_MESH> class OpenGLMesh: public OpenGLObject
 
 		Update_Data_To_Render_Post();
 	}
-
-	virtual void Refresh(const int frame)
-	{bool is_binary_file=(File::File_Extension_Name(name)!="txt");std::string file_name=output_dir+"/"+std::to_string(frame)+"/"+name;
-	if(is_binary_file){
-		if(File::File_Exists(file_name)){
-			mesh.elements.clear();
-			File::Read_Binary_From_File(file_name,mesh);
-			Set_Data_Refreshed();
-			if(verbose)std::cout<<"Read file "<<file_name<<std::endl;}}
-	//else{				////TOIMPL: support txt IO
-	//	if(File::File_Exists(file_name)){
-	//		mesh.elements.clear();
-	//		File::Read_Text_From_File(file_name,mesh);
-	//		Set_Data_Refreshed();
-	//		if(verbose)std::cout<<"Read file "<<file_name<<std::endl;}}
-	}
 };
 
 class OpenGLSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
@@ -135,15 +119,6 @@ class OpenGLColoredSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
         glLineWidth(old_line_width);
 		shader->End();}
     }
-
-	virtual void Refresh(const int frame)
-	{
-		Base::Refresh(frame);
-		std::string color_file_name=output_dir+"/"+std::to_string(frame)+"/"+name+"_color";
-		if(File::File_Exists(color_file_name)){
-			colors.clear();colors.resize(mesh.elements.size());
-			File::Read_Binary_Array_From_File(color_file_name,&colors[0],(int)mesh.elements.size());}
-	}
 };
 
 class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >

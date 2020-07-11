@@ -155,10 +155,5 @@ public:
 
 	virtual void Toggle_Decrease_Scale();
 	Define_Function_Object(OpenGLObject,Toggle_Decrease_Scale);
-
-	////Additional helper functions
-	////IO helper functions
-	static std::string Object_File_Name(const std::string& output_dir,const int frame,const std::string& object_name);
-	static bool Object_File_Exists(const std::string& output_dir,const int frame,const std::string& object_name);
 };
 #endif

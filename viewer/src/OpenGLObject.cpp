@@ -4,7 +4,6 @@
 // This file is part of SLAX, whose distribution is governed by the LICENSE file.
 //#####################################################################
 //#include "AuxFunc.h"
-#include "File.h"
 #include "OpenGLShaderProgram.h"
 #include "OpenGLObject.h"
 
@@ -40,13 +39,6 @@ void OpenGLObject::Update_Data_To_Render_Post()
 	Clear_OpenGL_Arrays();
 	Set_Data_Refreshed(false);
 }
-
-////io helper functions
-std::string OpenGLObject::Object_File_Name(const std::string& output_dir,const int frame,const std::string& object_name)
-{return output_dir+"/"+std::to_string(frame)+"/"+object_name;}
-
-bool OpenGLObject::Object_File_Exists(const std::string& output_dir,const int frame,const std::string& object_name)
-{std::string file_name=Object_File_Name(output_dir,frame,object_name);return File::File_Exists(file_name);}
 
 ////Opengl helper functions
 void OpenGLObject::Update_Polygon_Mode() const

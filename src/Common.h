@@ -1,8 +1,8 @@
-//#####################################################################
-// Common header
-// Dartmouth COSC 89.18/189.02: Computational Methods for Physical Systems, Assignment starter code
-// Contact: Bo Zhu (bo.zhu@dartmouth.edu)
-//#####################################################################
+//////////////////////////////////////////////////////////////////////////
+////Dartmouth Physical Computing Starter Code
+////http://www.dartmouth.edu/~boolzhu/cosc89.18.html
+//////////////////////////////////////////////////////////////////////////
+
 #ifndef __Common_h__
 #define __Common_h__
 #include <vector>
@@ -17,9 +17,12 @@
 #include "Eigen/Sparse"
 
 //////////////////////////////////////////////////////////////////////////
-////Eigen basic types
+//// Eigen vector and matrix types
 
-////Eigen vector type alias
+//// To define a vector or matrix type, you may use the following aliased type names:
+//// Vector<double,2>, Vector<float,3>, Vector<int,4>, Matrix<float,3>, etc.
+//// or Vector2d, Vector3f, Vector4i, Matrix3f, etc.
+
 template<class T,int d> using Vector=Eigen::Matrix<T,d,1>;
 template<class T,int d> using Matrix=Eigen::Matrix<T,d,d>;
 
@@ -55,8 +58,6 @@ using Matrix2=Eigen::Matrix2##t;        \
 using Matrix3=Eigen::Matrix3##t;        \
 using Matrix4=Eigen::Matrix4##t;        \
 using MatrixX=Eigen::MatrixX##t;        \
-using Quaternion=Eigen::Quaternion##t;  \
-using AngleAxis=Eigen::AngleAxis##t;
 
 #ifdef USE_FLOAT
 Declare_Eigen_Types(float,f)
@@ -64,18 +65,9 @@ Declare_Eigen_Types(float,f)
 Declare_Eigen_Types(double,d)
 #endif
 
-////Eigen vector alias macros
-#define Typedef_VectorD(d)		\
-using VectorD=Vector<real,d>
-#define Typedef_VectorDi(d)		\
-using VectorDi=Vector<int,d>
-#define Typedef_VectorDii(d)	\
-using VectorD=Vector<real,d>;	\
-using VectorDi=Vector<int,d>;
-#define Typedef_VectorEi(d)		\
-
 //////////////////////////////////////////////////////////////////////////
-////Eigen sparse
+////Eigen sparse types
+
 template<class T> using VectorN=Eigen::Matrix<T,-1,1>;
 template<class T,int d> using Matrix=Eigen::Matrix<T,d,d>;
 template<class T> using SparseMatrix=Eigen::SparseMatrix<T,Eigen::RowMajor,int>;
@@ -168,6 +160,27 @@ constexpr int Pow(int x,int p){return p==1?x:x*Pow(x,p-1);}
 constexpr int Factorial(int n){return n<=1?1:(n*Factorial(n-1));}
 template<class T,int d> using ArrayF2P=ArrayF<T,Pow(2,d) >;
 template<class T,int d> using ArrayF3P=ArrayF<T,Pow(3,d) >;
+
+//////////////////////////////////////////////////////////////////////////
+////Hash keys
+namespace std{
+template<> struct hash<Vector2i>
+{typedef Vector2i argument_type;typedef std::size_t result_type;
+	result_type operator()(argument_type const& arg) const
+	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));return h1^(h2<<1);}
+};
+template<> struct hash<Vector3i>
+{typedef Vector3i argument_type;typedef std::size_t result_type;
+	result_type operator()(argument_type const& arg) const
+	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));
+	result_type const h3(std::hash<int>()(arg[2]));return h1^(h2<<1)^h3;}
+};
+template<> struct hash<Vector4i>
+{typedef Vector4i argument_type;typedef std::size_t result_type;
+	result_type operator()(argument_type const& arg) const
+	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));
+	result_type const h3(std::hash<int>()(arg[2]));result_type const h4(std::hash<int>()(arg[3]));return h1^(h2<<1)^h3^(h4<<2);}
+};}
 
 //////////////////////////////////////////////////////////////////////////
 ////Analytical geometry

@@ -4,7 +4,6 @@
 // This file is part of SLAX, whose distribution is governed by the LICENSE file.
 //#####################################################################
 #include "Mesh.h"
-#include "File.h"
 #include "OpenGLWindow.h"
 #include "OpenGLViewer.h"
 #include "OpenGLMesh.h"
@@ -13,6 +12,7 @@
 #ifdef USE_IMGUI
 #include "OpenGLUiImgui.h"
 #endif
+
 //////////////////////////////////////////////////////////////////////////
 ////Initialization and run
 
@@ -48,9 +48,9 @@ void OpenGLViewer::Initialize_Common_Data()
 		auto axes=Add_Interactive_Object<OpenGLAxes>();
 		axes->use_2d_display=use_2d_display;axes->Initialize();}
 	
-	std::string file_name=output_dir+"/0/last_frame.txt";
-	if(File::File_Exists(file_name))
-		File::Read_Text_From_File(file_name,last_frame);
+	//std::string file_name=output_dir+"/0/last_frame.txt";
+	//if(File::File_Exists(file_name))
+	//	File::Read_Text_From_File(file_name,last_frame);
 	if(verbose)std::cout<<"Read last frame: "<<last_frame<<std::endl;
 }
 

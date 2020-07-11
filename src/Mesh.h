@@ -7,7 +7,6 @@
 #define __Mesh_h__
 #include <fstream>
 #include "Common.h"
-#include "File.h"
 
 ////Simplicial mesh
 ////template parameter d specifies the dimension of a vertex, e.g., d=2 -- 2d vertex; d=3 -- 3d vertex
@@ -49,55 +48,6 @@ public:
 		if(vertices)vertices->clear();
 		elements.clear();
 	}
-
-	////IO
-	virtual void Write_Binary(std::ostream& output) const
-	{
-		int vtx_n=(int)(*vertices).size();
-		File::Write_Binary(output,vtx_n);
-		File::Write_Binary_Array(output,&(*vertices)[0],vtx_n);
-		int e_n=(int)elements.size();
-		File::Write_Binary(output,e_n);
-		if(e_n>0)File::Write_Binary_Array(output,&elements[0],e_n);
-	}
-
-	virtual void Read_Binary(std::istream& input)
-	{
-		int vtx_n=0;File::Read_Binary(input,vtx_n);
-		(*vertices).resize(vtx_n);
-		File::Read_Binary_Array(input,&(*vertices)[0],vtx_n);
-		int e_n=0;File::Read_Binary(input,e_n);
-		if(e_n>0){
-			elements.resize(e_n);
-			File::Read_Binary_Array(input,&elements[0],e_n);}
-	}
-
-	virtual void Write_To_File_3d(const std::string& file_name) const
-	{
-		SimplicialMesh<3,e_d> s3;Dim_Conversion(*this,s3);
-		File::Write_Binary_To_File(file_name,s3);
-	}
-
-	virtual void Read_Text(std::istream& input)
-	{
-		int vtx_n=0;File::Read_Text(input,vtx_n);
-		if(vtx_n>0){
-			(*vertices).resize(vtx_n);
-			for(int i=0;i<vtx_n;i++)File::Read_Text_Array(input,(*vertices)[i],d);}
-		int e_n=0;File::Read_Text(input,e_n);
-		if(e_n>0){
-			elements.resize(e_n);
-			for(int i=0;i<e_n;i++)File::Read_Text_Array(input,elements[i],e_d);}
-	}
-
-	virtual void Write_Text(std::ostream& output) const
-	{
-		int vtx_n=(int)(*vertices).size();File::Write_Text(output,vtx_n);File::Write_Text(output,'\n');
-		if(vtx_n>0){for(int i=0;i<vtx_n;i++){File::Write_Text_Array(output,(*vertices)[i],d,' ');File::Write_Text(output,'\n');}}
-		int e_n=(int)elements.size();
-		File::Write_Text(output,'\n');File::Write_Text(output,e_n);File::Write_Text(output,'\n');
-		if(e_n>0){for(int i=0;i<e_n;i++){File::Write_Text_Array(output,elements[i],e_d,' ');File::Write_Text(output,'\n');}}
-	}
 };
 
 
@@ -133,25 +83,6 @@ template<class MESH_T1,class MESH_T2> void Dim_Conversion(const MESH_T1& mesh2,/
 	for(size_type i=0;i<mesh2.elements.size();i++)
 		Dim_Conversion<int,MESH_T1::Element_Dim(),MESH_T2::Element_Dim()>(mesh2.elements[i],mesh3.elements[i],(int)-1);
 }
-
-namespace std{
-template<> struct hash<Vector2i>
-{typedef Vector2i argument_type;typedef std::size_t result_type;
-	result_type operator()(argument_type const& arg) const
-	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));return h1^(h2<<1);}
-};
-template<> struct hash<Vector3i>
-{typedef Vector3i argument_type;typedef std::size_t result_type;
-	result_type operator()(argument_type const& arg) const
-	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));
-	result_type const h3(std::hash<int>()(arg[2]));return h1^(h2<<1)^h3;}
-};
-template<> struct hash<Vector4i>
-{typedef Vector4i argument_type;typedef std::size_t result_type;
-	result_type operator()(argument_type const& arg) const
-	{result_type const h1(std::hash<int>()(arg[0]));result_type const h2(std::hash<int>()(arg[1]));
-	result_type const h3(std::hash<int>()(arg[2]));result_type const h4(std::hash<int>()(arg[3]));return h1^(h2<<1)^h3^(h4<<2);}
-};}
 
 inline Vector3 Normal(const Vector3& p1,const Vector3& p2,const Vector3& p3){return (p2-p1).cross(p3-p1).normalized();}
 

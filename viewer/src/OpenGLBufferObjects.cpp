@@ -1,8 +1,7 @@
-//#####################################################################
-// Opengl uniform buffer object
-// Copyright (c) (2018-), Bo Zhu, boolzhu@gmail.com
-// This file is part of SLAX, whose distribution is governed by the LICENSE file.
-//#####################################################################
+//////////////////////////////////////////////////////////////////////////
+////Dartmouth Physical Computing Starter Code
+////http://www.dartmouth.edu/~boolzhu/cosc89.18.html
+//////////////////////////////////////////////////////////////////////////
 #include <iostream>
 #include "OpenGLWindow.h"
 #include "OpenGLBufferObjects.h"

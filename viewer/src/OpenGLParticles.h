@@ -109,14 +109,6 @@ public:
 		Update_Data_To_Render_Post();
 	}
 
-	virtual void Refresh(const int frame)
-	{
-		std::string file_name=output_dir+"/"+std::to_string(frame)+"/"+name;
-		if(File::File_Exists(file_name)){
-			File::Read_Binary_From_File(file_name,particles);
-			Set_Data_Refreshed();}
-	}
-
 	virtual void Display() const
     {
 		if(!visible)return;

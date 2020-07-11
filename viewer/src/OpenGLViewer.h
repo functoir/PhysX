@@ -94,12 +94,7 @@ public:
 	template<class T_OBJECT> bool Initialize_From_File(const std::string& output_dir,T_OBJECT* & opengl_object,
 		const std::string& object_name,const Array<OpenGLData>& data,const int frame=0)
 	{
-		if(OpenGLObject::Object_File_Exists(output_dir,frame,object_name)){
-			opengl_object=new T_OBJECT();
-			opengl_object->output_dir=output_dir;
-			opengl_object->name=object_name;
-			opengl_object->data=data;
-			opengl_object->Refresh(frame);return true;}
+		/*not implemented*/
 		return false;
 	}
 

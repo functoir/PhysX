@@ -6,7 +6,6 @@
 #ifndef __Driver_h__
 #define __Driver_h__
 #include "Common.h"
-#include "File.h"
 
 class Driver
 {
@@ -29,11 +28,9 @@ public:
 
 	virtual void Run()
 	{
-		Write_Output_Files(current_frame);
 		while(current_frame<last_frame){
 			current_frame++;
-			Advance_To_Target_Time(Time_At_Frame(current_frame));
-			Write_Output_Files(current_frame);}
+			Advance_To_Target_Time(Time_At_Frame(current_frame));}
 	}
 
 	virtual void Advance_To_Target_Time(const real target_time)
@@ -50,21 +47,6 @@ public:
 	virtual void Advance_One_Time_Step(const real dt,const real time)
 	{
 		if(verbose)std::cout<<"Advance one time step by dt="<<dt<<" to time "<<time<<std::endl;
-	}
-
-	virtual void Write_Output_Files(const int frame)
-	{	
-		if(frame==0){
-			if(!File::Directory_Exists(output_dir.c_str()))
-				File::Create_Directory(output_dir);}
-
-		frame_dir=output_dir+"/"+std::to_string(frame);
-		if(!File::Directory_Exists(frame_dir.c_str()))File::Create_Directory(frame_dir);
-		
-		{std::string file_name=output_dir+"/0/last_frame.txt";
-		File::Write_Text_To_File(file_name,std::to_string(frame));}
-
-		if(verbose)std::cout<<"Write output files for frame "<<frame<<" to path: "<<frame_dir<<std::endl;
 	}
 };
 #endif
