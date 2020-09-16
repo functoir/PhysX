@@ -81,7 +81,7 @@ The script enters the directory and executes CMake using `cmake ..`. CMake finds
 
 After this runs, you will have a bunch of files and folders in the `build` folder. You might notice that the folder structure mirrors the one in the source folder.
 
-Generally, you can find the build files related to "proj/assignment" in "**build**/proj/assignment". Following this pattern, the build files related to the viewer are in "**build**/viewer/viewer".
+You can find the project build files related to "proj/assignment" in "**build**/proj/assignment". Following this pattern, the project build files related to the viewer are in "**build**/viewer/viewer".
 
 ### Build
 

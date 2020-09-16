@@ -35,7 +35,7 @@ public:
 		opengl_tri_mesh=Add_Interactive_Object<OpenGLTriangleMesh>();
 		auto tri_mesh=&opengl_tri_mesh->mesh;
 		std::string file_name="bunny.txt";
-		File::Read_Text_From_File(file_name,*tri_mesh);
+		// File::Read_Text_From_File(file_name,*tri_mesh);
 		Set_Polygon_Mode(opengl_tri_mesh,PolygonMode::Fill);
 		Set_Shading_Mode(opengl_tri_mesh,ShadingMode::Lighting);
 		opengl_tri_mesh->Set_Data_Refreshed();
