@@ -37,20 +37,6 @@ public:
 		}
 	}
 
-	virtual void Write_Output_Files(const int frame)
-	{
-		std::cout<<"Write output files for frame "<<frame<<std::endl;
-		Base::Write_Output_Files(frame);
-		std::string file_name=frame_dir+"/particles";
-		particles.Write_To_File_3d(file_name);
-
-		Update_Segment_Mesh();
-		std::cout<<"segment mesh: "<<segment_mesh.Vertices().size()
-			<<", "<<segment_mesh.Elements().size()<<std::endl;
-		file_name=frame_dir+"/segment_mesh";
-		segment_mesh.Write_To_File_3d(file_name);
-	}
-
 protected:
 	void Update_Segment_Mesh()
 	{

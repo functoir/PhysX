@@ -7,7 +7,6 @@
 #define __OpenGLParticles_h__
 #include "Common.h"
 #include "Particles.h"
-#include "File.h"
 #include "OpenGLObject.h"
 #include "OpenGLVectors.h"
 #include "OpenGLShaderProgram.h"
