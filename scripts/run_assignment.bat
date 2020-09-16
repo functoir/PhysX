@@ -11,6 +11,8 @@ if "%test%"=="" set test=1
 cmake --build ./build --config Release --target %assignment%
 if not %ERRORLEVEL% == 0 goto :error
 
+copy viewer\bin\windows\*.dll build\proj\%assignment%\release
+
 build\proj\%assignment%\Release\%assignment%.exe  -test %test%
 if not %ERRORLEVEL% == 0 goto :error
 
