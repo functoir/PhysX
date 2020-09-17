@@ -94,7 +94,7 @@ public:
 	{return (*v)[i];}
 	
 	const VectorD& V(const int i) const 
-	{return (*V)[i];}
+	{return (*v)[i];}
 
 	Array<VectorD>* V()
 	{return v.get();}
@@ -120,7 +120,7 @@ public:
 	{return (*f)[i];}
 	
 	const VectorD& F(const int i) const 
-	{return (*F)[i];}
+	{return (*f)[i];}
 
 	Array<VectorD>* F()
 	{return f.get();}
@@ -146,7 +146,7 @@ public:
 	{return (*m)[i];}
 	
 	const real& M(const int i) const 
-	{return (*M)[i];}
+	{return (*m)[i];}
 
 	Array<real>* M()
 	{return m.get();}
@@ -172,7 +172,7 @@ public:
 	{return (*c)[i];}
 	
 	const real& C(const int i) const 
-	{return (*C)[i];}
+	{return (*c)[i];}
 
 	Array<real>* C()
 	{return c.get();}
@@ -198,7 +198,7 @@ public:
 	{return (*r)[i];}
 	
 	const real& R(const int i) const 
-	{return (*R)[i];}
+	{return (*r)[i];}
 
 	Array<real>* R()
 	{return r.get();}
@@ -224,7 +224,7 @@ public:
 	{return (*p)[i];}
 	
 	const real& P(const int i) const 
-	{return (*P)[i];}
+	{return (*p)[i];}
 
 	Array<real>* P()
 	{return p.get();}
@@ -250,7 +250,7 @@ public:
 	{return (*den)[i];}
 	
 	const real& D(const int i) const 
-	{return (*D)[i];}
+	{return (*den)[i];}
 
 	Array<real>* D()
 	{return den.get();}
