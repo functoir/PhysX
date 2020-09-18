@@ -50,7 +50,8 @@ elseif(APPLE)  #freeglut and glew are installed on macos by "brew install freegl
 	find_package(GLEW REQUIRED)
 	if (GLEW_FOUND)
     		include_directories(${GLEW_INCLUDE_DIRS})
-    		link_libraries(${GLEW_LIBRARIES})
+			link_libraries(${GLEW_LIBRARIES})
+			link_libraries(GLEW::GLEW)
 	endif()
 
 	find_package(GLUT REQUIRED)
