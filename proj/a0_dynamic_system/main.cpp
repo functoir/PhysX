@@ -5,6 +5,8 @@
 //#####################################################################
 #include <iostream>
 #include "DynamicSystemDriver.h"
+#include "InClassDemoDriver.h"
+#include "InClassDemoWeekTwoDriver.h"
 
 #ifndef __Main_cpp__
 #define __Main_cpp__
@@ -19,8 +21,12 @@ int main(int argc,char* argv[])
 		driver.Initialize();
 		driver.Run();	
 	}break;
+	case 2:{
+		InClassDemoWeekTwoDriver driver;
+		driver.Initialize();
+		driver.Run();
 	}
-	
+	}
 }
 
 #endif

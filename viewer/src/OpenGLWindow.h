@@ -23,7 +23,7 @@ public:
 	static OpenGLWindow* instance;
 	//// Glut window
 	int window_id=0;
-	std::string window_title="Dartmouth COSC89.18/189.02, OpenGL Viewer";
+	std::string window_title="Dartmouth Physical Computing, 2020, OpenGL Viewer";
 	int win_w=1280,win_h=960;
 	float fovy=30.f;
 

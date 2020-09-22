@@ -80,7 +80,7 @@ public:
 	void Sync_Simulation_And_Visualization_Data()
 	{
 		opengl_trace->mesh.Vertices().push_back(position);
-		int n=opengl_trace->mesh.Elements().size();
+		int n=(int)opengl_trace->mesh.Elements().size();
 		opengl_trace->mesh.Elements().push_back(Vector2i(n-1,n-2));
 		opengl_trace->Set_Data_Refreshed();
 
