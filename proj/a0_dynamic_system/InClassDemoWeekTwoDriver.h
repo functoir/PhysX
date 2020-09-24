@@ -85,17 +85,7 @@ public:
 	////advance simulation timesteps
 	virtual void Advance(const real dt)
 	{
-		////update spring
-		real rest_length=(real)1;
-		real ks=(real)1e1;
-		real kd=(real)0;
-		real mass=(real)1;
-		real length=(pos[1]-pos[0]).norm();
-		Vector3 dir=(pos[1]-pos[0])/length;
-		Vector3 fs=ks*(length-rest_length)*dir;
-		Vector3 fd=kd*(vel[1]-vel[0]).dot(dir)*dir;
-		vel[0]+=(fs+fd)/mass*dt;
-		vel[1]-=(fs+fd)/mass*dt;
+		////TODO
 
 		////time integration
 		for(int i=0;i<2;i++){
