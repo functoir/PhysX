@@ -11,6 +11,8 @@
 #include "OpenGLMarkerObjects.h"
 #include "OpenGLParticles.h"
 
+////example data array:{Vector3(0,0,0),Vector3(0,1,0),Vector3(1,0,2),...}
+////the viewer will draw a curve by connecting all the input points in sequence
 class Curve
 {
 public:
@@ -34,7 +36,7 @@ public:
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices()=vertices;
 		opengl_trace->mesh.Elements().resize(n);
-		for(int i=0;i<n;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
+		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
 
@@ -44,11 +46,30 @@ public:
 		opengl_trace->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
 		opengl_trace->mesh.Elements().resize(n);
-		for(int i=0;i<n;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
+		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
+		opengl_trace->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Vector3* vertices,const int n)
+	{
+		opengl_trace->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=vertices[i];
+		opengl_trace->mesh.Elements().resize(n);
+		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
+		opengl_trace->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Vector2* vertices,const int n)
+	{
+		opengl_trace->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		opengl_trace->mesh.Elements().resize(n);
+		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
 };
 
+////the viewer will draw a sphere with the specified position and radius
 class Point
 {
 public:
@@ -99,6 +120,7 @@ class InClassDemoDriver : public Driver, public OpenGLViewer
 	real dt=.02;
 
 	////visualization data
+	////put your own vis objects here
 
 public:
 	

@@ -3,8 +3,8 @@
 #include "Common.h"
 #include "InClassDemoDriver.h"
 
-class InClassDemoWeekTwoDriver : public InClassDemoDriver
-{using VectorD=Vector3;using VectorDi=Vector2i;using Base=Driver;
+class InClassDemoSimpleDynamicsDriver : public InClassDemoDriver
+{using Base=Driver;
 	////simulation data
 	real dt=.02;
 	Vector3 vel;	////velocity of point
@@ -27,12 +27,14 @@ public:
 			real theta=(real)i*theta_0;
 			real x=r*cos(theta);
 			real y=r*sin(theta);
-			vertices.push_back(VectorD(x,y,(real)0));}
+			vertices.push_back(Vector3(x,y,(real)0));}
+
 		curve.Initialize(this);
 		curve.Sync_Data(vertices);
 
 		////initialize point
 		pos=vertices[0];
+
 		point.Initialize(this);
 		point.Sync_Data(pos);
 	}
@@ -40,12 +42,72 @@ public:
 	////advance simulation timesteps
 	virtual void Advance(const real dt)
 	{
+		////manipulate vel and pos
+		vel=Vector3::Unit(0);
+		pos+=vel*dt;
 	}
 
 	////update simulation data to its visualization counterparts
 	virtual void Sync_Simulation_And_Visualization_Data()
 	{
 		point.Sync_Data(pos);
+	}
+};
+
+class InClassDemoMassSpringDriver : public InClassDemoDriver
+{using Base=Driver;
+	////simulation data
+	real dt=.02;
+	Vector3 vel[2];	////velocity of point
+	Vector3 pos[2];	////position of point
+
+	////visualization data
+	Curve curve;
+	Point points[2];
+public:
+
+	////initialize simulation data and its visualizations
+	virtual void Initialize_Data()
+	{
+		vel[0]=-Vector3(1.,0.,0.);
+		vel[1]=Vector3(1.,0.,0.);
+		pos[0]=Vector3(1.,0.,0.);
+		pos[1]=Vector3(2.,0.,0.);
+
+		curve.Initialize(this);
+		curve.Sync_Data(pos,2);
+
+		for(int i=0;i<2;i++){
+			points[i].Initialize(this);
+			points[i].Sync_Data(pos[i]);}
+	}
+
+	////advance simulation timesteps
+	virtual void Advance(const real dt)
+	{
+		////update spring
+		real rest_length=(real)1;
+		real ks=(real)1e1;
+		real kd=(real)0;
+		real mass=(real)1;
+		real length=(pos[1]-pos[0]).norm();
+		Vector3 dir=(pos[1]-pos[0])/length;
+		Vector3 fs=ks*(length-rest_length)*dir;
+		Vector3 fd=kd*(vel[1]-vel[0]).dot(dir)*dir;
+		vel[0]+=(fs+fd)/mass*dt;
+		vel[1]-=(fs+fd)/mass*dt;
+
+		////time integration
+		for(int i=0;i<2;i++){
+			pos[i]+=vel[i]*dt;}
+	}
+
+	////update simulation data to its visualization counterparts
+	virtual void Sync_Simulation_And_Visualization_Data()
+	{
+		for(int i=0;i<2;i++)
+			points[i].Sync_Data(pos[i]);
+		curve.Sync_Data(pos,2);
 	}
 };
 #endif
