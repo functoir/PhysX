@@ -186,11 +186,8 @@ void OpenGLViewer::Initialize_Common_Callback_Keys()
 	Bind_Callback_Key('<',&Toggle_Decrease_Scale_Func,"scale-");
 	Bind_Callback_Key('K',&Print_Keyboard_Callbacks_Func,"print binded keys");
 	Bind_Callback_Key(']',&Toggle_Next_Frame_Func,"next frame");
-	Bind_Callback_Key('[',&Toggle_Prev_Frame_Func,"prev frame");
-	Bind_Callback_Key('r',&Toggle_First_Frame_Func,"first frame");
 	Bind_Callback_Key('p',&Toggle_Play_Func,"play");
 	Bind_Callback_Key('q',&opengl_window->Quit_Func,"quit");
-	Bind_Callback_Key('w',&opengl_window->Toggle_Offscreen_Func,"offscreen rendering");
 }
 
 void OpenGLViewer::Bind_Callback_Key(const uchar key, std::function<void(void)>* callback, const std::string& discription)

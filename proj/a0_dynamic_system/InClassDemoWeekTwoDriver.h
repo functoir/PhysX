@@ -34,6 +34,7 @@ public:
 
 		////initialize point
 		pos=vertices[0];
+		vel=Vector3(0.,1.,0.);
 
 		point.Initialize(this);
 		point.Sync_Data(pos);
@@ -43,7 +44,8 @@ public:
 	virtual void Advance(const real dt)
 	{
 		////manipulate vel and pos
-		vel=Vector3::Unit(0);
+		Vector3 a=-pos.normalized();
+		vel+=a*dt;
 		pos+=vel*dt;
 	}
 

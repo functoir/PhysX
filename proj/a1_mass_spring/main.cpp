@@ -12,19 +12,23 @@
 
 int main(int argc,char* argv[])
 {
-	std::string output_dir="output";
+	////default arguments
 	int test=1;
+	int scale=1;
+
+	////parse from command lines
 	for(int i=0;i<argc;i++){
-		if(strcmp(argv[i],"-o")==0){
-			output_dir=std::string(argv[++i]);}
-		else if(strcmp(argv[i],"-test")==0){
-			test=atoi(argv[++i]);}}
-	std::cout<<"[Mass spring simulation driver arguments]: -o ="<<output_dir<<", -test ="<<test<<std::endl;
+		if(strcmp(argv[i],"-test")==0){
+			test=atoi(argv[++i]);}
+		if(strcmp(argv[i],"-scale")==0){
+				scale=atoi(argv[++i]);}
+	}
+	std::cout<<"[Mass spring simulation driver arguments]: -test = "<<test<<", -scale = "<<scale<<std::endl;
 
+	////initialize driver
 	MassSpringInteractivDriver<3> driver;
-	driver.scale=1;
+	driver.scale=scale;
 	driver.test=test;
-
 	driver.Initialize();
 	driver.Run();	
 }

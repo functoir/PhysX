@@ -105,12 +105,78 @@ public:
 	void Set_Radius(const real _radius)
 	{
 		default_radius=_radius;
+		if(opengl_sphere!=nullptr)opengl_sphere->radius=default_radius;
 	}
 
 	void Set_Color(const real r,const real g,const real b)
 	{
 		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
 		if(opengl_sphere!=nullptr)opengl_sphere->Set_Color(default_color);
+	}
+};
+
+////the viewer will draw a set of segments with the specified vertices and edges
+class Segments
+{
+public:
+	OpenGLSegmentMesh* opengl_segments=nullptr;
+	OpenGLViewer* driver=nullptr;
+
+	void Initialize(OpenGLViewer* _driver)
+	{
+		driver=_driver;
+		opengl_segments=driver->Add_Interactive_Object<OpenGLSegmentMesh>();
+		opengl_segments->mesh.Elements().resize(1);
+		opengl_segments->mesh.Vertices().resize(1);
+		opengl_segments->mesh.Vertices()[0]=Vector3(0.,0.,0.);
+		opengl_segments->mesh.elements[0]=Vector2i(0,0);
+		opengl_segments->Set_Data_Refreshed();
+		opengl_segments->Initialize();
+	}
+
+	////We do not update connectivities if only vertices are passed in
+	void Sync_Data(const Array<Vector3>& vertices)
+	{
+		opengl_segments->mesh.Vertices()=vertices;
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Array<Vector2>& vertices)
+	{
+		int n=(int)vertices.size();
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Vector3* vertices,const int n)
+	{
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=vertices[i];
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Vector2* vertices,const int n)
+	{
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Array<Vector3>& vertices,const Array<Vector2i>& edges)
+	{
+		opengl_segments->mesh.Vertices()=vertices;
+		opengl_segments->mesh.Elements()=edges;
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Array<Vector2>& vertices,const Array<Vector2i>& edges)
+	{
+		int n=(int)vertices.size();
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		opengl_segments->mesh.Elements()=edges;
+		opengl_segments->Set_Data_Refreshed();
 	}
 };
 

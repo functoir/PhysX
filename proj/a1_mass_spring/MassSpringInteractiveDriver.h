@@ -8,93 +8,54 @@
 #include <memory>
 #include "Common.h"
 #include "Mesh.h"
-#include "Driver.h"
+#include "InClassDemoDriver.h"
 #include "SoftBodyMassSpring.h"
-#include "OpenGLMesh.h"
-#include "OpenGLCommon.h"
-#include "OpenGLWindow.h"
-#include "OpenGLViewer.h"
-#include "OpenGLMarkerObjects.h"
-#include "OpenGLParticles.h"
 
-template<int d> class MassSpringInteractivDriver : public Driver, public OpenGLViewer
+template<int d> class MassSpringInteractivDriver : public InClassDemoDriver
 {using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
 public:
 	SoftBodyMassSpring<d> soft_body;
 	const real dt=(real).02;
 
-	////mesh data for visualization only
-	std::shared_ptr<SegmentMesh<d> > vis_segment_mesh=nullptr;
-	std::shared_ptr<TriangleMesh<d> > vis_triangle_mesh=nullptr;
-
 	////visualization data
-	OpenGLSegmentMesh* opengl_segments=nullptr;							////vector field
-	Array<OpenGLSphere*> opengl_spheres;								////spheres
+	Segments segments;
+	Array<Point> points;
+	
 
-	virtual void Initialize(){OpenGLViewer::Initialize();}
-	virtual void Run(){OpenGLViewer::Run();}
+	////initialize simulation data and its visualizations
 	virtual void Initialize_Data()
 	{
 		Initialize_Simulation_Data();
-		Initialize_OpenGL_Data();
+		
+		segments.Initialize(this);
+		segments.Sync_Data(soft_body.particles.XRef(),soft_body.springs);
+
+		int n=soft_body.particles.Size();
+		points.resize(n);
+		for(int i=0;i<n;i++){
+			points[i].Set_Radius(.02);
+			points[i].Initialize(this);
+			points[i].Sync_Data(soft_body.particles.X(i));
+		}
 	}
 
-	void Initialize_OpenGL_Data()
-	{		
-		////initialize a segment mesh to visualize the trace
-		opengl_segments=Add_Interactive_Object<OpenGLSegmentMesh>();
-		opengl_segments->mesh.Vertices().resize(soft_body.particles.Size());
-		for(int i=0;i<soft_body.particles.Size();i++){
-			opengl_segments->mesh.Vertices()[i]=soft_body.particles.X(i);}
-		opengl_segments->mesh.Elements().resize(soft_body.springs.size());
-		for(int i=0;i<soft_body.springs.size();i++){
-			opengl_segments->mesh.Elements()[i]=soft_body.springs[i];}
-		opengl_segments->Set_Data_Refreshed();
-		opengl_segments->Initialize();	
-
-		////initialize a sphere to visualize the particle
-		for(int i=0;i<soft_body.particles.Size();i++){
-			OpenGLSphere* opengl_sphere=Add_Interactive_Object<OpenGLSphere>();
-			opengl_sphere->pos=soft_body.particles.X(i);
-			opengl_sphere->radius=(real).02;
-			Set_Color(opengl_sphere,OpenGLColor(.0,1.,.0,1.));
-			opengl_sphere->Set_Data_Refreshed();
-			opengl_sphere->polygon_mode=PolygonMode::Fill;
-			opengl_sphere->Initialize();
-			opengl_spheres.push_back(opengl_sphere);}
-
-		////set OpenGL rendering environments
-		auto dir_light=OpenGLUbos::Add_Directional_Light(glm::vec3(-1.f,-.1f,-.2f));
-		OpenGLUbos::Set_Ambient(glm::vec4(.1f,.1f,.1f,1.f));
-		OpenGLUbos::Update_Lights_Ubo();
-	}
-
-	void Sync_Simulation_And_Visualization_Data()
-	{
-		////update and sync data for segments
-		for(int i=0;i<opengl_segments->mesh.Vertices().size();i++){
-			opengl_segments->mesh.Vertices()[i]=soft_body.particles.X(i);}
-		opengl_segments->Set_Data_Refreshed();
-
-		////update and sync data for spheres
-		for(int i=0;i<opengl_spheres.size();i++){
-			opengl_spheres[i]->pos=soft_body.particles.X(i);
-			opengl_spheres[i]->Set_Data_Refreshed();}
-	}
-
-	////update simulation and visualization for each time step
-	virtual void Toggle_Next_Frame()
-	{
-		Advance_One_Time_Step(dt,time+dt);
-		Sync_Simulation_And_Visualization_Data();
-		OpenGLViewer::Toggle_Next_Frame();
-	}
-
-	virtual void Advance_One_Time_Step(const real dt,const real time)
+	////advance simulation timesteps
+	virtual void Advance(const real dt)
 	{
 		soft_body.Advance(dt);
 	}
-	
+
+	////update simulation data to its visualization counterparts
+	virtual void Sync_Simulation_And_Visualization_Data()
+	{
+		segments.Sync_Data(soft_body.particles.XRef());
+		int n=soft_body.particles.Size();
+		for(int i=0;i<n;i++){
+			points[i].Sync_Data(soft_body.particles.X(i));
+		}
+	}
+
+	////here we initialize three tests for rod, cloth, and beam
 	virtual void Initialize_Simulation_Data()
 	{
 		switch(test){
@@ -130,10 +91,6 @@ public:
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
 			soft_body.Set_Boundary_Node(width-1);
-
-			////set the visualization triangle mesh
-			vis_triangle_mesh.reset(new TriangleMesh<d>(soft_body.particles.XPtr()));	
-			vis_triangle_mesh->elements=cloth_mesh.elements;
 		}break;
 		case 3:{	////volumetric beam, for 3D only
 			int n=4*scale;real dx=(real)1/(real)n;
@@ -148,13 +105,11 @@ public:
 		}break;
 		}
 
-		//////set the visualization mesh
-		//vis_segment_mesh.reset(new SegmentMesh<d>(soft_body.particles.XPtr()));
-		//vis_segment_mesh->elements=soft_body.springs;
-
 		soft_body.Initialize();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	////These helper functions are all for creating meshes
 protected:
 	////Helper functions
 	void Build_Cloth_Mesh(const int cell_num_0,const int cell_num_1,const real dx,TriangleMesh<3>* mesh,int axis_0=0,int axis_1=1)

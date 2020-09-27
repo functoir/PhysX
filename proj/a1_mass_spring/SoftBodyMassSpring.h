@@ -90,7 +90,7 @@ public:
 	{
 		Particle_Force_Accumulation();
 
-		////Update particle velocity and position
+		////Step 1) update particle velocity; Step 2) update particle position
 		/* Your implementation start */
 
 		/* Your implementation end */
