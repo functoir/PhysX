@@ -7,13 +7,15 @@
 #include "DynamicSystemDriver.h"
 #include "InClassDemoDriver.h"
 #include "InClassDemoWeekTwoDriver.h"
+#include "InClassDemoWeekFourDriver.h"
+#include "InClassCompetitionWeekFourDriver.h"
 
 #ifndef __Main_cpp__
 #define __Main_cpp__
 
 int main(int argc,char* argv[])
 {
-	int driver=2;
+	int driver=3;
 
 	switch(driver){
 	case 1:{
@@ -22,8 +24,14 @@ int main(int argc,char* argv[])
 		driver.Run();	
 	}break;
 	case 2:{
-		InClassDemoSimpleDynamicsDriver driver;
-		//InClassDemoMassSpringDriver driver;
+		//InClassDemoSimpleDynamicsDriver driver;
+		InClassDemoMassSpringDriver driver;
+		driver.Initialize();
+		driver.Run();
+	}
+	case 3:{
+		//Test_Sparse_Matrix_And_Solver();
+		InClassCompetitionWeekFourDriver driver;
 		driver.Initialize();
 		driver.Run();
 	}

@@ -27,7 +27,7 @@ public:
 	std::shared_ptr<OpenGLWindow> opengl_window=nullptr;
 	int first_frame=0,last_frame=-1,frame=0;
 	bool draw_bk=true;
-	bool draw_axes=true;
+	bool draw_axes=false;
 	bool use_ui=true;
 	bool play=false;
 	bool use_2d_display=false;

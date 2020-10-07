@@ -19,6 +19,7 @@ public:
 	ArrayPtr<real> r;			////radius
 	ArrayPtr<real> p;			////pressure
 	ArrayPtr<real> den;			////density
+	ArrayPtr<int> idx;			////index, for rigid body
 
 	//////////////////////////////////////////////////////////////////////////
 	////common functions
@@ -32,6 +33,7 @@ public:
 		if(r==nullptr)r.reset(new Array<real>());	
 		if(p==nullptr)p.reset(new Array<real>());	
 		if(den==nullptr)den.reset(new Array<real>());	
+		if(idx==nullptr)idx.reset(new Array<int>());
 	}
 
 	void Resize(const int size)
@@ -44,6 +46,7 @@ public:
 		r->resize((size_type)size,(real)0);
 		p->resize((size_type)size,(real)0);
 		den->resize((size_type)size,(real)0);
+		idx->resize((size_type)size,0);
 	}
 
 	int Add_Element()
@@ -56,6 +59,7 @@ public:
 		r->push_back((real)0);
 		p->push_back((real)0);
 		den->push_back((real)0);
+		idx->push_back(0);
 		return (int)x->size()-1;
 	}
 
@@ -269,5 +273,31 @@ public:
 
 	const Array<real>& DRef() const 
 	{return *den;}
+
+	//////////////////////////////////////////////////////////////////////////
+	////functions for idx
+	int& I(const int i)
+	{return (*idx)[i];}
+	
+	const int& I(const int i) const 
+	{return (*idx)[i];}
+
+	Array<int>* I()
+	{return idx.get();}
+
+	const Array<int>* I() const 
+	{return idx.get();}
+	
+	ArrayPtr<int> IPtr()
+	{return idx;}
+	
+	const ArrayPtr<int> IPtr() const
+	{return idx;}
+	
+	Array<int>& IRef()
+	{return *idx;}
+
+	const Array<int>& IRef() const 
+	{return *idx;}
 };
 #endif

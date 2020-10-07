@@ -18,6 +18,7 @@ class Curve
 public:
 	OpenGLSegmentMesh* opengl_trace=nullptr;
 	OpenGLViewer* driver=nullptr;
+	OpenGLColor default_color=OpenGLColor(.0,1.,.0,1.);
 
 	void Initialize(OpenGLViewer* _driver)
 	{
@@ -35,7 +36,7 @@ public:
 	{
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices()=vertices;
-		opengl_trace->mesh.Elements().resize(n);
+		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
@@ -45,7 +46,7 @@ public:
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
-		opengl_trace->mesh.Elements().resize(n);
+		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
@@ -54,7 +55,7 @@ public:
 	{
 		opengl_trace->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=vertices[i];
-		opengl_trace->mesh.Elements().resize(n);
+		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
@@ -63,9 +64,20 @@ public:
 	{
 		opengl_trace->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
-		opengl_trace->mesh.Elements().resize(n);
+		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
+	}
+
+	void Set_Color(const real r,const real g,const real b)
+	{
+		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
+		if(opengl_trace!=nullptr)opengl_trace->color=default_color;
+	}
+
+	void Set_Linewidth(const real line_width)
+	{
+		if(opengl_trace!=nullptr)opengl_trace->line_width=line_width;
 	}
 };
 
@@ -121,6 +133,7 @@ class Segments
 public:
 	OpenGLSegmentMesh* opengl_segments=nullptr;
 	OpenGLViewer* driver=nullptr;
+	OpenGLColor default_color=OpenGLColor(.0,1.,.0,1.);
 
 	void Initialize(OpenGLViewer* _driver)
 	{
@@ -132,6 +145,17 @@ public:
 		opengl_segments->mesh.elements[0]=Vector2i(0,0);
 		opengl_segments->Set_Data_Refreshed();
 		opengl_segments->Initialize();
+	}
+
+	void Set_Color(const real r,const real g,const real b)
+	{
+		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
+		if(opengl_segments!=nullptr)opengl_segments->color=default_color;
+	}
+
+	void Set_Linewidth(const real line_width)
+	{
+		if(opengl_segments!=nullptr)opengl_segments->line_width=line_width;
 	}
 
 	////We do not update connectivities if only vertices are passed in
@@ -170,9 +194,25 @@ public:
 		opengl_segments->Set_Data_Refreshed();
 	}
 
+	void Sync_Data(const Vector3* vertices,const int n,const Array<Vector2i>& edges)
+	{
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=vertices[i];
+		opengl_segments->mesh.Elements()=edges;
+		opengl_segments->Set_Data_Refreshed();
+	}
+
 	void Sync_Data(const Array<Vector2>& vertices,const Array<Vector2i>& edges)
 	{
 		int n=(int)vertices.size();
+		opengl_segments->mesh.Vertices().resize(n);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		opengl_segments->mesh.Elements()=edges;
+		opengl_segments->Set_Data_Refreshed();
+	}
+
+	void Sync_Data(const Vector2* vertices,const int n,const Array<Vector2i>& edges)
+	{
 		opengl_segments->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
 		opengl_segments->mesh.Elements()=edges;
