@@ -57,14 +57,21 @@ public:
 
 		segments.Initialize(this);
 		segments.Sync_Data(pos,p_num,springs);
+		segments.Set_Color(0.,0.,0.);
 		segments.Set_Color(.2,.2,.2);
-		segments.Set_Linewidth(2.);
+
 		////visualization for the grounds
-		Array<Vector2> left_ground_vertices={{-2.,-.2},{2.,-.2}};
+		Array<Vector2> left_ground_vertices={{-2.,-.2},{-.8,-.2},{-.8,-1.}};
 		left_ground.Initialize(this);
 		left_ground.Sync_Data(left_ground_vertices);
+		left_ground.Set_Linewidth(2.);
 		left_ground.Set_Color(0.,0.,0.);
-		left_ground.Set_Linewidth(4.);
+
+		Array<Vector2> right_ground_vertices={{2.,-.2},{.8,-.2},{.8,-1.}};
+		right_ground.Initialize(this);
+		right_ground.Sync_Data(right_ground_vertices);
+		right_ground.Set_Linewidth(2.);
+		right_ground.Set_Color(0.,0.,0.);
 	}
 
 	////calculate spring force for each particle
@@ -72,6 +79,8 @@ public:
 	{
 		for(int i=0;i<p_num;i++){
 			force[i]=Vector2::Zero();}
+
+		////hey, it seems I missed my spring code, want to write some simulation code here?
 	}
 
 	////advance simulation timesteps
@@ -93,9 +102,10 @@ public:
 		////simple collision detection
 		for(int i=0;i<p_num;i++){
 			real x=pos[i][0];real y=pos[i][1];
-			if(y<-.2){
+			if(y<-.2&&(x<-.8||x>.8)){
 				pos[i][1]=-.2;
-				vel[i][1]=0.;}}
+				vel[i][1]=0.;}
+		}
 	}
 
 	////update simulation data to its visualization counterparts
