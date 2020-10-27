@@ -202,4 +202,55 @@ class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 		}break;}
     }
 };
+
+class OpenGLColoredTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
+{public:typedef OpenGLMesh<TriangleMesh<3> > Base;
+	Array<real> colors;
+	
+    OpenGLColoredTriangleMesh(){color=default_mesh_color;name="colored_triangle_mesh";shading_mode=ShadingMode::Lighting;}
+
+	virtual void Update_Data_To_Render()
+	{
+		if(!Update_Data_To_Render_Pre())return;
+		Update_Polygon_Mode();
+
+		if(colors.size()==0)for(auto& e:mesh.elements){
+			OpenGL_Vertex4_And_Color4(mesh.Vertices()[e[0]],color.rgba,opengl_vertices);
+			OpenGL_Vertex4_And_Color4(mesh.Vertices()[e[1]],color.rgba,opengl_vertices);
+			OpenGL_Vertex4_And_Color4(mesh.Vertices()[e[2]],color.rgba,opengl_vertices);}
+		else for(size_type i=0;i<mesh.elements.size();i++){
+			Vector3i e=mesh.elements[i];
+			for(int j=0;j<3;j++){
+				float c=(float)colors[e[j]];
+				float color[4]={c,c,c,1.};
+				OpenGL_Vertex4_And_Color4(mesh.Vertices()[e[j]],color,opengl_vertices);}}
+
+		Set_OpenGL_Vertices();
+		Set_OpenGL_Vertex_Attribute(0,4,8,0);	////position
+		Set_OpenGL_Vertex_Attribute(1,4,8,4);	////color
+
+		Update_Data_To_Render_Post();
+	}
+
+	virtual void Display() const
+    {
+		if(!visible||mesh.elements.empty())return;
+		Update_Polygon_Mode();
+
+		GLfloat old_line_width;glGetFloatv(GL_LINE_WIDTH,&old_line_width);
+        
+		{std::shared_ptr<OpenGLShaderProgram> shader=shader_programs[0];
+		shader->Begin();
+        // On MacOSX only 1.0f is a valid line width
+#ifndef __APPLE__
+		glLineWidth(line_width);
+#endif
+		OpenGLUbos::Bind_Uniform_Block_To_Ubo(shader,"camera");
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES,0,vtx_size/8);
+        glLineWidth(old_line_width);
+		shader->End();}
+    }
+};
+
 #endif
