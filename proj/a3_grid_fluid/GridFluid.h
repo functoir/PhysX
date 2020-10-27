@@ -157,7 +157,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////READ: Helper functions
-	////You may need these helper functions to understand how to access grid data
+	////You may need these helper functions for your implementation
 	//////////////////////////////////////////////////////////////////////////
 	////return the node index given its coordinate
 	int Idx(const Vector2i& node_coord) const 
