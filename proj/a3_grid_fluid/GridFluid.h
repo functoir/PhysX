@@ -14,13 +14,13 @@ public:
 	Array<real> div_u;		////velocity divergence on grid nodes (right hand side of the Poisson equation)
 	Array<real> p;			////pressure
 	Array<real> vor;		////vorticity
+	Array<real> smoke_den;	////smoke density
 
 	int node_num=0;
 	VectorD src_pos=VectorD::Ones()*(real).5;
 	VectorD src_vel=VectorD::Unit(0)*(real)1.5;
 	real src_radius=(real).1;
 
-	
 	virtual void Initialize()
 	{
 		int n=64;
@@ -35,12 +35,25 @@ public:
 		div_u.resize(node_num,(real)0);
 		p.resize(node_num,(real)0);
 		vor.resize(node_num,(real)0);
+		smoke_den.resize(node_num,(real)0);
 	}
 
+	////Timestep update
+	void Advance(const real dt)
+	{
+		Source();
+		Advection(dt);
+		Vorticity_Confinement(dt);
+		Projection();
+	}
+
+	////TASK: Advection step: advect BOTH velocity and density on the grid using the semi-Lagrangian method
+	////Hint: read the helper functions between Line 158-192 and use (some of) them in your implementation
 	virtual void Advection(real dt)
 	{
-		////Advection using the semi-Lagrangian method
 		Array<VectorD> u_copy=u;
+		Array<real> den_copy=smoke_den;
+
 		for(int i=0;i<node_num;i++){
 			u[i]=VectorD::Zero();
 
@@ -68,7 +81,7 @@ public:
 				div_u[i]+=(u_2[j]-u_1[j])/(2*dx);}
 		}
 
-		////Projection step 2: solve the Poisson's equation -lap p= div u 
+		////TASK: Projection step 2: solve the Poisson's equation -lap p= div u 
 		////using the Gauss-Seidel iterations
 		std::fill(p.begin(),p.end(),(real)0);
 		for(int iter=0;iter<40;iter++){
@@ -81,7 +94,7 @@ public:
 			}
 		}
 		
-		////Projection step 3: correct velocity with the pressure gradient
+		////TASK: Projection step 3: correct velocity with the pressure gradient
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
 			VectorDi node=Coord(i);
@@ -92,15 +105,7 @@ public:
 		}
 	}
 
-	void Source()
-	{
-		for(int i=0;i<node_num;i++){
-			VectorD pos=grid.Node(i);
-			if((pos-src_pos).norm()<src_radius){u[i]=src_vel;}
-		}
-	}
-
-	////this function works for 2D only
+	////TASK: implement the key steps for vorticity confinement
 	void Vorticity_Confinement(const real dt)
 	{
 		real dx=grid.dx;
@@ -116,7 +121,7 @@ public:
 			/*Your implementation ends*/
 		}
 
-		////Vorticity confinement step 2: update N = (grad(|vor|)) / |grad(|vor|)|
+		////TASK: Vorticity confinement step 2: update N = (grad(|vor|)) / |grad(|vor|)|
 		Array<VectorD> N(node_num,VectorD::Zero());
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
@@ -127,7 +132,7 @@ public:
 			/*Your implementation ends*/
 		}
 
-		////Vorticity confinement step 3: calculate confinement force and use it to update velocity
+		////TASK: Vorticity confinement step 3: calculate confinement force and use it to update velocity
 		real vor_conf_coef=(real)4;
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
@@ -135,18 +140,24 @@ public:
 			u[i]+=f*dt;	////we don't have mass by assuming density=1
 		}
 	}
+	////Your tasks are finished here
+	//////////////////////////////////////////////////////////////////////////
 
-	void Advance(const real dt)
+	////set source velocity and density
+	void Source()
 	{
-		Source();
-		Advection(dt);
-		Vorticity_Confinement(dt);
-		Projection();
+		for(int i=0;i<node_num;i++){
+			VectorD pos=grid.Node(i);
+			if((pos-src_pos).norm()<src_radius){
+				u[i]=src_vel;
+				smoke_den[i]=(real)1.;
+			}
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	////Helper functions
-	////Please make sure to read these helper functions to understand how to access grid data
+	////READ: Helper functions
+	////You may need these helper functions to understand how to access grid data
 	//////////////////////////////////////////////////////////////////////////
 	////return the node index given its coordinate
 	int Idx(const Vector2i& node_coord) const 
@@ -160,6 +171,37 @@ public:
 	VectorD Pos(const int node_index) const
 	{return grid.Node(node_index);}
 
+	Vector2 Cross(const Vector2& v,const real w) const
+	{return Vector2(v[1]*w,-v[0]*w);}
+
+	////2D bi-linear interpolation for vectors or vectors (the type is specified by T)
+	template<class T> T Interpolate(const Array<T>& u,VectorD& pos)
+	{
+		////clamp pos to ensure it is always inside the grid
+		real epsilon=grid.dx*(real)1e-3;
+		for(int i=0;i<d;i++){
+			if(pos[i]<=grid.domain_min[i])pos[i]=grid.domain_min[i]+epsilon;
+			else if(pos[i]>=grid.domain_max[i])pos[i]=grid.domain_max[i]-epsilon;}
+
+		////calculate the index, fraction, and interpolated values from the array
+		VectorD cell_with_frac=(pos-grid.domain_min)/grid.dx;
+		VectorDi cell=cell_with_frac.template cast<int>();
+		VectorD frac=cell_with_frac-cell.template cast<real>();
+		return Interpolate_Helper<T>(cell,frac,u);
+	}
+	//////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////
+	////Other helper functions that you may not need in your implementation
+	////2D bi-linear interpolation helper for vectors or vectors (the type is specified by T)
+	template<class T> T Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const Array<T>& u)
+	{
+		return ((real)1-frac[0])*((real)1-frac[1])*u[grid.Node_Index(cell)]
+			+frac[0]*((real)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]
+			+((real)1-frac[0])*frac[1]*u[grid.Node_Index(Vector2i(cell[0],cell[1]+1))]
+			+frac[0]*frac[1]*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]+1))];
+	}
+
 	////check if a node is on the boundary of the grid 
 	////given its coordinate or index
 	bool Bnd(const Vector2i& node_coord) const
@@ -172,35 +214,6 @@ public:
 	}
 	bool Bnd(const int node_index) const
 	{return Bnd(Coord(node_index));}
-
-	Vector2 Cross(const Vector2& v,const real w) const
-	{return Vector2(v[1]*w,-v[0]*w);}
-
-	VectorD Interpolate(const Array<VectorD>& u,VectorD& pos)
-	{
-		////clamp pos to ensure it is always inside the grid
-		real epsilon=grid.dx*(real)1e-3;
-		for(int i=0;i<d;i++){
-			if(pos[i]<=grid.domain_min[i])pos[i]=grid.domain_min[i]+epsilon;
-			else if(pos[i]>=grid.domain_max[i])pos[i]=grid.domain_max[i]-epsilon;}
-
-		////calculate the index, fraction, and interpolated values from the array
-		VectorD cell_with_frac=(pos-grid.domain_min)/grid.dx;
-		VectorDi cell=cell_with_frac.template cast<int>();
-		VectorD frac=cell_with_frac-cell.template cast<real>();
-		return Interpolate_Helper(cell,frac,u);
-	}
-	//////////////////////////////////////////////////////////////////////////
-
-protected:
-	////2D bi-linear interpolation
-	Vector2 Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const Array<Vector2>& u)
-	{
-		return ((real)1-frac[0])*((real)1-frac[1])*u[grid.Node_Index(cell)]
-			+frac[0]*((real)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]
-			+((real)1-frac[0])*frac[1]*u[grid.Node_Index(Vector2i(cell[0],cell[1]+1))]
-			+frac[0]*frac[1]*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]+1))];
-	}
 
 	////Particles, for visualization only
 public:

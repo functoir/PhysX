@@ -20,8 +20,15 @@ template<int d> class GridFluidDriver : public Driver, public OpenGLViewer
 
 	OpenGLSegmentMesh* opengl_vectors=nullptr;							////vector field for velocity
 	OpenGLPolygon* opengl_polygon=nullptr;								////a rectangle for domain boundary
-	Array<OpenGLSolidCircle*> opengl_circles;							////advective particles
+	Array<OpenGLSolidCircle*> opengl_circles;							////passive particles
 	Hashset<int> invis_particles;
+	OpenGLColoredTriangleMesh* opengl_mesh=nullptr;						////density field
+
+	//////////////////////////////////////////////////////////////////////////
+	////specify the following flags to control visualization
+	bool draw_velocity=true;
+	bool draw_density=true;
+	bool draw_particles=true;
 
 public:
 	virtual void Initialize()
@@ -60,34 +67,97 @@ public:
 		Set_Line_Width(opengl_polygon,4.f);
 		opengl_polygon->Set_Data_Refreshed();
 		opengl_polygon->Initialize();
+
+		opengl_mesh=Add_Interactive_Object<OpenGLColoredTriangleMesh>();
+		
+		int cell_num=fluid.grid.cell_counts.prod();
+		for(int i=0;i<cell_num;i++){
+			VectorDi cell=fluid.grid.Cell_Coord(i);
+			VectorD pos1=fluid.grid.Node(cell);
+			VectorD pos2=pos1+VectorD::Unit(0)*fluid.grid.dx;
+			VectorD pos3=pos1+VectorD::Unit(0)*fluid.grid.dx+VectorD::Unit(1)*fluid.grid.dx;
+			VectorD pos4=pos1+VectorD::Unit(1)*fluid.grid.dx;
+
+			int n=(int)opengl_mesh->mesh.Vertices().size();
+			opengl_mesh->mesh.Vertices().push_back(V3(pos1));
+			opengl_mesh->mesh.Vertices().push_back(V3(pos2));
+			opengl_mesh->mesh.Vertices().push_back(V3(pos3));
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->mesh.Elements().push_back(Vector3i(n,n+1,n+2));
+
+			n=(int)opengl_mesh->mesh.Vertices().size();
+			opengl_mesh->mesh.Vertices().push_back(V3(pos1));
+			opengl_mesh->mesh.Vertices().push_back(V3(pos3));
+			opengl_mesh->mesh.Vertices().push_back(V3(pos4));
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->colors.push_back(0.);
+			opengl_mesh->mesh.Elements().push_back(Vector3i(n,n+1,n+2));}
+		
+		opengl_mesh->Set_Data_Refreshed();
+		opengl_mesh->Initialize();
 	}
 
 	void Sync_Simulation_And_Visualization_Data()
 	{
-		////sync data for vectors
-		for(int i=0;i<fluid.node_num;i++){
-			VectorD pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
-			(*opengl_vectors->mesh.vertices)[i*2+1]=V3(pos2);}
-		opengl_vectors->Set_Data_Refreshed();
+		////velocity visualization
+		if(draw_velocity){
+			for(int i=0;i<fluid.node_num;i++){
+				VectorD pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
+				(*opengl_vectors->mesh.vertices)[i*2+1]=V3(pos2);}
+			opengl_vectors->Set_Data_Refreshed();
+		}
 
 		////particle visualization
-		fluid.Update_Visualization_Particles(dt);
-		for(int i=0;i<fluid.particles.Size();i++){
-			bool outside=false;
-			real epsilon=fluid.grid.dx*(real).5;
-			for(int j=0;j<d;j++){
-				if(fluid.particles.X(i)[j]<fluid.grid.domain_min[j]+epsilon||
-					fluid.particles.X(i)[j]>fluid.grid.domain_max[j]-epsilon){outside=true;break;}}
-			if(outside){
-				opengl_circles[i]->visible=false;
-				opengl_circles[i]->Set_Data_Refreshed();
-				invis_particles.insert(i);
-				continue;}
+		if(draw_particles){
+			fluid.Update_Visualization_Particles(dt);
+			for(int i=0;i<fluid.particles.Size();i++){
+				bool outside=false;
+				real epsilon=fluid.grid.dx*(real).5;
+				for(int j=0;j<d;j++){
+					if(fluid.particles.X(i)[j]<fluid.grid.domain_min[j]+epsilon||
+						fluid.particles.X(i)[j]>fluid.grid.domain_max[j]-epsilon){outside=true;break;}}
+				if(outside){
+					opengl_circles[i]->visible=false;
+					opengl_circles[i]->Set_Data_Refreshed();
+					invis_particles.insert(i);
+					continue;}
 
-			auto opengl_circle=opengl_circles[i];
-			opengl_circle->pos=V3(fluid.particles.X(i));
-			opengl_circle->pos[2]=(real).05;
-			opengl_circle->Set_Data_Refreshed();}
+				auto opengl_circle=opengl_circles[i];
+				opengl_circle->pos=V3(fluid.particles.X(i));
+				opengl_circle->pos[2]=(real).05;
+				opengl_circle->Set_Data_Refreshed();}			
+		}
+
+		////density visualization
+		if(draw_density){
+			int cell_num=fluid.grid.cell_counts.prod();
+			for(int i=0;i<cell_num;i++){
+				int idx=i*6;
+				VectorDi cell=fluid.grid.Cell_Coord(i);
+				VectorD pos1=fluid.grid.Node(cell);
+				real den1=fluid.Interpolate(fluid.smoke_den,pos1);
+
+				VectorD pos2=pos1+VectorD::Unit(0)*fluid.grid.dx;
+				real den2=fluid.Interpolate(fluid.smoke_den,pos2);
+
+				VectorD pos3=pos1+VectorD::Unit(0)*fluid.grid.dx+VectorD::Unit(1)*fluid.grid.dx;
+				real den3=fluid.Interpolate(fluid.smoke_den,pos3);
+
+				VectorD pos4=pos1+VectorD::Unit(1)*fluid.grid.dx;
+				real den4=fluid.Interpolate(fluid.smoke_den,pos4);
+			
+				opengl_mesh->colors[idx]=den1;
+				opengl_mesh->colors[idx+1]=den2;
+				opengl_mesh->colors[idx+2]=den3;
+			
+				opengl_mesh->colors[idx+3]=den1;
+				opengl_mesh->colors[idx+4]=den3;
+				opengl_mesh->colors[idx+5]=den4;}
+			opengl_mesh->Set_Data_Refreshed();		
+		}
 	}
 
 	////update simulation and visualization for each time step
@@ -137,14 +207,25 @@ public:
 	{
 		OpenGLViewer::Initialize_Common_Callback_Keys();
 		Bind_Callback_Key('v',&Keyboard_Event_V_Func,"press v");
+		Bind_Callback_Key('d',&Keyboard_Event_V_Func,"press d");
 	}
 
 	virtual void Keyboard_Event_V()
 	{
+		draw_velocity=!draw_velocity;
 		opengl_vectors->visible=!opengl_vectors->visible;
 		opengl_vectors->Set_Data_Refreshed();
 	}
 	Define_Function_Object(GridFluidDriver,Keyboard_Event_V);
+
+	virtual void Keyboard_Event_D()
+	{
+		draw_density=!draw_density;
+		opengl_mesh->visible=!opengl_mesh->visible;
+		opengl_mesh->Set_Data_Refreshed();
+	}
+	Define_Function_Object(GridFluidDriver,Keyboard_Event_D);
+
 
 	void Add_Source_Particle(VectorD p_pos)
 	{
