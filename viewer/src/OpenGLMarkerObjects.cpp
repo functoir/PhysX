@@ -179,13 +179,15 @@ void OpenGLPolygon::Display() const
 {
 	std::shared_ptr<OpenGLShaderProgram> shader=shader_programs[0];
 	shader->Begin();
-	glPushAttrib(GL_LINE_BIT);
+	#ifndef __APPLE__
+		glPushAttrib(GL_LINE_BIT);
+		glLineWidth(line_width);
+		glPopAttrib();
+	#endif
 	Bind_Uniform_Block_To_Ubo(shader,"camera");
-	glLineWidth(line_width);
 	shader->Set_Uniform_Vec4f("color",color.rgba);
 	glBindVertexArray(vao);
 	glDrawArrays(GL_LINE_LOOP,0,vtx_size/4);
-	glPopAttrib();
 	shader->End();
 }
 
