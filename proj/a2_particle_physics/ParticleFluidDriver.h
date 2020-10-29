@@ -61,6 +61,8 @@ public:
 		for(int i=0;i<fluid.particles.Size();i++){
 			auto opengl_circle=opengl_circles[i];
 			opengl_circle->pos=V3(fluid.particles.X(i));
+			real c=(fluid.particles.C(i))/(real)100;
+			opengl_circle->color=OpenGLColor(c,.6f,.2f);
 			opengl_circle->Set_Data_Refreshed();}
 	}
 

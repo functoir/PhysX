@@ -29,6 +29,7 @@ template<int d> class GridFluidDriver : public Driver, public OpenGLViewer
 	bool draw_velocity=true;
 	bool draw_density=true;
 	bool draw_particles=true;
+	//////////////////////////////////////////////////////////////////////////
 
 public:
 	virtual void Initialize()
@@ -38,7 +39,7 @@ public:
 		OpenGLViewer::Initialize();
 	}
 
-	////synchronize simulation data to visualization data, called in OpenGLViewer::Initialize()
+	////initialize visualization data, called in OpenGLViewer::Initialize()
 	virtual void Initialize_Data()
 	{
 		////initialize vector field (write all vectors as segments)
@@ -100,6 +101,7 @@ public:
 		opengl_mesh->Initialize();
 	}
 
+	////synchronize simulation data to visualization data
 	void Sync_Simulation_And_Visualization_Data()
 	{
 		////velocity visualization
@@ -226,7 +228,8 @@ public:
 	}
 	Define_Function_Object(GridFluidDriver,Keyboard_Event_D);
 
-
+	//////////////////////////////////////////////////////////////////////////
+	////User interaction for manipulating sources
 	void Add_Source_Particle(VectorD p_pos)
 	{
 		real rx=.1*static_cast<float>(rand()%1000)/1000.-.05;
