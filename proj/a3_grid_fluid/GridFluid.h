@@ -156,6 +156,35 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	////vortex particles
+	////This is the Gaussian kernel function you might need to use in calculating your confinement force
+	real Kernel(const real length)
+	{
+		real r=grid.dx*(real)4;
+		if(length>r)return (real)0;
+		real coef1=(real)1/(real)2*(r*r);
+		real coef2=(real)1/(r*r);
+		return (real).1*coef2*exp(-length*length*coef1);
+	}
+
+	void Particle_Vorticity_Confinement(const real dt)
+	{
+		////Now we use vortex particles to preserve the vorticity in the domain
+		////particles.C represents the vorticity carried on each particle
+		////particles.I denotes whether the particle is valid for calculating vorticity confinement: skip the particle if(particles.I(i)==-1) 
+		for(int i=0;i<node_num;i++){
+			if(Bnd(i))continue;		////ignore boundary nodes
+			VectorDi node=Coord(i);
+			VectorD node_pos=grid.Node(node);
+			vor[i]=(real)0;
+
+			////Your implementation to calculate the confinement force for each grid node due to each particle
+			////Hint: recall your implementation in the vorticity confinement function
+		}		
+	}
+	//////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////
 	////READ: Helper functions
 	////You may need these helper functions for your implementation
 	//////////////////////////////////////////////////////////////////////////

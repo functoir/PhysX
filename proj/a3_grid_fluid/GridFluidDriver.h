@@ -125,6 +125,7 @@ public:
 					opengl_circles[i]->visible=false;
 					opengl_circles[i]->Set_Data_Refreshed();
 					invis_particles.insert(i);
+					fluid.particles.I(i)=-1;
 					continue;}
 
 				auto opengl_circle=opengl_circles[i];
@@ -238,6 +239,7 @@ public:
 		if(!invis_particles.empty()){
 			int p=(*invis_particles.begin());
 			fluid.particles.X(p)=p_pos;
+			fluid.particles.I(p)=0;
 			opengl_circles[p]->pos=V3(fluid.particles.X(p));
 			opengl_circles[p]->Update_Model_Matrix();
 			opengl_circles[p]->Set_Data_Refreshed();
@@ -254,6 +256,7 @@ public:
 	{
 		int i=fluid.particles.Add_Element();	////return the last element's index
 		fluid.particles.X(i)=pos;
+		fluid.particles.C(i)=(real)(rand()%2000-1000)/(real)1000;	////particle vorticity, a random number between [-1,1]
 	}
 
 	void Add_Solid_Circle(const int i)
