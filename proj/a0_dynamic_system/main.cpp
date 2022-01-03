@@ -16,8 +16,7 @@ int main(int argc,char* argv[])
 	CppPractice::Practice_0();
 	CppPractice::Practice_1();
 
-	//// HW0 Part 2: particle system. Uncomment the following code to initialize the opengl window.
-
+	// HW0 Part 2: particle system. Uncomment the following code to initialize the opengl window.
 	//DynamicSystemDriver driver;
 	//driver.Initialize();
 	//driver.Run();	

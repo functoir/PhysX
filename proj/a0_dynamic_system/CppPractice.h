@@ -18,7 +18,7 @@ void Practice_0()
 	
 	/*Your implementation here*/
 
-	//// TODO 2: Add 2 new elements 11 and 12 to the end of the array. Print the array elements on screen.
+	//// TODO 2: Add two new elements 11 and 12 to the end of the array. Print the array elements on screen.
 
 	/*Your implementation here*/
 
@@ -48,8 +48,7 @@ void Practice_1()
 {
 	std::cout<<">>>>>>>> Cpp practice 1 start <<<<<<<<"<<std::endl;
 
-	//// TODO 0: Declare a 2d vector with the name u and initial values [1,2]. 
-	//// Print u on screen as "u=xxx".
+	//// TODO 0: Declare a 2d vector with the name u and initial values [1,2] and print u on screen as "u=xxx" (already done for you).
 	Vector2 u=Vector2(1,2);
 	std::cout<<"u="<<u.transpose()<<std::endl;	//// Eigen vectors are column vectors by default.
 
@@ -88,8 +87,8 @@ void Practice_1()
 	/*Your implementation here*/
 
 	//// TODO9: Initialize another array (std::vector) array_2 with their initial values as 
-	//// 2 times the element in array_1 (i.e., the values should be [2,0,0],[0,2,0], and [0,0,2]. But you need to read the array_1 values instead of using these numbers directly.)
-	//// Print the current values of the array on screen.
+	//// 2 times the element in array_1 (i.e., the values should be [2,0,0],[0,2,0], and [0,0,2]. But you need to use the array_1 values to initialize array_2 instead of using these numbers directly.)
+	//// Print the current values of array_2 on screen.
 
 	/*Your implementation here*/
 

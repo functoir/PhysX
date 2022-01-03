@@ -31,6 +31,12 @@ public:
 	void Initialize_Simulation()
 	{
 		/*Your implementation here*/
+		//// initialize a static, red sphere in the origin by default
+		position.push_back(Vector3(0.,0.,0.));
+		velocity.push_back(Vector3(0.,0.,0.));
+		color.push_back(Vector3(1.,0.,0.));
+		radii.push_back(.2);
+		particle_number=1;
 	}
 
 	//// TODO: advance your particle system by updating the particle position and velocity values
