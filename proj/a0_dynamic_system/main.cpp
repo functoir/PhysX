@@ -4,38 +4,23 @@
 // Contact: Bo Zhu (bo.zhu@dartmouth.edu)
 //#####################################################################
 #include <iostream>
+#include "CppPractice.h"
 #include "DynamicSystemDriver.h"
-#include "InClassDemoDriver.h"
-#include "InClassDemoWeekTwoDriver.h"
-#include "InClassDemoWeekFourDriver.h"
-#include "InClassCompetitionWeekFourDriver.h"
 
 #ifndef __Main_cpp__
 #define __Main_cpp__
 
 int main(int argc,char* argv[])
 {
-	int driver=3;
+	////HW0 Part 1: cpp practice. Implement the function TODOs in CppPractice.h
+	CppPractice::Practice_0();
+	CppPractice::Practice_1();
 
-	switch(driver){
-	case 1:{
-		DynamicSystemDriver driver;
-		driver.Initialize();
-		driver.Run();	
-	}break;
-	case 2:{
-		//InClassDemoSimpleDynamicsDriver driver;
-		InClassDemoMassSpringDriver driver;
-		driver.Initialize();
-		driver.Run();
-	}
-	case 3:{
-		//Test_Sparse_Matrix_And_Solver();
-		InClassCompetitionWeekFourDriver driver;
-		driver.Initialize();
-		driver.Run();
-	}
-	}
+	//// HW0 Part 2: particle system. Uncomment the following code to initialize the opengl window.
+
+	//DynamicSystemDriver driver;
+	//driver.Initialize();
+	//driver.Run();	
 }
 
 #endif

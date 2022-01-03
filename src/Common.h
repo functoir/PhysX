@@ -48,8 +48,7 @@ Declare_Eigen_Matrix_Types(float,f)
 Declare_Eigen_Matrix_Types(double,d)
 
 #define Declare_Eigen_Types(type,t)     \
-using real=type;						\
-using Vector1=Eigen::Matrix<real,1,1>;	\
+using Vector1=Eigen::Matrix<double,1,1>;	\
 using Vector2=Eigen::Vector2##t;        \
 using Vector3=Eigen::Vector3##t;        \
 using Vector4=Eigen::Vector4##t;        \
@@ -71,20 +70,20 @@ Declare_Eigen_Types(double,d)
 template<class T> using VectorN=Eigen::Matrix<T,-1,1>;
 template<class T,int d> using Matrix=Eigen::Matrix<T,d,d>;
 template<class T> using SparseMatrix=Eigen::SparseMatrix<T,Eigen::RowMajor,int>;
-using SparseMatrixT=SparseMatrix<real>;
+using SparseMatrixT=SparseMatrix<double>;
 template<class T> using InnerIterator=typename SparseMatrix<T>::InnerIterator;
 using InnerIteratorT=SparseMatrixT::InnerIterator;
 template<class T> using DiagonalMatrix=Eigen::DiagonalMatrix<T,Eigen::Dynamic,Eigen::Dynamic>;
-using DiagonalMatrixT=Eigen::DiagonalMatrix<real,Eigen::Dynamic,Eigen::Dynamic>;
+using DiagonalMatrixT=Eigen::DiagonalMatrix<double,Eigen::Dynamic,Eigen::Dynamic>;
 template<class T> using Triplet=Eigen::Triplet<T,int>;
-using TripletT=Triplet<real>;
+using TripletT=Triplet<double>;
 template<class T> using IncompleteCholesky=Eigen::IncompleteCholesky<T>;
 
 ////Eigen sparse matrix helper functions
 namespace SparseFunc{
 ////block matrix operations
-inline real Matrix_Element(const SparseMatrixT& A,const int i,const int j){return A.coeff(i,j);}
-inline real Matrix_Element(const MatrixX& A,const int i,const int j){return A(i,j);}
+inline double Matrix_Element(const SparseMatrixT& A,const int i,const int j){return A.coeff(i,j);}
+inline double Matrix_Element(const MatrixX& A,const int i,const int j){return A(i,j);}
 
 template<int dim,class T_MAT> void Add_Block(SparseMatrixT& K,const int K_i,const int K_j,const T_MAT& K_b,const int Kb_i=0,const int Kb_j=0)
 {for(int i=0;i<dim;i++)for(int j=0;j<dim;j++){K.coeffRef(K_i*dim+i,K_j*dim+j)+=Matrix_Element(K_b,Kb_i*dim+i,Kb_j*dim+j);}}
@@ -92,7 +91,7 @@ template<int dim,class T_MAT> void Add_Block(SparseMatrixT& K,const int K_i,cons
 template<int dim,class T_MAT> void Copy_Block(SparseMatrixT& K,const int K_i,const int K_j,const T_MAT& K_b,const int Kb_i=0,const int Kb_j=0)
 {for(int i=0;i<dim;i++)for(int j=0;j<dim;j++){K.coeffRef(K_i*dim+i,K_j*dim+j)=Matrix_Element(K_b,Kb_i*dim+i,Kb_j*dim+j);}}
 
-template<int dim,class T_MAT> void Set_Block(SparseMatrixT& K,const int K_i,const int K_j,const real value)
+template<int dim,class T_MAT> void Set_Block(SparseMatrixT& K,const int K_i,const int K_j,const double value)
 {for(int i=0;i<dim;i++)for(int j=0;j<dim;j++){K.coeffRef(K_i*dim+i,K_j*dim+j)=value;}}
 };
 
@@ -102,12 +101,12 @@ template<int dim,class T_MAT> void Set_Block(SparseMatrixT& K,const int K_i,cons
 namespace SparseSolver{
     class Params
     {public:
-        real tolerance=(real)1e-5;
+        double tolerance=(double)1e-5;
         int max_iter_num=1000;
     };
 
 	////Eigen solvers
-    inline bool CG(const SparseMatrix<real>& A,VectorN<real>& x,const VectorN<real>& b,const Params params=Params())
+    inline bool CG(const SparseMatrix<double>& A,VectorN<double>& x,const VectorN<double>& b,const Params params=Params())
 	{
         Eigen::ConjugateGradient<SparseMatrixT,Eigen::Upper,Eigen::IdentityPreconditioner> cg;
         cg.setMaxIterations(params.max_iter_num);
@@ -119,9 +118,9 @@ namespace SparseSolver{
         std::cout<<"Eigen CG solver converge in "<<cg.iterations()<<" iterations, error: "<<cg.error()<<std::endl;return true;	
 	}
 
-	inline bool ICPCG(const SparseMatrix<real>& A,VectorN<real>& x,const VectorN<real>& b,const Params params)
+	inline bool ICPCG(const SparseMatrix<double>& A,VectorN<double>& x,const VectorN<double>& b,const Params params)
     {
-        Eigen::ConjugateGradient<SparseMatrixT,Eigen::Upper,Eigen::IncompleteCholesky<real,Eigen::Upper,Eigen::NaturalOrdering<int> > > cg;
+        Eigen::ConjugateGradient<SparseMatrixT,Eigen::Upper,Eigen::IncompleteCholesky<double,Eigen::Upper,Eigen::NaturalOrdering<int> > > cg;
         cg.setMaxIterations(params.max_iter_num);
         cg.setTolerance(params.tolerance);
         cg.compute(A);
@@ -131,7 +130,7 @@ namespace SparseSolver{
         std::cout<<"Eigen ICPCG solver converge in "<<cg.iterations()<<" iterations, error: "<<cg.error()<<std::endl;return true;
     }
 
-    inline bool LU(const SparseMatrix<real>& A,VectorN<real>& x,const VectorN<real>& b,const Params params=Params())
+    inline bool LU(const SparseMatrix<double>& A,VectorN<double>& x,const VectorN<double>& b,const Params params=Params())
 	{
 		MatrixX Ad(A);x=Ad.fullPivLu().solve(b);return true;
 	}
@@ -186,7 +185,7 @@ template<> struct hash<Vector4i>
 ////Analytical geometry
 
 template<int d> class Box
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	VectorD min_corner,max_corner;
 	Box(const VectorD& _min=VectorD::Zero(),const VectorD& _max=VectorD::Zero()):min_corner(_min),max_corner(_max){}

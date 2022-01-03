@@ -8,17 +8,17 @@
 #include "Common.h"
 
 template<int d> class Particles
-{using VectorD=Vector<real,d>;
+{using VectorD=Vector<double,d>;
 public:
 	////attributes
 	ArrayPtr<VectorD> x;		////position
 	ArrayPtr<VectorD> v;		////velocity
 	ArrayPtr<VectorD> f;		////force
-	ArrayPtr<real> m;			////mass
-	ArrayPtr<real> c;			////color
-	ArrayPtr<real> r;			////radius
-	ArrayPtr<real> p;			////pressure
-	ArrayPtr<real> den;			////density
+	ArrayPtr<double> m;			////mass
+	ArrayPtr<double> c;			////color
+	ArrayPtr<double> r;			////radius
+	ArrayPtr<double> p;			////pressure
+	ArrayPtr<double> den;			////density
 	ArrayPtr<int> idx;			////index, for rigid body
 
 	//////////////////////////////////////////////////////////////////////////
@@ -28,11 +28,11 @@ public:
 		if(x==nullptr)x.reset(new Array<VectorD>());	
 		if(v==nullptr)v.reset(new Array<VectorD>());	
 		if(f==nullptr)f.reset(new Array<VectorD>());	
-		if(m==nullptr)m.reset(new Array<real>());	
-		if(c==nullptr)c.reset(new Array<real>());	
-		if(r==nullptr)r.reset(new Array<real>());	
-		if(p==nullptr)p.reset(new Array<real>());	
-		if(den==nullptr)den.reset(new Array<real>());	
+		if(m==nullptr)m.reset(new Array<double>());	
+		if(c==nullptr)c.reset(new Array<double>());	
+		if(r==nullptr)r.reset(new Array<double>());	
+		if(p==nullptr)p.reset(new Array<double>());	
+		if(den==nullptr)den.reset(new Array<double>());	
 		if(idx==nullptr)idx.reset(new Array<int>());
 	}
 
@@ -41,11 +41,11 @@ public:
 		x->resize((size_type)size,VectorD::Zero());
 		v->resize((size_type)size,VectorD::Zero());
 		f->resize((size_type)size,VectorD::Zero());
-		m->resize((size_type)size,(real)0);
-		c->resize((size_type)size,(real)0);
-		r->resize((size_type)size,(real)0);
-		p->resize((size_type)size,(real)0);
-		den->resize((size_type)size,(real)0);
+		m->resize((size_type)size,(double)0);
+		c->resize((size_type)size,(double)0);
+		r->resize((size_type)size,(double)0);
+		p->resize((size_type)size,(double)0);
+		den->resize((size_type)size,(double)0);
 		idx->resize((size_type)size,0);
 	}
 
@@ -54,11 +54,11 @@ public:
 		x->push_back(VectorD::Zero());
 		v->push_back(VectorD::Zero());
 		f->push_back(VectorD::Zero());
-		m->push_back((real)0);
-		c->push_back((real)0);
-		r->push_back((real)0);
-		p->push_back((real)0);
-		den->push_back((real)0);
+		m->push_back((double)0);
+		c->push_back((double)0);
+		r->push_back((double)0);
+		p->push_back((double)0);
+		den->push_back((double)0);
 		idx->push_back(0);
 		return (int)x->size()-1;
 	}
@@ -146,132 +146,132 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////functions for m
-	real& M(const int i)
+	double& M(const int i)
 	{return (*m)[i];}
 	
-	const real& M(const int i) const 
+	const double& M(const int i) const 
 	{return (*m)[i];}
 
-	Array<real>* M()
+	Array<double>* M()
 	{return m.get();}
 
-	const Array<real>* M() const 
+	const Array<double>* M() const 
 	{return m.get();}
 	
-	ArrayPtr<real> MPtr()
+	ArrayPtr<double> MPtr()
 	{return m;}
 	
-	const ArrayPtr<real> MPtr() const
+	const ArrayPtr<double> MPtr() const
 	{return m;}
 	
-	Array<real>& MRef()
+	Array<double>& MRef()
 	{return *m;}
 
-	const Array<real>& MRef() const 
+	const Array<double>& MRef() const 
 	{return *m;}
 
 	//////////////////////////////////////////////////////////////////////////
 	////functions for c
-	real& C(const int i)
+	double& C(const int i)
 	{return (*c)[i];}
 	
-	const real& C(const int i) const 
+	const double& C(const int i) const 
 	{return (*c)[i];}
 
-	Array<real>* C()
+	Array<double>* C()
 	{return c.get();}
 
-	const Array<real>* C() const 
+	const Array<double>* C() const 
 	{return c.get();}
 	
-	ArrayPtr<real> CPtr()
+	ArrayPtr<double> CPtr()
 	{return c;}
 	
-	const ArrayPtr<real> CPtr() const
+	const ArrayPtr<double> CPtr() const
 	{return c;}
 	
-	Array<real>& CRef()
+	Array<double>& CRef()
 	{return *c;}
 
-	const Array<real>& CRef() const 
+	const Array<double>& CRef() const 
 	{return *c;}
 
 	//////////////////////////////////////////////////////////////////////////
 	////functions for r
-	real& R(const int i)
+	double& R(const int i)
 	{return (*r)[i];}
 	
-	const real& R(const int i) const 
+	const double& R(const int i) const 
 	{return (*r)[i];}
 
-	Array<real>* R()
+	Array<double>* R()
 	{return r.get();}
 
-	const Array<real>* R() const 
+	const Array<double>* R() const 
 	{return r.get();}
 	
-	ArrayPtr<real> RPtr()
+	ArrayPtr<double> RPtr()
 	{return r;}
 	
-	const ArrayPtr<real> RPtr() const
+	const ArrayPtr<double> RPtr() const
 	{return r;}
 	
-	Array<real>& RRef()
+	Array<double>& RRef()
 	{return *r;}
 
-	const Array<real>& RRef() const 
+	const Array<double>& RRef() const 
 	{return *r;}
 
 	//////////////////////////////////////////////////////////////////////////
 	////functions for p
-	real& P(const int i)
+	double& P(const int i)
 	{return (*p)[i];}
 	
-	const real& P(const int i) const 
+	const double& P(const int i) const 
 	{return (*p)[i];}
 
-	Array<real>* P()
+	Array<double>* P()
 	{return p.get();}
 
-	const Array<real>* P() const 
+	const Array<double>* P() const 
 	{return p.get();}
 	
-	ArrayPtr<real> PPtr()
+	ArrayPtr<double> PPtr()
 	{return p;}
 	
-	const ArrayPtr<real> PPtr() const
+	const ArrayPtr<double> PPtr() const
 	{return p;}
 	
-	Array<real>& PRef()
+	Array<double>& PRef()
 	{return *p;}
 
-	const Array<real>& PRef() const 
+	const Array<double>& PRef() const 
 	{return *p;}
 
 	//////////////////////////////////////////////////////////////////////////
 	////functions for den
-	real& D(const int i)
+	double& D(const int i)
 	{return (*den)[i];}
 	
-	const real& D(const int i) const 
+	const double& D(const int i) const 
 	{return (*den)[i];}
 
-	Array<real>* D()
+	Array<double>* D()
 	{return den.get();}
 
-	const Array<real>* D() const 
+	const Array<double>* D() const 
 	{return den.get();}
 	
-	ArrayPtr<real> DPtr()
+	ArrayPtr<double> DPtr()
 	{return den;}
 	
-	const ArrayPtr<real> DPtr() const
+	const ArrayPtr<double> DPtr() const
 	{return den;}
 	
-	Array<real>& DRef()
+	Array<double>& DRef()
 	{return *den;}
 
-	const Array<real>& DRef() const 
+	const Array<double>& DRef() const 
 	{return *den;}
 
 	//////////////////////////////////////////////////////////////////////////

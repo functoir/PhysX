@@ -15,7 +15,7 @@ class OpenGLPoints : public OpenGLObject
 {typedef OpenGLObject Base;
 public:
     const Array<Vector3>* points=nullptr;
-	const Array<real>* colors=nullptr;
+	const Array<double>* colors=nullptr;
 
 	GLfloat point_size=6.f;
 	bool use_varying_point_size=false;
@@ -29,7 +29,7 @@ public:
 		Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("psize_ucolor"));	
 	}
 
-	void Set_Data_Pointers(const Array<Vector3>* _points,const Array<real>* _colors=nullptr){points=_points;colors=_colors;}
+	void Set_Data_Pointers(const Array<Vector3>* _points,const Array<double>* _colors=nullptr){points=_points;colors=_colors;}
 	
 	virtual void Update_Data_To_Render()
 	{

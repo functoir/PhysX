@@ -15,9 +15,9 @@ using namespace OpenGLUbos;
 
 OpenGLBackground::OpenGLBackground()
 {
-	color=OpenGLColor(.9f,.9f,1.f,1.f);name="background";
-	box=Box<2>(Vector2::Ones()*(real)-1,Vector2::Ones());polygon_mode=PolygonMode::Fill;
-	Set_Depth((real).9999);
+	color=OpenGLColor(0.1f,0.1f,0.1f,1.f);name="background";
+	box=Box<2>(Vector2::Ones()*(double)-1,Vector2::Ones());polygon_mode=PolygonMode::Fill;
+	Set_Depth((double).9999);
 }
 
 void OpenGLBackground::Initialize()
@@ -34,8 +34,8 @@ void OpenGLBackground::Initialize()
                         Vector3(box.min_corner[0],box.min_corner[1],depth),
                         Vector3(box.max_corner[0],box.max_corner[1],depth),
 						Vector3(box.min_corner[0],box.max_corner[1],depth)};
-	Array<Vector2> uv={Vector2((real)0.,(real)0.),Vector2((real)1.,(real)0.),Vector2((real)1.,(real)1.),
-                       Vector2((real)0.,(real)0.),Vector2((real)1.,(real)1.),Vector2((real)0.,(real)1.)};
+	Array<Vector2> uv={Vector2((double)0.,(double)0.),Vector2((double)1.,(double)0.),Vector2((double)1.,(double)1.),
+                       Vector2((double)0.,(double)0.),Vector2((double)1.,(double)1.),Vector2((double)0.,(double)1.)};
 
 	for(auto& p:vtx){
 		OpenGL_Vertex4(p,opengl_vertices);			////position, 4 floats
@@ -74,7 +74,7 @@ void OpenGLAxes::Initialize()	////No data update
 	ArrayF<OpenGLColor,3> colors={OpenGLColor::Red(),OpenGLColor::Green(),OpenGLColor::Blue()};
 	int dim=use_2d_display?2:3;
 	for(int i=0;i<dim;i++)for(int j=0;j<2;j++){
-		Vector3 pos=Vector3::Zero()+Vector3::Unit(i)*axis_length*(real)j;
+		Vector3 pos=Vector3::Zero()+Vector3::Unit(i)*axis_length*(double)j;
 		OpenGL_Vertex4_And_Color4(pos,colors[i].rgba,opengl_vertices);}		////position, 4 floats; color, 4 floats
 	Set_OpenGL_Vertices();
 	Set_OpenGL_Vertex_Attribute(0,4,8,0);	////position
@@ -199,8 +199,8 @@ void OpenGLCircle::Initialize()
 	Base::Initialize();
 	Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("vpos_model"));
 
-	real step=(real)3.1415927*(real)2/(real)n;
-	for(int i=0;i<n;i++)OpenGL_Vertex4(Vector3(cos((real)i*step),sin((real)i*step),(real)0),opengl_vertices);	////position, 4 floats
+	double step=(double)3.1415927*(double)2/(double)n;
+	for(int i=0;i<n;i++)OpenGL_Vertex4(Vector3(cos((double)i*step),sin((double)i*step),(double)0),opengl_vertices);	////position, 4 floats
 	Set_OpenGL_Vertices();
 	Set_OpenGL_Vertex_Attribute(0,4,4,0);	////position
 }
@@ -240,9 +240,9 @@ void OpenGLSolidCircle::Initialize()
 	Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("vpos_model"));
 
 	OpenGL_Vertex4(Vector3(0,0,0),opengl_vertices);
-	real step=(real)3.1415927*(real)2/(real)n;
-	for(int i=0;i<n;i++)OpenGL_Vertex4(Vector3(cos((real)i*step),sin((real)i*step),(real)0),opengl_vertices);	////position, 4 floats
-	OpenGL_Vertex4(Vector3((real)1,(real)0,(real)0),opengl_vertices);
+	double step=(double)3.1415927*(double)2/(double)n;
+	for(int i=0;i<n;i++)OpenGL_Vertex4(Vector3(cos((double)i*step),sin((double)i*step),(double)0),opengl_vertices);	////position, 4 floats
+	OpenGL_Vertex4(Vector3((double)1,(double)0,(double)0),opengl_vertices);
 
 	Set_OpenGL_Vertices();
 	Set_OpenGL_Vertex_Attribute(0,4,4,0);	////position

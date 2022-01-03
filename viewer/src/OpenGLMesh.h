@@ -69,7 +69,7 @@ class OpenGLSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
 class OpenGLColoredSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
 {public:typedef OpenGLMesh<SegmentMesh<3> > Base;
     OpenGLColoredSegmentMesh(){color=default_mesh_color;name="segment_mesh";}
-	Array<real> colors;
+	Array<double> colors;
 	OpenGLColorMapper mapper;
 
 	virtual void Initialize()
@@ -205,7 +205,7 @@ class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 
 class OpenGLColoredTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 {public:typedef OpenGLMesh<TriangleMesh<3> > Base;
-	Array<real> colors;
+	Array<double> colors;
 	
     OpenGLColoredTriangleMesh(){color=default_mesh_color;name="colored_triangle_mesh";shading_mode=ShadingMode::Lighting;}
 

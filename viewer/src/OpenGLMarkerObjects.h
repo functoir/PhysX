@@ -18,14 +18,14 @@ class OpenGLBackground : public OpenGLObject
 {public:typedef OpenGLObject Base;
 	Box<2> box;	
 	std::string tex_name;
-	real depth;
+	double depth;
 	bool use_fbo_tex;
 
 	OpenGLBackground();
 
 	void Set_Box(const Vector2& min_corner,const Vector2& max_corner){box=Box<2>(min_corner,max_corner);}
 	void Set_Texture(const std::string& _tex_name){use_vtx_tex=true;tex_name=_tex_name;}
-	void Set_Depth(const real _depth){depth=_depth;}
+	void Set_Depth(const double _depth){depth=_depth;}
 	void Set_Fbo(){}
 	virtual void Initialize();
 	virtual void Display() const;
@@ -33,7 +33,7 @@ class OpenGLBackground : public OpenGLObject
 
 class OpenGLAxes : public OpenGLObject
 {public:typedef OpenGLObject Base;
-	real axis_length=(real).5;
+	double axis_length=(double).5;
 	bool use_2d_display=false;
 
 	OpenGLAxes(){name="axes";polygon_mode=PolygonMode::Wireframe;}
@@ -79,7 +79,7 @@ class OpenGLPolygon : public OpenGLObject
 class OpenGLCircle : public OpenGLObject
 {public: typedef OpenGLObject Base;
 	Vector3 pos=Vector3::Zero();
-	real radius=(real).1;
+	double radius=(double).1;
 	glm::mat4 model=glm::mat4(1.f);
 
 	int n=16;
@@ -96,7 +96,7 @@ class OpenGLCircle : public OpenGLObject
 class OpenGLSolidCircle : public OpenGLObject
 {public: typedef OpenGLObject Base;
 	Vector3 pos=Vector3::Zero();
-	real radius=(real).1;
+	double radius=(double).1;
 	glm::mat4 model=glm::mat4(1.f);
 
 	int n=16;
@@ -130,7 +130,7 @@ class OpenGLSphere : public OpenGLMarkerTriangleMesh
 {public:typedef OpenGLMarkerTriangleMesh Base;
 	using Base::color;using Base::mesh;using Base::model;
 	Vector3 pos=Vector3::Zero();
-	real radius=(real).1;
+	double radius=(double).1;
 
 	OpenGLSphere(){name="sphere";color=OpenGLColor::Red();polygon_mode=PolygonMode::Fill;}
 	

@@ -45,8 +45,8 @@ public:
 	Array<GLuint> opengl_elements;
 	int vtx_size=0;
 	int ele_size=0;
-	real scale=(real)1;
-	real line_norm=(real)1;
+	double scale=(double)1;
+	double line_norm=(double)1;
 	GLfloat alpha=(GLfloat)1;
 	GLfloat line_width=(GLfloat)1;
 	bool normalize=false;
@@ -126,17 +126,17 @@ public:
 	virtual void Disable_Alpha_Blend() const;
 
 	////Set mapping parameters from data to scalars
-	void Update_Scalar_Range(const Array<Matrix3>& array,real& v_min,real& v_max) const;
-	template<class T_ARRAY> void Update_Scalar_Range(const T_ARRAY& array,real& v_min,real& v_max) const
+	void Update_Scalar_Range(const Array<Matrix3>& array,double& v_min,double& v_max) const;
+	template<class T_ARRAY> void Update_Scalar_Range(const T_ARRAY& array,double& v_min,double& v_max) const
 	{
-		v_min=std::numeric_limits<real>::max();v_max=std::numeric_limits<real>::min();
-		for(auto& v:array){real s=Scalar(v);if(s<v_min)v_min=s;else if(s>v_max)v_max=s;}
+		v_min=std::numeric_limits<double>::max();v_max=std::numeric_limits<double>::min();
+		for(auto& v:array){double s=Scalar(v);if(s<v_min)v_min=s;else if(s>v_max)v_max=s;}
 	}
-	template<class T_VAL> real Normalized_Scale(Array<T_VAL>& array,real norm) const
-	{real v_min,v_max;Update_Scalar_Range(array,v_min,v_max);if(v_max!=(real)0)return norm/v_max;else return (real)1;}
-	real Scalar(const real& v) const;
-	real Scalar(const Vector3& v) const;
-	real Scalar(const Matrix3& v) const;
+	template<class T_VAL> double Normalized_Scale(Array<T_VAL>& array,double norm) const
+	{double v_min,v_max;Update_Scalar_Range(array,v_min,v_max);if(v_max!=(double)0)return norm/v_max;else return (double)1;}
+	double Scalar(const double& v) const;
+	double Scalar(const Vector3& v) const;
+	double Scalar(const Matrix3& v) const;
 
 	////Callbacks
 	virtual void Initialize_Callbacks(){}

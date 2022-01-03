@@ -3,7 +3,6 @@
 #include <random>
 #include "Common.h"
 #include "Driver.h"
-#include "Particles.h"
 #include "OpenGLMesh.h"
 #include "OpenGLCommon.h"
 #include "OpenGLWindow.h"
@@ -12,40 +11,53 @@
 #include "OpenGLParticles.h"
 
 class DynamicSystemDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector3;using VectorDi=Vector2i;using Base=Driver;
-	////simulation data
-	real dt=.02;
-	VectorD position=VectorD::Unit(0);
-	VectorD velocity=VectorD::Ones();
-
-	////visualization data
-	OpenGLSegmentMesh* opengl_trace=nullptr;							////vector field
-	Array<OpenGLSphere*> opengl_spheres;								////spheres
-
+{
 public:
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	//// simulation-related functions
+
+	////simulation data structures
+	std::vector<Vector3> position;				//// array of particle positions			
+	std::vector<Vector3> velocity;				//// array of particle velocities
+	std::vector<Vector3> color;					//// array of particle colors
+	std::vector<double> radii;					//// array of particle radii
+	int particle_number=0;						//// number of particles
+	double dt=.02;								//// time step
+	bool display_particle_trace=true;			//// record and display each particle's trace if true
+
+	//// TODO: initialize your particle system by initializing the values of particle position, velocity, color, radii, and number
+	//// Attention: make sure to set the value of particle_number!
+	void Initialize_Simulation()
+	{
+		/*Your implementation here*/
+	}
+
+	//// TODO: advance your particle system by updating the particle position and velocity values
+	void Advance_Simulation(const double dt)
+	{
+		/*Your implementation here */
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	//// visualization-related functions (no need to modify)
+
 	virtual void Initialize(){OpenGLViewer::Initialize();}
 	virtual void Run(){OpenGLViewer::Run();}
 
-	////synchronize simulation data to visualization data, called in OpenGLViewer::Initialize()
+	//// visualization data
+	std::vector<OpenGLSegmentMesh*> opengl_trace;						////vector field
+	std::vector<OpenGLSphere*> opengl_spheres;							////spheres
+
+	//// synchronize simulation data to visualization data, called in OpenGLViewer::Initialize()
 	virtual void Initialize_Data()
 	{
-		////initialize a segment mesh to visualize the trace
-		opengl_trace=Add_Interactive_Object<OpenGLSegmentMesh>();
-		opengl_trace->mesh.Elements().resize(1);
-		opengl_trace->mesh.Vertices().resize(1);
-		opengl_trace->mesh.Vertices()[0]=position;
-		opengl_trace->mesh.elements[0]=Vector2i(0,0);
-		opengl_trace->Set_Data_Refreshed();
-		opengl_trace->Initialize();
+		//// initialize simulation data
+		Initialize_Simulation();
 
-		////initialize a sphere to visualize the particle
-		OpenGLSphere* opengl_sphere=Add_Interactive_Object<OpenGLSphere>();
-		opengl_sphere->pos=Vector3::Zero();
-		opengl_sphere->radius=(real).1;
-		Set_Color(opengl_sphere,OpenGLColor(.0,1.,.0,1.));
-		opengl_sphere->Set_Data_Refreshed();
-		opengl_sphere->Initialize();
-		opengl_spheres.push_back(opengl_sphere);
+		//// initialize visualization data 
+		Initialize_Visualization();
 
 		////set OpenGL rendering environments
 		auto dir_light=OpenGLUbos::Add_Directional_Light(glm::vec3(-1.f,-.1f,-.2f));
@@ -53,47 +65,57 @@ public:
 		OpenGLUbos::Update_Lights_Ubo();
 	}
 
-	///HW0 TODO: your implementation: update position and velocity of the particle for a timestep
-	void Advance(const real dt)
+	void Initialize_Visualization()
 	{
-		//////////////////////////////////////////////////////////////////////////
-		////sample code for a Lorenz system
-		////reference: https://en.wikipedia.org/wiki/Lorenz_system
-		real sigma=(real)10;
-		real rho=28;
-		real beta=(real)8/(real)3;
+		opengl_spheres.resize(particle_number);
+		for(int i=0;i<particle_number;i++){
+			OpenGLSphere* sphere=Add_Interactive_Object<OpenGLSphere>();
+			sphere->pos=position[i];
+			sphere->radius=radii[i];
+			Set_Color(sphere,OpenGLColor((float)color[i][0],(float)color[i][1],(float)color[i][2],1.));
+			sphere->Set_Data_Refreshed();
+			sphere->Initialize();
+			opengl_spheres[i]=sphere;		
+		}	
 
-		velocity[0]=sigma*(position[1]-position[0]);
-		velocity[1]=position[0]*(rho-position[2])-position[1];
-		velocity[2]=position[0]*position[1]-beta*position[2];
-		
-		position+=velocity*dt;
-		//////////////////////////////////////////////////////////////////////////
-
-		//////////////////////////////////////////////////////////////////////////
-		////Implement your customized dynamic system; Comment out the previous part
-		/* Your implementation*/
-
-		/* Your implementation*/
+		if(display_particle_trace){
+			opengl_trace.resize(particle_number);
+			for(int i=0;i<particle_number;i++){
+				OpenGLSegmentMesh* trace=Add_Interactive_Object<OpenGLSegmentMesh>();
+				trace->mesh.Elements().resize(1);
+				trace->mesh.Vertices().resize(1);
+				trace->mesh.Vertices()[0]=position[i];
+				trace->mesh.elements[0]=Vector2i(0,0);
+				Set_Color(trace,OpenGLColor((float)color[i][0],(float)color[i][1],(float)color[i][2],1.));
+				trace->Set_Data_Refreshed();
+				trace->Initialize();		
+				opengl_trace[i]=trace;
+			}		
+		}
 	}
 
 	void Sync_Simulation_And_Visualization_Data()
 	{
-		opengl_trace->mesh.Vertices().push_back(position);
-		int n=(int)opengl_trace->mesh.Elements().size();
-		opengl_trace->mesh.Elements().push_back(Vector2i(n-1,n-2));
-		opengl_trace->Set_Data_Refreshed();
-
 		////update and sync data for spheres
-		for(int i=0;i<opengl_spheres.size();i++){
-			opengl_spheres[i]->pos=position;
-			opengl_spheres[i]->Set_Data_Refreshed();}
+		for(int i=0;i<particle_number;i++){
+			opengl_spheres[i]->pos=position[i];
+			opengl_spheres[i]->Set_Data_Refreshed();
+		}
+
+		if(display_particle_trace){
+			for(int i=0;i<particle_number;i++){
+				opengl_trace[i]->mesh.Vertices().push_back(position[i]);
+				int n=(int)opengl_trace[i]->mesh.Elements().size();
+				opengl_trace[i]->mesh.Elements().push_back(Vector2i(n-1,n-2));
+				opengl_trace[i]->Set_Data_Refreshed();		
+			}		
+		}
 	}
 
-	////update simulation and visualization for each time step
+	//// update simulation and visualization for each time step
 	virtual void Toggle_Next_Frame()
 	{
-		Advance(dt);
+		Advance_Simulation(dt);
 		Sync_Simulation_And_Visualization_Data();
 		OpenGLViewer::Toggle_Next_Frame();
 	}

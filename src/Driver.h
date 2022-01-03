@@ -14,15 +14,15 @@ public:
 	std::string output_dir="output";
 	std::string frame_dir;
 	int first_frame=0,last_frame=200,current_frame=0;
-	real frame_rate=50;
-	real time=(real)0,current_time=(real)0;
+	double frame_rate=50;
+	double time=(double)0,current_time=(double)0;
 	int scale=1;
-	real time_step=(real)1;
+	double time_step=(double)1;
 	bool verbose=true;
 
-	real Time_At_Frame(const int frame){return (real)frame/frame_rate;}
-	int Frame_At_Time(const real time){return (int)((real)time*frame_rate);}
-	virtual real Timestep(){return time_step;}
+	double Time_At_Frame(const int frame){return (double)frame/frame_rate;}
+	int Frame_At_Time(const double time){return (int)((double)time*frame_rate);}
+	virtual double Timestep(){return time_step;}
 
 	virtual void Initialize(){}
 
@@ -33,18 +33,18 @@ public:
 			Advance_To_Target_Time(Time_At_Frame(current_frame));}
 	}
 
-	virtual void Advance_To_Target_Time(const real target_time)
+	virtual void Advance_To_Target_Time(const double target_time)
 	{
 		bool done=false;
 		for(int substep=1;!done;substep++){
-			real dt=Timestep();
+			double dt=Timestep();
 			if(time+dt>=target_time){dt=target_time-time;done=true;}
-			else if(time+2*dt>=target_time){dt=(real).5*(target_time-time);}
+			else if(time+2*dt>=target_time){dt=(double).5*(target_time-time);}
 			Advance_One_Time_Step(dt,time);
 			time+=dt;}
 	}
 
-	virtual void Advance_One_Time_Step(const real dt,const real time)
+	virtual void Advance_One_Time_Step(const double dt,const double time)
 	{
 		if(verbose)std::cout<<"Advance one time step by dt="<<dt<<" to time "<<time<<std::endl;
 	}

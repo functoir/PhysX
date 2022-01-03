@@ -112,7 +112,7 @@ public:
 	template<class T_OBJECT> void Set_Data_Color(T_OBJECT* obj,const int data_idx,const OpenGLColor& color)
 	{if(obj==nullptr||data_idx>=obj->data.size())return;for(int i=0;i<4;i++)obj->data[data_idx].color[i]=color.rgba[i];}
 
-	template<class T_OBJECT> void Set_Scale(T_OBJECT* obj,const real scale)
+	template<class T_OBJECT> void Set_Scale(T_OBJECT* obj,const double scale)
 	{if(obj==nullptr)return;obj->scale=scale;}
 
 	template<class T_OBJECT> void Set_Polygon_Mode(T_OBJECT* obj,PolygonMode polygon_mode)

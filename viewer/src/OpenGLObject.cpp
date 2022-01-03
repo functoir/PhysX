@@ -97,16 +97,16 @@ void OpenGLObject::Enable_Alpha_Blend() const
 
 void OpenGLObject::Disable_Alpha_Blend() const {glDisable(GL_BLEND);}
 
-void OpenGLObject::Update_Scalar_Range(const Array<Matrix3>& array,real& v_min,real& v_max) const
+void OpenGLObject::Update_Scalar_Range(const Array<Matrix3>& array,double& v_min,double& v_max) const
 {
-	v_min=std::numeric_limits<real>::max();v_max=std::numeric_limits<real>::min();
+	v_min=std::numeric_limits<double>::max();v_max=std::numeric_limits<double>::min();
 	for(auto& v:array){Sym_Mat3_Eig eig(v,false);
-		for(int i=0;i<3;i++){real s=abs(eig.eigenvalues()[i]);
+		for(int i=0;i<3;i++){double s=abs(eig.eigenvalues()[i]);
 			if(s<v_min)v_min=s;else if(s>v_max)v_max=s;}}
 }
 
-real OpenGLObject::Scalar(const real& v) const {return v;}
-real OpenGLObject::Scalar(const Vector3& v) const {return v.norm();}
+double OpenGLObject::Scalar(const double& v) const {return v;}
+double OpenGLObject::Scalar(const Vector3& v) const {return v.norm();}
 
 void OpenGLObject::Toggle_Draw()
 {visible=!visible;if(verbose)std::cout<<"Toggle visible: "<<visible<<", ["<<name<<"]"<<std::endl;}
@@ -118,7 +118,7 @@ void OpenGLObject::Toggle_Draw_Dis()
 {draw_dis=!draw_dis;if(verbose)std::cout<<"Toggle draw_dis: "<<draw_dis<<", ["<<name<<"]"<<std::endl;}
 
 void OpenGLObject::Toggle_Increase_Scale()
-{real rescale=(real)1.1;scale*=rescale;Set_Data_Refreshed();}
+{double rescale=(double)1.1;scale*=rescale;Set_Data_Refreshed();}
 
 void OpenGLObject::Toggle_Decrease_Scale()
-{real rescale=(real)1.1;scale/=rescale;Set_Data_Refreshed();}
+{double rescale=(double)1.1;scale/=rescale;Set_Data_Refreshed();}

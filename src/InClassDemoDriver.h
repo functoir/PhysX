@@ -45,7 +45,7 @@ public:
 	{
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
@@ -63,19 +63,19 @@ public:
 	void Sync_Data(const Vector2* vertices,const int n)
 	{
 		opengl_trace->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_trace->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_trace->mesh.Elements().resize(n-1);
 		for(int i=0;i<n-1;i++)opengl_trace->mesh.Elements()[i]=Vector2i(i,i+1);
 		opengl_trace->Set_Data_Refreshed();
 	}
 
-	void Set_Color(const real r,const real g,const real b)
+	void Set_Color(const double r,const double g,const double b)
 	{
 		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
 		if(opengl_trace!=nullptr)opengl_trace->color=default_color;
 	}
 
-	void Set_Linewidth(const real line_width)
+	void Set_Linewidth(const double line_width)
 	{
 		if(opengl_trace!=nullptr)opengl_trace->line_width=line_width;
 	}
@@ -87,7 +87,7 @@ class Point
 public:
 	OpenGLSphere* opengl_sphere=nullptr;
 	OpenGLViewer* driver=nullptr;
-	real default_radius=(real).1;
+	double default_radius=(double).1;
 	OpenGLColor default_color=OpenGLColor(.0,1.,.0,1.);
 
 	void Initialize(OpenGLViewer* _driver)
@@ -109,18 +109,18 @@ public:
 
 	void Sync_Data(const Vector2& vertex)
 	{
-		opengl_sphere->pos=Vector3(vertex[0],vertex[1],(real)0);
+		opengl_sphere->pos=Vector3(vertex[0],vertex[1],(double)0);
 		opengl_sphere->Set_Data_Refreshed();
 	}
 
 	////This function needs to be called before Initialize
-	void Set_Radius(const real _radius)
+	void Set_Radius(const double _radius)
 	{
 		default_radius=_radius;
 		if(opengl_sphere!=nullptr)opengl_sphere->radius=default_radius;
 	}
 
-	void Set_Color(const real r,const real g,const real b)
+	void Set_Color(const double r,const double g,const double b)
 	{
 		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
 		if(opengl_sphere!=nullptr)opengl_sphere->Set_Color(default_color);
@@ -147,13 +147,13 @@ public:
 		opengl_segments->Initialize();
 	}
 
-	void Set_Color(const real r,const real g,const real b)
+	void Set_Color(const double r,const double g,const double b)
 	{
 		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
 		if(opengl_segments!=nullptr)opengl_segments->color=default_color;
 	}
 
-	void Set_Linewidth(const real line_width)
+	void Set_Linewidth(const double line_width)
 	{
 		if(opengl_segments!=nullptr)opengl_segments->line_width=line_width;
 	}
@@ -169,7 +169,7 @@ public:
 	{
 		int n=(int)vertices.size();
 		opengl_segments->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_segments->Set_Data_Refreshed();
 	}
 
@@ -183,7 +183,7 @@ public:
 	void Sync_Data(const Vector2* vertices,const int n)
 	{
 		opengl_segments->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_segments->Set_Data_Refreshed();
 	}
 
@@ -206,7 +206,7 @@ public:
 	{
 		int n=(int)vertices.size();
 		opengl_segments->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_segments->mesh.Elements()=edges;
 		opengl_segments->Set_Data_Refreshed();
 	}
@@ -214,7 +214,7 @@ public:
 	void Sync_Data(const Vector2* vertices,const int n,const Array<Vector2i>& edges)
 	{
 		opengl_segments->mesh.Vertices().resize(n);
-		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(real)0);
+		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);
 		opengl_segments->mesh.Elements()=edges;
 		opengl_segments->Set_Data_Refreshed();
 	}
@@ -225,7 +225,7 @@ class Circle
 public:
 	OpenGLSphere* opengl_sphere=nullptr;
 	OpenGLViewer* driver=nullptr;
-	real default_radius=(real).1;
+	double default_radius=(double).1;
 	OpenGLColor default_color=OpenGLColor(.0,1.,.0,1.);
 
 	void Initialize(OpenGLViewer* _driver)
@@ -247,18 +247,18 @@ public:
 
 	void Sync_Data(const Vector2& vertex)
 	{
-		opengl_sphere->pos=Vector3(vertex[0],vertex[1],(real)0);
+		opengl_sphere->pos=Vector3(vertex[0],vertex[1],(double)0);
 		opengl_sphere->Set_Data_Refreshed();
 	}
 
 	////This function needs to be called before Initialize
-	void Set_Radius(const real _radius)
+	void Set_Radius(const double _radius)
 	{
 		default_radius=_radius;
 		if(opengl_sphere!=nullptr)opengl_sphere->radius=default_radius;
 	}
 
-	void Set_Color(const real r,const real g,const real b)
+	void Set_Color(const double r,const double g,const double b)
 	{
 		default_color=OpenGLColor((float)r,(float)g,(float)b,1.);
 		if(opengl_sphere!=nullptr)opengl_sphere->Set_Color(default_color);
@@ -268,7 +268,7 @@ public:
 class InClassDemoDriver : public Driver, public OpenGLViewer
 {using VectorD=Vector3;using VectorDi=Vector2i;using Base=Driver;
 	////simulation data
-	real dt=.02;
+	double dt=.02;
 
 	////visualization data
 	////put your own vis objects here
@@ -303,7 +303,7 @@ public:
 	virtual void Initialize_Data(){}
 
 	////advance simulation timesteps
-	virtual void Advance(const real dt){}
+	virtual void Advance(const double dt){}
 
 	////update simulation data to its visualization counterparts
 	virtual void Sync_Simulation_And_Visualization_Data(){}
