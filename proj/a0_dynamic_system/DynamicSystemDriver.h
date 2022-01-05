@@ -17,26 +17,48 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//// simulation-related functions
 
-	////simulation data structures
-	std::vector<Vector3> position;				//// array of particle positions			
+	//// particle data structures
+	std::vector<Vector3> position;				//// array of particle positions (update this array in Advance Simulation for particle motion)			
 	std::vector<Vector3> velocity;				//// array of particle velocities
-	std::vector<Vector3> color;					//// array of particle colors
+	std::vector<Vector3> color;					//// array of particle colors 
 	std::vector<double> radii;					//// array of particle radii
 	int particle_number=0;						//// number of particles
 	double dt=.02;								//// time step
-	bool display_particle_trace=true;			//// record and display each particle's trace if true
+	
+	/*TODO: add your own additional data structures for particles if necessary*/
+
+	//// segment data structure
+	std::vector<Vector3> segment_vertices;		//// array of segment vertices (update this array in Advance Simulation for segment motion if necessary)
+												//// the vertices are stored as [s0_0,s0_1,s1_0,s1_1,s2_0,s2_1,...], with si_0 and si_1 specified as the first and second vertex of segment si
+												//// Attention: you need to update the values in segment_vertices if you want to move the segments in each timestep
+	int segment_number=0;						//// number of segments
+	Vector3 segment_color;
 
 	//// TODO: initialize your particle system by initializing the values of particle position, velocity, color, radii, and number
 	//// Attention: make sure to set the value of particle_number!
 	void Initialize_Simulation()
 	{
 		/*Your implementation here*/
-		//// initialize a static, red sphere in the origin by default
+		//// initialize two spheres by default (feel free to change them if you want)
+		//// sphere 1
+		position.push_back(Vector3(0.,1.,0.));
+		velocity.push_back(Vector3(0.,0.,0.));
+		color.push_back(Vector3(0.,1.,0.));
+		radii.push_back(.2);
+
+		//// sphere 2
 		position.push_back(Vector3(0.,0.,0.));
 		velocity.push_back(Vector3(0.,0.,0.));
 		color.push_back(Vector3(1.,0.,0.));
 		radii.push_back(.2);
-		particle_number=1;
+
+		particle_number=position.size();
+
+		//// initialize one segment
+		segment_vertices.push_back(Vector3(0.,1.,0.));				//// first vertex of segment 0
+		segment_vertices.push_back(Vector3(0.,0.,0.));				//// second vertex of segment 0
+		segment_color=Vector3(1.,1.,1.);
+		segment_number=segment_vertices.size()/2;
 	}
 
 	//// TODO: advance your particle system by updating the particle position and velocity values
@@ -53,8 +75,8 @@ public:
 	virtual void Run(){OpenGLViewer::Run();}
 
 	//// visualization data
-	std::vector<OpenGLSegmentMesh*> opengl_trace;						////vector field
 	std::vector<OpenGLSphere*> opengl_spheres;							////spheres
+	OpenGLSegmentMesh* opengl_segments;									////segments
 
 	//// synchronize simulation data to visualization data, called in OpenGLViewer::Initialize()
 	virtual void Initialize_Data()
@@ -84,22 +106,24 @@ public:
 			opengl_spheres[i]=sphere;		
 		}	
 
-		if(display_particle_trace){
-			opengl_trace.resize(particle_number);
-			for(int i=0;i<particle_number;i++){
-				OpenGLSegmentMesh* trace=Add_Interactive_Object<OpenGLSegmentMesh>();
-				trace->mesh.Elements().resize(1);
-				trace->mesh.Vertices().resize(1);
-				trace->mesh.Vertices()[0]=position[i];
-				trace->mesh.elements[0]=Vector2i(0,0);
-				Set_Color(trace,OpenGLColor((float)color[i][0],(float)color[i][1],(float)color[i][2],1.));
-				trace->Set_Data_Refreshed();
-				trace->Initialize();		
-				opengl_trace[i]=trace;
+		if(segment_number>0){
+			opengl_segments=Add_Interactive_Object<OpenGLSegmentMesh>();
+			opengl_segments->mesh.Elements().resize(segment_number);
+			opengl_segments->mesh.Vertices().resize(segment_number*2);
+
+			for(int i=0;i<segment_number;i++){
+				opengl_segments->mesh.Vertices()[i*2]=segment_vertices[i*2];
+				opengl_segments->mesh.Vertices()[i*2+1]=segment_vertices[i*2+1];
+				opengl_segments->mesh.Elements()[i]=Vector2i(i*2,i*2+1);	
 			}		
+
+			Set_Color(opengl_segments,OpenGLColor((float)segment_color[0],(float)segment_color[1],(float)segment_color[2],1.));
+			opengl_segments->Set_Data_Refreshed();
+			opengl_segments->Initialize();	
 		}
 	}
 
+	//// this function synchronize the simulation data from position and segment_vertices to the opengl viewer
 	void Sync_Simulation_And_Visualization_Data()
 	{
 		////update and sync data for spheres
@@ -108,12 +132,11 @@ public:
 			opengl_spheres[i]->Set_Data_Refreshed();
 		}
 
-		if(display_particle_trace){
-			for(int i=0;i<particle_number;i++){
-				opengl_trace[i]->mesh.Vertices().push_back(position[i]);
-				int n=(int)opengl_trace[i]->mesh.Elements().size();
-				opengl_trace[i]->mesh.Elements().push_back(Vector2i(n-1,n-2));
-				opengl_trace[i]->Set_Data_Refreshed();		
+		if(segment_number>0){
+			for(int i=0;i<segment_number;i++){
+				opengl_segments->mesh.Vertices()[i*2]=segment_vertices[i*2];
+				opengl_segments->mesh.Vertices()[i*2+1]=segment_vertices[i*2+1];
+				opengl_segments->Set_Data_Refreshed();		
 			}		
 		}
 	}
