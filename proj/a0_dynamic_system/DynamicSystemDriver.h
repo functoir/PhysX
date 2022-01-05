@@ -69,7 +69,7 @@ public:
 			segment_colors.push_back(Vector3(1.,1.,1.));		
 		}
 
-		////// visualizing the ceiling wall
+		////// visualizing the ceiling wall (this was the illustration code used in the lecture)
 		//{
 		//	std::vector<Vector3> segment_vertices;
 		//	segment_vertices.push_back(Vector3(-1.,1.,0.));				//// first vertex of segment 1
@@ -93,7 +93,7 @@ public:
 	//// TODO: advance your particle system by updating the particle position and velocity values
 	void Advance_Simulation(const double dt,const double time)
 	{
-		/*Your implementation here. Feel free to comment out the default implementation. */
+		/*Your implementation here. Please comment out the default implementation. */
 
 		//// update particle positions
 		position[0]+=Vector3(0.1,0.,0.);
