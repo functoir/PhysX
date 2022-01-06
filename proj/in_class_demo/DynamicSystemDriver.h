@@ -40,48 +40,113 @@ public:
 	//// Attention: make sure to set the value of particle_number!
 	void Initialize_Simulation()
 	{
-		/*Your implementation here*/
-		//// initialize two spheres by default (feel free to change them if you want)
-		//// sphere 1
+		// Example: ballistic motion
 		{
 			position.push_back(Vector3(0.,1.,0.));
-			velocity.push_back(Vector3(-1.,0.,0.));
-			color.push_back(Vector3(0.,1.,0.));
-			radii.push_back(.2);		
-		}
-
-		//// sphere 2
-		{
-			position.push_back(Vector3(0.,0.,0.));
 			velocity.push_back(Vector3(1.,0.,0.));
-			color.push_back(Vector3(1.,0.,0.));
-			radii.push_back(.2);		
+			color.push_back(Vector3(0.,1.,0.));
+			radii.push_back(.1);		
 		}
 
-		//// initialize segments (for visualization purpose only)
-		//// visualizing the rod connecting the two spheres
+		//// visualizing the ceiling wall (this was the illustration code used in the lecture)
 		{
+			double y=-1.;
 			std::vector<Vector3> segment_vertices;
-			segment_vertices.push_back(Vector3(0.,1.,0.));				//// first vertex of segment 0
-			segment_vertices.push_back(Vector3(0.,0.,0.));				//// second vertex of segment 0
-		
+			segment_vertices.push_back(Vector3(-1.,y,0.));				//// first vertex of segment 1
+			segment_vertices.push_back(Vector3(1.,y,0.));				//// second vertex of segment 1
+			
+			int n=8;
+			double step_size=2./(double)n;
+			Vector3 start=Vector3(-1.,y,0.);
+			for(int i=0;i<=n;i++){
+				Vector3 point1=start+(double)i*step_size*Vector3(1.,0.,0.);
+				Vector3 point2=point1+Vector3(-0.2,-0.2,0.);
+				segment_vertices.push_back(point1);
+				segment_vertices.push_back(point2);
+			}
+
 			segment_mesh.push_back(segment_vertices);
-			segment_colors.push_back(Vector3(1.,1.,1.));		
+			segment_colors.push_back(Vector3(1.,0.,0.));		
 		}
+
+		//// Example: Two-body
+		////// initialize two spheres by default (feel free to change them if you want)
+		////// sphere 1
+		//{
+		//	position.push_back(Vector3(0.,1.,0.));
+		//	velocity.push_back(Vector3(-1.,0.,0.));
+		//	color.push_back(Vector3(0.,1.,0.));
+		//	radii.push_back(.1);		
+		//}
+
+		////// sphere 2
+		//{
+		//	position.push_back(Vector3(0.,0.,0.));
+		//	velocity.push_back(Vector3(1.,0.,0.));
+		//	color.push_back(Vector3(1.,0.,0.));
+		//	radii.push_back(.1);		
+		//}
+
+		////// initialize segments (for visualization purpose only)
+		////// visualizing the rod connecting the two spheres
+		//{
+		//	std::vector<Vector3> segment_vertices;
+		//	segment_vertices.push_back(Vector3(0.,1.,0.));				//// first vertex of segment 0
+		//	segment_vertices.push_back(Vector3(0.,1.,0.));				//// second vertex of segment 0
+		//
+		//	segment_mesh.push_back(segment_vertices);
+		//	segment_colors.push_back(Vector3(0.,1.,1.));		
+		//}
+
+		//{
+		//	std::vector<Vector3> segment_vertices;
+		//	segment_vertices.push_back(Vector3(0.,0.,0.));				//// first vertex of segment 0
+		//	segment_vertices.push_back(Vector3(0.,0.,0.));				//// second vertex of segment 0
+		//
+		//	segment_mesh.push_back(segment_vertices);
+		//	segment_colors.push_back(Vector3(1.,0.,1.));		
+		//}
 	}
 
 	//// TODO: advance your particle system by updating the particle position and velocity values
 	void Advance_Simulation(const double dt,const double time)
 	{
-		/*Your implementation here. Please comment out the default implementation. */
+		//// Example 1: ballistic motion
+		Vector3 g=Vector3(0.,-9.8,0.);
+		double y=-1.;
+		velocity[0]+=g*dt;
 
-		//// update particle positions
-		position[0]+=Vector3(0.1,0.,0.);
-		position[1]-=Vector3(0.1,0.,0.);
+		position[0]+=velocity[0]*dt;
+		if(position[0][1]<y){
+			velocity[0][1]*=-1.;
+		}
 
-		//// synchronize particle positions to segment vertices
-		segment_mesh[0][0]=position[0];
-		segment_mesh[0][1]=position[1];
+		//// Example 2: two body
+		//{
+		//	double m0=2;
+		//	double m1=1;
+		//	double G=2;
+		//	Vector3 dis=(position[1]-position[0]);
+		//	double r=dis.norm();
+		//	Vector3 dir=dis/r;
+		//	Vector3 force=G*m0*m1*dir/pow(r,2);
+		//	velocity[0]+=force/m0*dt;
+		//	velocity[1]+=-force/m1*dt;
+		//	position[0]+=velocity[0]*dt;
+		//	position[1]+=velocity[1]*dt;		
+		//}
+
+		////// synchronize particle positions to segment vertices
+		//int max_seg_num=64;
+		//for(int i=0;i<2;i++){
+		//	if(segment_mesh[i].size()>max_seg_num*2){
+		//		segment_mesh[i].erase(segment_mesh[i].begin());
+		//		segment_mesh[i].erase(segment_mesh[i].begin());
+		//	}
+
+		//	segment_mesh[i].push_back(segment_mesh[i][segment_mesh[i].size()-1]);
+		//	segment_mesh[i].push_back(position[i]);
+		//}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -146,7 +211,7 @@ public:
 				}		
 
 				Set_Color(opengl_segment_mesh,OpenGLColor((float)segment_color[0],(float)segment_color[1],(float)segment_color[2],1.));
-				Set_Line_Width(opengl_segment_mesh,8.f);
+				Set_Line_Width(opengl_segment_mesh,4.f);
 				opengl_segment_mesh->Set_Data_Refreshed();
 				opengl_segment_mesh->Initialize();				
 			}
@@ -179,7 +244,6 @@ public:
 						opengl_segment_mesh->mesh.Elements()[i]=Vector2i(2*i,2*i+1);
 					}
 				}
-
 				for(int i=0;i<segment_number;i++){
 					opengl_segment_mesh->mesh.Vertices()[i*2]=segment_vertices[i*2];
 					opengl_segment_mesh->mesh.Vertices()[i*2+1]=segment_vertices[i*2+1];
