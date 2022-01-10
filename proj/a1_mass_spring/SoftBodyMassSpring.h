@@ -1,8 +1,7 @@
-//#####################################################################
-// Mass-spring deformable model
-// Dartmouth COSC 89.18/189.02: Computational Methods for Physical Systems, Assignment starter code
-// Contact: Bo Zhu (bo.zhu@dartmouth.edu)
-//#####################################################################
+//////////////////////////////////////////////////////////////////////////
+//// Dartmouth Physical Computing Programming Assignment 1: Mass Spring
+//// Author: TODO: PUT YOUR NAME HERE
+////////////////////////////////////////////////////////////////////////// 
 
 #ifndef __SoftBodyMassSpring_h__
 #define __SoftBodyMassSpring_h__
@@ -25,7 +24,7 @@ public:
 	////Body force
 	Vector3 g=Vector3::Unit(1)*(double)-1.;			//// gravity
 	
-	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ImplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
+	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
 
 	////Implicit time integration
 	SparseMatrixT K;
@@ -97,9 +96,7 @@ public:
 
 	void Clear_Force()
 	{
-		for(int i=0;i<particles.Size();i++){
-			particles.F(i)=Vector3::Zero();
-		}
+		for(int i=0;i<particles.Size();i++){particles.F(i)=Vector3::Zero();}
 	}
 
 	void Apply_Body_Force(const double dt)
@@ -139,7 +136,7 @@ public:
 
 		/* Your implementation end */
 
-		//return Vector3::Zero();	////REPLACE this line with your own implementation
+		return Vector3::Zero();	////REPLACE this line with your own implementation
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -183,7 +180,6 @@ public:
 		b.fill((double)0);
 
 		/* Your implementation start */
-		////Set K diagonal blocks and rhs
 
 		/* Your implementation end */
 	}
@@ -215,7 +211,6 @@ public:
 		Apply_Spring_Force(dt);
 		//// enforce boundary condition
 		Enforce_Boundary_Condition();
-
 
 		Update_Implicit_K_And_b(dt);
 

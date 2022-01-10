@@ -62,7 +62,7 @@ public:
 			auto opengl_circle=opengl_circles[i];
 			opengl_circle->pos=V3(fluid.particles.X(i));
 			double c=(fluid.particles.C(i))/(double)100;
-			opengl_circle->color=OpenGLColor(c,.6f,.2f);
+			opengl_circle->color=OpenGLColor((GLfloat)c,.6f,.2f);
 			opengl_circle->Set_Data_Refreshed();}
 	}
 

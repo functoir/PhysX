@@ -77,7 +77,7 @@ public:
 
 	void Set_Linewidth(const double line_width)
 	{
-		if(opengl_trace!=nullptr)opengl_trace->line_width=line_width;
+		if(opengl_trace!=nullptr)opengl_trace->line_width=(GLfloat)line_width;
 	}
 };
 
@@ -155,7 +155,7 @@ public:
 
 	void Set_Linewidth(const double line_width)
 	{
-		if(opengl_segments!=nullptr)opengl_segments->line_width=line_width;
+		if(opengl_segments!=nullptr)opengl_segments->line_width=(GLfloat)line_width;
 	}
 
 	////We do not update connectivities if only vertices are passed in
