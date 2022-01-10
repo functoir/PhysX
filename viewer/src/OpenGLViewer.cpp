@@ -182,8 +182,6 @@ void OpenGLViewer::Toggle_Play()
 
 void OpenGLViewer::Initialize_Common_Callback_Keys()
 {
-	Bind_Callback_Key('>',&Toggle_Increase_Scale_Func,"scale+");
-	Bind_Callback_Key('<',&Toggle_Decrease_Scale_Func,"scale-");
 	Bind_Callback_Key('K',&Print_Keyboard_Callbacks_Func,"print binded keys");
 	Bind_Callback_Key(']',&Toggle_Next_Frame_Func,"next frame");
 	Bind_Callback_Key('p',&Toggle_Play_Func,"play");
@@ -196,7 +194,7 @@ void OpenGLViewer::Bind_Callback_Key(const uchar key, std::function<void(void)>*
 	key_data_hashtable.insert(std::make_pair(key,discription));
 }
 
-void OpenGLViewer::Bind_Callback_Keys(const Array<OpenGLData>& data, Array<std::function<void(void)>*> data_idx_callbacks, int start_idx/*=0*/)
+void OpenGLViewer::Bind_Callback_Keys(const std::vector<OpenGLData>& data, std::vector<std::function<void(void)>*> data_idx_callbacks, int start_idx/*=0*/)
 {
 	for(size_type i=0;i<data.size();i++){if(data[i].key.size()>0){
 		Bind_Callback_Key(data[i].key[0],data_idx_callbacks[i+start_idx],data[i].name);}}

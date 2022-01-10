@@ -16,12 +16,12 @@ template<int d,int e_d> class SimplicialMesh
 public:
 	////Basic attributes
 	ArrayPtr<VectorD> vertices=nullptr;
-	Array<VectorEi> elements;
+	std::vector<VectorEi> elements;
 
 	////Constructors
 	SimplicialMesh(const ArrayPtr<VectorD> _vertices=nullptr)
 	{
-		if(_vertices==nullptr)vertices=std::make_shared<Array<VectorD> >();
+		if(_vertices==nullptr)vertices=std::make_shared<std::vector<VectorD> >();
 		else vertices=_vertices;
 	}
 
@@ -29,7 +29,7 @@ public:
 	SimplicialMesh(const SimplicialMesh<d,e_d>& copy){*this=copy;}
 	SimplicialMesh<d,e_d>& operator=(const SimplicialMesh<d,e_d>& copy)
 	{
-		if(vertices==nullptr)vertices=std::make_shared<Array<VectorD> >();
+		if(vertices==nullptr)vertices=std::make_shared<std::vector<VectorD> >();
 		*vertices=*(copy.vertices);
 		elements=copy.elements;
 		return *this;
@@ -38,10 +38,10 @@ public:
 	////Access attributes
 	static constexpr int Dim() {return d;}
 	static constexpr int Element_Dim() {return e_d;}
-	virtual Array<VectorD>& Vertices(){return *vertices.get();}
-	virtual const Array<VectorD>& Vertices() const {return *vertices.get();}
-	virtual Array<VectorEi>& Elements(){return elements;}
-	virtual const Array<VectorEi>& Elements() const {return elements;}
+	virtual std::vector<VectorD>& Vertices(){return *vertices.get();}
+	virtual const std::vector<VectorD>& Vertices() const {return *vertices.get();}
+	virtual std::vector<VectorEi>& Elements(){return elements;}
+	virtual const std::vector<VectorEi>& Elements() const {return elements;}
 
 	virtual void Clear()
 	{
@@ -86,21 +86,21 @@ template<class MESH_T1,class MESH_T2> void Dim_Conversion(const MESH_T1& mesh2,/
 
 inline Vector3 Normal(const Vector3& p1,const Vector3& p2,const Vector3& p3){return (p2-p1).cross(p3-p1).normalized();}
 
-inline void Update_Normals(const TriangleMesh<3>& mesh,Array<Vector3>& normals)
+inline void Update_Normals(const TriangleMesh<3>& mesh,std::vector<Vector3>& normals)
 {
     normals.resize(mesh.Vertices().size(),Vector3::Zero());
     for(const auto& v:mesh.elements){Vector3 n=Normal(mesh.Vertices()[v[0]],mesh.Vertices()[v[1]],mesh.Vertices()[v[2]]);for(int j=0;j<3;j++){normals[v[j]]+=n;}}
     for(auto& n:normals){n.normalize();}
 }
 
-inline int Element_Edges(const Vector3i& v,Array<Vector2i>& edges)
+inline int Element_Edges(const Vector3i& v,std::vector<Vector2i>& edges)
 {edges[0]=Vector2i(v[0],v[1]);edges[1]=Vector2i(v[1],v[2]);edges[2]=Vector2i(v[2],v[0]);return 3;}
 
 inline Vector2i Sorted(const Vector2i& v){return v[0]>v[1]?v:Vector2i(v[1],v[0]);}
 
-template<int d> void Get_Edges(const TriangleMesh<d>& mesh,Array<Vector2i>& edges)
+template<int d> void Get_Edges(const TriangleMesh<d>& mesh,std::vector<Vector2i>& edges)
 {
-	Hashset<Vector2i> edge_hashset;Array<Vector2i> element_edges(3);
+	Hashset<Vector2i> edge_hashset;std::vector<Vector2i> element_edges(3);
 	for(const auto& vtx:mesh.elements){
 		int n=Element_Edges(vtx,element_edges);
 		for(int i=0;i<n;i++)edge_hashset.insert(Sorted(element_edges[i]));}
@@ -109,8 +109,8 @@ template<int d> void Get_Edges(const TriangleMesh<d>& mesh,Array<Vector2i>& edge
 
 template<int d> void Subdivide(TriangleMesh<d>* mesh)
 {
-	Array<Vector2i> edges;Get_Edges(*mesh,edges);
-	Hashtable<Vector2i,int> edge_vtx_hashtable;
+	std::vector<Vector2i> edges;Get_Edges(*mesh,edges);
+	std::unordered_map<Vector2i,int> edge_vtx_hashtable;
 	for(const auto& e:edges){
 		Vector<double,d> pos=(double).5*(mesh->Vertices()[e[0]]+mesh->Vertices()[e[1]]);
 		mesh->Vertices().push_back(pos);

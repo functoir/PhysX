@@ -8,7 +8,7 @@ void Test_Sparse_Matrix_Solver()
 	A.resize(4,4);
 
 	////Approach 1: initialize the matrix directly
-	Array<Triplet<double> > A_elements;
+	std::vector<Triplet<double> > A_elements;
 	A_elements.push_back(Triplet<double>(0,0,2));
 	A_elements.push_back(Triplet<double>(0,1,-1));
 	A_elements.push_back(Triplet<double>(1,0,-1));
@@ -52,7 +52,7 @@ void Test_Sparse_Matrix_Solver()
 	////Approach 3: initialize the matrix indirectly
 	SparseMatrix<double> L;
 	L.resize(4,4);
-	Array<Triplet<double> > L_elements;
+	std::vector<Triplet<double> > L_elements;
 	L_elements.push_back(Triplet<double>(0,0,1));
 	L_elements.push_back(Triplet<double>(1,0,-1));
 	L_elements.push_back(Triplet<double>(1,1,1));
@@ -65,7 +65,7 @@ void Test_Sparse_Matrix_Solver()
 
 	SparseMatrix<double> M;
 	M.resize(4,4);
-	Array<Triplet<double> > M_elements;
+	std::vector<Triplet<double> > M_elements;
 	M_elements.push_back(Triplet<double>(0,0,1));
 	M_elements.push_back(Triplet<double>(1,1,1));
 	M_elements.push_back(Triplet<double>(2,2,1));

@@ -43,10 +43,10 @@ public:
 class OpenGLColorMapper
 {
 public:
-	Array<float> values;
-	Array<OpenGLColor> colors;
+	std::vector<float> values;
+	std::vector<OpenGLColor> colors;
 
-	void Initialize(const Array<float>& _values,const Array<OpenGLColor>& _colors){values=_values;colors=_colors;}
+	void Initialize(const std::vector<float>& _values,const std::vector<OpenGLColor>& _colors){values=_values;colors=_colors;}
 
 	OpenGLColor Get(float x)
 	{
@@ -65,48 +65,48 @@ public:
 };
 
 ////OpenGL pipeline commands
-inline void OpenGL_Vertex(const int& v,Array<GLuint>& vertices)
+inline void OpenGL_Vertex(const int& v,std::vector<GLuint>& vertices)
 {vertices.push_back((GLuint)v);}
 
-inline void OpenGL_Vertex(const Vector2i& v,Array<GLuint>& vertices)
+inline void OpenGL_Vertex(const Vector2i& v,std::vector<GLuint>& vertices)
 {vertices.push_back((GLuint)v[0]);vertices.push_back((GLuint)v[1]);}
 
-inline void OpenGL_Vertex(const Vector3i& v,Array<GLuint>& vertices)
+inline void OpenGL_Vertex(const Vector3i& v,std::vector<GLuint>& vertices)
 {vertices.push_back((GLuint)v[0]);vertices.push_back((GLuint)v[1]);vertices.push_back((GLuint)v[2]);}
 
-inline void OpenGL_Vertex(const Vector4i& v,Array<GLuint>& vertices)
+inline void OpenGL_Vertex(const Vector4i& v,std::vector<GLuint>& vertices)
 {vertices.push_back((GLuint)v[0]);vertices.push_back((GLuint)v[1]);vertices.push_back((GLuint)v[2]);vertices.push_back((GLuint)v[3]);}
 
-inline void OpenGL_Vertex(const int v0,const int v1,const int v2,Array<GLuint>& vertices)
+inline void OpenGL_Vertex(const int v0,const int v1,const int v2,std::vector<GLuint>& vertices)
 {vertices.push_back((GLuint)v0);vertices.push_back((GLuint)v1);vertices.push_back((GLuint)v2);}
 
-inline void OpenGL_Vertex(const GLfloat v,Array<GLfloat>& vertices)
+inline void OpenGL_Vertex(const GLfloat v,std::vector<GLfloat>& vertices)
 {vertices.push_back(v);}
 
-inline void OpenGL_Vertex(const Vector2& v,Array<GLfloat>& vertices)
+inline void OpenGL_Vertex(const Vector2& v,std::vector<GLfloat>& vertices)
 {vertices.push_back((GLfloat)v[0]);vertices.push_back((GLfloat)v[1]);}
 
-inline void OpenGL_Vertex(const Vector3& v,Array<GLfloat>& vertices)
+inline void OpenGL_Vertex(const Vector3& v,std::vector<GLfloat>& vertices)
 {vertices.push_back((GLfloat)v[0]);vertices.push_back((GLfloat)v[1]);vertices.push_back((GLfloat)v[2]);}
 
-inline void OpenGL_Vertex4(const Vector2& v,Array<GLfloat>& vertices,const GLfloat placeholder=(GLfloat)0)
+inline void OpenGL_Vertex4(const Vector2& v,std::vector<GLfloat>& vertices,const GLfloat placeholder=(GLfloat)0)
 {vertices.push_back((GLfloat)v[0]);vertices.push_back((GLfloat)v[1]);vertices.push_back(placeholder);vertices.push_back(placeholder);}
 
-inline void OpenGL_Vertex4(const Vector3& v,Array<GLfloat>& vertices,const GLfloat placeholder=(GLfloat)0)
+inline void OpenGL_Vertex4(const Vector3& v,std::vector<GLfloat>& vertices,const GLfloat placeholder=(GLfloat)0)
 {vertices.push_back((GLfloat)v[0]);vertices.push_back((GLfloat)v[1]);vertices.push_back((GLfloat)v[2]);vertices.push_back(placeholder);}
 
-inline void OpenGL_Color3(const GLfloat* color,Array<GLfloat>& colors)
+inline void OpenGL_Color3(const GLfloat* color,std::vector<GLfloat>& colors)
 {colors.push_back(color[0]);colors.push_back(color[1]);colors.push_back(color[2]);}
 
-inline void OpenGL_Color4(const GLfloat* color,Array<GLfloat>& colors)
+inline void OpenGL_Color4(const GLfloat* color,std::vector<GLfloat>& colors)
 {colors.push_back(color[0]);colors.push_back(color[1]);colors.push_back(color[2]);colors.push_back(color[3]);}
 
-inline void OpenGL_Vertex4_And_Color4(const Vector2& v,const GLfloat* c,Array<GLfloat>& vertices)
+inline void OpenGL_Vertex4_And_Color4(const Vector2& v,const GLfloat* c,std::vector<GLfloat>& vertices)
 {OpenGL_Vertex4(v,vertices);OpenGL_Color4(c,vertices);}
 
-inline void OpenGL_Vertex4_And_Color4(const Vector3& v,const GLfloat* c,Array<GLfloat>& vertices)
+inline void OpenGL_Vertex4_And_Color4(const Vector3& v,const GLfloat* c,std::vector<GLfloat>& vertices)
 {OpenGL_Vertex4(v,vertices);OpenGL_Color4(c,vertices);}
 
-inline void OpenGL_Color(const GLfloat* color,Array<GLfloat>& colors){OpenGL_Color4(color,colors);}
+inline void OpenGL_Color(const GLfloat* color,std::vector<GLfloat>& colors){OpenGL_Color4(color,colors);}
 
 #endif

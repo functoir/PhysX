@@ -69,15 +69,15 @@ class OpenGLSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
 class OpenGLColoredSegmentMesh : public OpenGLMesh<SegmentMesh<3> >
 {public:typedef OpenGLMesh<SegmentMesh<3> > Base;
     OpenGLColoredSegmentMesh(){color=default_mesh_color;name="segment_mesh";}
-	Array<double> colors;
+	std::vector<double> colors;
 	OpenGLColorMapper mapper;
 
 	virtual void Initialize()
 	{
 		Base::Initialize();
 
-		Array<float> v={-.2f,-.1f,0.f,.1f,.2f};
-		Array<OpenGLColor> c={OpenGLColor(0,0,.5),OpenGLColor(0,0,1),OpenGLColor(0,1,1),OpenGLColor(1,1,0),OpenGLColor(1,0,0)};
+		std::vector<float> v={-.2f,-.1f,0.f,.1f,.2f};
+		std::vector<OpenGLColor> c={OpenGLColor(0,0,.5),OpenGLColor(0,0,1),OpenGLColor(0,1,1),OpenGLColor(1,1,0),OpenGLColor(1,0,0)};
 		mapper.Initialize(v,c);
 	}
 
@@ -149,7 +149,7 @@ class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 		case ShadingMode::Lighting:
 		{use_vtx_color=false;use_vtx_normal=true;}break;}
 
-		Array<Vector3> normals;
+		std::vector<Vector3> normals;
 		if(use_vtx_normal&&(normals.size()<mesh.Vertices().size()||recomp_vtx_normal)){
 			Update_Normals(mesh,normals);}
 
@@ -205,7 +205,7 @@ class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 
 class OpenGLColoredTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 {public:typedef OpenGLMesh<TriangleMesh<3> > Base;
-	Array<double> colors;
+	std::vector<double> colors;
 	
     OpenGLColoredTriangleMesh(){color=default_mesh_color;name="colored_triangle_mesh";shading_mode=ShadingMode::Lighting;}
 

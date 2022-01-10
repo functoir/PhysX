@@ -27,14 +27,14 @@ void OpenGLBackground::Initialize()
 
 	Update_Data_To_Render_Pre();
 
-	Array<Vector3> vtx={Vector3(box.min_corner[0],box.min_corner[1],depth),
+	std::vector<Vector3> vtx={Vector3(box.min_corner[0],box.min_corner[1],depth),
 						Vector3(box.max_corner[0],box.min_corner[1],depth),
 						Vector3(box.max_corner[0],box.max_corner[1],depth),
         
                         Vector3(box.min_corner[0],box.min_corner[1],depth),
                         Vector3(box.max_corner[0],box.max_corner[1],depth),
 						Vector3(box.min_corner[0],box.max_corner[1],depth)};
-	Array<Vector2> uv={Vector2((double)0.,(double)0.),Vector2((double)1.,(double)0.),Vector2((double)1.,(double)1.),
+	std::vector<Vector2> uv={Vector2((double)0.,(double)0.),Vector2((double)1.,(double)0.),Vector2((double)1.,(double)1.),
                        Vector2((double)0.,(double)0.),Vector2((double)1.,(double)1.),Vector2((double)0.,(double)1.)};
 
 	for(auto& p:vtx){
@@ -288,7 +288,7 @@ void OpenGLMarkerTriangleMesh::Initialize()
 
 void OpenGLMarkerTriangleMesh::Update_Mesh_Data_To_Render()
 {
-	Array<Vector3> normals;Update_Normals(mesh,normals);
+	std::vector<Vector3> normals;Update_Normals(mesh,normals);
 	for(auto i=0;i<mesh.Vertices().size();i++){
 		OpenGL_Vertex4(mesh.Vertices()[i],opengl_vertices);
 		OpenGL_Vertex4(normals[i],opengl_vertices);}	////position, 4 floats

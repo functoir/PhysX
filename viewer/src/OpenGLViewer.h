@@ -58,7 +58,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////Add objects
-	template<class T_OBJECT> T_OBJECT* Add_Object(const std::string object_name,const Array<OpenGLData> data=Array<OpenGLData>())
+	template<class T_OBJECT> T_OBJECT* Add_Object(const std::string object_name,const std::vector<OpenGLData> data=std::vector<OpenGLData>())
 	{
 		T_OBJECT* opengl_object=nullptr;
 		if(Initialize_From_File(output_dir,opengl_object,object_name,data,first_frame)){
@@ -67,7 +67,7 @@ public:
 		return opengl_object;
 	}
 
-	template<class T_OBJECT> T_OBJECT* Add_Object(const char* object_name,const Array<OpenGLData> data=Array<OpenGLData>())
+	template<class T_OBJECT> T_OBJECT* Add_Object(const char* object_name,const std::vector<OpenGLData> data=std::vector<OpenGLData>())
 	{return Add_Object<T_OBJECT>(std::string(object_name),data);}
 
 	template<class T_OBJECT> T_OBJECT* Add_Object(T_OBJECT* opengl_object,bool init=true,bool interactive=false)
@@ -92,7 +92,7 @@ public:
 	void Add_OpenGL_Object(OpenGLObject* object);
 
 	template<class T_OBJECT> bool Initialize_From_File(const std::string& output_dir,T_OBJECT* & opengl_object,
-		const std::string& object_name,const Array<OpenGLData>& data,const int frame=0)
+		const std::string& object_name,const std::vector<OpenGLData>& data,const int frame=0)
 	{
 		/*not implemented*/
 		return false;
@@ -162,7 +162,7 @@ public:
 
 	void Bind_Callback_Key(const uchar key,std::function<void(void)>* callback,const std::string& discription);
 	
-	void Bind_Callback_Keys(const Array<OpenGLData>& data,Array<std::function<void(void)>*> data_idx_callbacks,int start_idx=0);
+	void Bind_Callback_Keys(const std::vector<OpenGLData>& data,std::vector<std::function<void(void)>*> data_idx_callbacks,int start_idx=0);
 
 	template<class T_OBJECT> void Bind_Draw_Callback_Key(const uchar key,T_OBJECT* obj,const std::string _draw="")
 	{if(obj==nullptr)return;std::string draw=_draw;if(draw=="")draw="draw "+obj->name;Bind_Callback_Key(key,&obj->Toggle_Draw_Func,draw);}

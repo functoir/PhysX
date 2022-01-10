@@ -11,10 +11,10 @@ template<int d> class MultiCopter
 	using Vector2 = Vector<double, 2>; using Matrix2 = Matrix<double, 2>;
 public:
 	RigidBody<d> rigid_body;
-	Array<VectorD> body_rotor_pos;
-	Array<VectorD> body_rotor_dir;
+	std::vector<VectorD> body_rotor_pos;
+	std::vector<VectorD> body_rotor_dir;
 	int thrust_flag;
-	Array<VectorD> body_thrust_vec;
+	std::vector<VectorD> body_thrust_vec;
 
 	// Parameters
 	double mass;
@@ -123,7 +123,7 @@ public:
 
 	virtual void Advance(const double dt, const VectorD& target)
 	{
-		Array<double> thrusts(4, 0.0);
+		std::vector<double> thrusts(4, 0.0);
 		double mg = mass * g;
 		if (thrust_flag == 0)
 		{

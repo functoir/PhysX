@@ -14,12 +14,12 @@
 class OpenGLPoints : public OpenGLObject
 {typedef OpenGLObject Base;
 public:
-    const Array<Vector3>* points=nullptr;
-	const Array<double>* colors=nullptr;
+    const std::vector<Vector3>* points=nullptr;
+	const std::vector<double>* colors=nullptr;
 
 	GLfloat point_size=6.f;
 	bool use_varying_point_size=false;
-	Array<GLfloat> varying_point_size;
+	std::vector<GLfloat> varying_point_size;
 
 	OpenGLPoints(){color=OpenGLColor::Red();name="points";}
 
@@ -29,7 +29,7 @@ public:
 		Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("psize_ucolor"));	
 	}
 
-	void Set_Data_Pointers(const Array<Vector3>* _points,const Array<double>* _colors=nullptr){points=_points;colors=_colors;}
+	void Set_Data_Pointers(const std::vector<Vector3>* _points,const std::vector<double>* _colors=nullptr){points=_points;colors=_colors;}
 	
 	virtual void Update_Data_To_Render()
 	{
@@ -81,7 +81,7 @@ public:
     T_PARTICLE particles;
 	
 	OpenGLPoints opengl_points;
-	Array<OpenGLVectors> opengl_vector_fields;
+	std::vector<OpenGLVectors> opengl_vector_fields;
 
 	OpenGLParticles(){color=OpenGLColor::Red();name="particles";}
 
@@ -121,7 +121,7 @@ public:
 	{shading_mode=_shading_mode;opengl_points.shading_mode=_shading_mode;}
 	virtual void Set_Point_Size(const GLfloat point_size)
 	{opengl_points.point_size=point_size;}
-	virtual void Set_Point_Size(const Array<GLfloat>& point_size)
+	virtual void Set_Point_Size(const std::vector<GLfloat>& point_size)
 	{opengl_points.varying_point_size=point_size;opengl_points.use_varying_point_size=true;}
 
 protected:

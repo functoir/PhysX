@@ -39,7 +39,7 @@ void Test_Particles_And_Mesh()
     std::cout<<"[Particle] #particles: "<<particles.Size()<<std::endl;
     std::cout<<"[Particle] X(0): "<<particles.X(0).transpose()<<", V(0): "<<particles.V(0).transpose()<<std::endl;
 
-    Array<VectorD> vtx={VectorD::Zero(),VectorD::Unit(0),VectorD::Unit(1)};
+    std::vector<VectorD> vtx={VectorD::Zero(),VectorD::Unit(0),VectorD::Unit(1)};
 	TriangleMesh<3> triangle_mesh;
 	for(auto& v:vtx)triangle_mesh.Vertices().push_back(v);
     triangle_mesh.Elements().push_back(VectorDi(0,1,2));

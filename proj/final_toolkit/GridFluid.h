@@ -9,7 +9,7 @@ template<int d> class GridFluid
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	Grid<d> grid;
-	Array<VectorD> u;
+	std::vector<VectorD> u;
 	
 	SparseMatrixT A;
 	VectorX p;
@@ -56,7 +56,7 @@ public:
 
 	////Helper functions
 protected:
-	VectorD Interpolate(const Array<VectorD>& u,VectorD& pos)
+	VectorD Interpolate(const std::vector<VectorD>& u,VectorD& pos)
 	{
 		////clamp pos
 		for(int i=0;i<d;i++){
@@ -69,7 +69,7 @@ protected:
 	}
 
 	////2D bi-linear interpolation
-	Vector2 Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const Array<Vector2>& u)
+	Vector2 Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const std::vector<Vector2>& u)
 	{
 		return ((double)1-frac[0])*((double)1-frac[1])*u[grid.Node_Index(cell)]
 			+frac[0]*((double)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]
@@ -78,7 +78,7 @@ protected:
 	}
 
 	////3D tri-linear interpolation
-	Vector3 Interpolate_Helper(const Vector3i& cell,const Vector3& frac,const Array<Vector3>& u)
+	Vector3 Interpolate_Helper(const Vector3i& cell,const Vector3& frac,const std::vector<Vector3>& u)
 	{
 		return Vector3::Zero();	
 		////your implementation here

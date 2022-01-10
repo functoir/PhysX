@@ -41,8 +41,8 @@ public:
 	std::string output_dir;
 	std::string frame_info_string;
 
-	Array<GLfloat> opengl_vertices;
-	Array<GLuint> opengl_elements;
+	std::vector<GLfloat> opengl_vertices;
+	std::vector<GLuint> opengl_elements;
 	int vtx_size=0;
 	int ele_size=0;
 	double scale=(double)1;
@@ -58,7 +58,7 @@ public:
 	bool use_vtx_tex=false;
 	std::string tex_name="";
 
-	Array<std::shared_ptr<OpenGLShaderProgram> > shader_programs;
+	std::vector<std::shared_ptr<OpenGLShaderProgram> > shader_programs;
 
 	PolygonMode polygon_mode=PolygonMode::Fill;
 	ShadingMode shading_mode=ShadingMode::None;
@@ -66,14 +66,14 @@ public:
 	GLuint vbo=0,vao=0,ebo=0;
 	bool initialized=false;
 	
-	Array<OpenGLData> data;
+	std::vector<OpenGLData> data;
 	int data_idx=0;
 	bool data_refreshed=false;
 	
-	Array<std::function<void(void)>*> callbacks;
+	std::vector<std::function<void(void)>*> callbacks;
 	int cb_block_size=4;
 	
-	Array<OpenGLObject*> binded_objects;
+	std::vector<OpenGLObject*> binded_objects;
 	bool verbose=false;
 	bool use_preprocess=false;
 	bool use_depth_fbo=false;
@@ -115,9 +115,9 @@ public:
 	virtual void Update_Polygon_Mode() const;
 	virtual void Clear_OpenGL_Arrays();
 	virtual void Set_OpenGL_Vertices();
-	void Set_OpenGL_Vertices(Array<GLfloat>& opengl_vertices,int& vtx_size);
+	void Set_OpenGL_Vertices(std::vector<GLfloat>& opengl_vertices,int& vtx_size);
 	virtual void Set_OpenGL_Elements();
-	void Set_OpenGL_Elements(Array<GLuint>& opengl_elemetns,int& ele_size);
+	void Set_OpenGL_Elements(std::vector<GLuint>& opengl_elemetns,int& ele_size);
 	virtual void Set_OpenGL_Vertex_Attribute(const GLuint idx,const GLint element_size,const GLuint stride_size=0,GLuint start_idx=0);
 	virtual void Set_Color(const OpenGLColor& c){color=c;}
 
@@ -126,13 +126,13 @@ public:
 	virtual void Disable_Alpha_Blend() const;
 
 	////Set mapping parameters from data to scalars
-	void Update_Scalar_Range(const Array<Matrix3>& array,double& v_min,double& v_max) const;
+	void Update_Scalar_Range(const std::vector<Matrix3>& array,double& v_min,double& v_max) const;
 	template<class T_ARRAY> void Update_Scalar_Range(const T_ARRAY& array,double& v_min,double& v_max) const
 	{
 		v_min=std::numeric_limits<double>::max();v_max=std::numeric_limits<double>::min();
 		for(auto& v:array){double s=Scalar(v);if(s<v_min)v_min=s;else if(s>v_max)v_max=s;}
 	}
-	template<class T_VAL> double Normalized_Scale(Array<T_VAL>& array,double norm) const
+	template<class T_VAL> double Normalized_Scale(std::vector<T_VAL>& array,double norm) const
 	{double v_min,v_max;Update_Scalar_Range(array,v_min,v_max);if(v_max!=(double)0)return norm/v_max;else return (double)1;}
 	double Scalar(const double& v) const;
 	double Scalar(const Vector3& v) const;

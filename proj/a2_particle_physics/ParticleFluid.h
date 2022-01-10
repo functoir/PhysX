@@ -63,9 +63,9 @@ template<int d> class SpatialHashing
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	double dx=1.;	////grid cell size
-	Hashtable<VectorDi,Array<int> > voxels;
+	std::unordered_map<VectorDi,std::vector<int> > voxels;
 
-	void Update_Voxels(const Array<VectorD>& points)
+	void Update_Voxels(const std::vector<VectorD>& points)
 	{Clear_Voxels();for(int i=0;i<(int)points.size();i++)Add_Point(i,points[i]);}
 
 	void Clear_Voxels(){voxels.clear();}
@@ -74,8 +74,8 @@ public:
 	{
 		VectorDi cell=Cell_Coord(point_pos);
 		auto iter=voxels.find(cell);
-		if(iter==voxels.end())iter=voxels.insert(std::make_pair(cell,Array<int>())).first;
-		Array<int>& bucket=iter->second;
+		if(iter==voxels.end())iter=voxels.insert(std::make_pair(cell,std::vector<int>())).first;
+		std::vector<int>& bucket=iter->second;
 		bucket.push_back(point_idx);
 		return true;
 	}
@@ -85,7 +85,7 @@ public:
 	////You need to traverse all the 3^d neighboring cells in the background grid around the cell occupied by "pos", and then check the distance between each particle in each neighboring cell and the given "pos"
 	////Use the helper function Cell_Coord to get the cell coordinates for a given "pos"
 	////Use the helper function Nb_R to get the cell coordinates of the ith neighboring cell around the cell "coord"
-	bool Find_Nbs(const VectorD& pos,const Array<VectorD>& points,const double kernel_radius,/*returned result*/Array<int>& nbs) const
+	bool Find_Nbs(const VectorD& pos,const std::vector<VectorD>& points,const double kernel_radius,/*returned result*/std::vector<int>& nbs) const
 	{
 		/* Your implementation start */
 		/* Your implementation end */
@@ -107,7 +107,7 @@ template<int d> class ParticleFluid
 {using VectorD=Vector<double,d>;
 public:
 	Particles<d> particles;
-	Array<Array<int> > neighbors;
+	std::vector<std::vector<int> > neighbors;
 	SpatialHashing<d> spatial_hashing;
 	Kernel<d> kernel;
 
@@ -119,7 +119,7 @@ public:
 	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
 	
 	////Environment objects
-	Array<ImplicitGeometry<d>* > env_objects;
+	std::vector<ImplicitGeometry<d>* > env_objects;
 
 	virtual void Initialize()
 	{
@@ -133,7 +133,7 @@ public:
 
 		neighbors.resize(particles.Size());
 		for(int i=0;i<particles.Size();i++){
-			Array<int> nbs;
+			std::vector<int> nbs;
 			spatial_hashing.Find_Nbs(particles.X(i),particles.XRef(),kernel_radius,nbs);
 			neighbors[i]=nbs;}
 	}

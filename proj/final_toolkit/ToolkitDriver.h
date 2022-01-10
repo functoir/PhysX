@@ -18,7 +18,7 @@ template<int d> class ToolkitDriver : public Driver, public OpenGLViewer
 
 	OpenGLTriangleMesh* opengl_tri_mesh=nullptr;						////bunny
 	OpenGLSegmentMesh* opengl_vectors=nullptr;							////vector field
-	Array<OpenGLSphere*> opengl_spheres;								////spheres
+	std::vector<OpenGLSphere*> opengl_spheres;								////spheres
 	OpenGLPolygon* opengl_polygon=nullptr;
 
 public:

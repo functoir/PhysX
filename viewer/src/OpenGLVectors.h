@@ -12,14 +12,14 @@
 class OpenGLVectors : public OpenGLObject
 {typedef OpenGLObject Base;
 public:
-    const Array<Vector3>* bases=nullptr;
-    const Array<Vector3>* vectors=nullptr;
+    const std::vector<Vector3>* bases=nullptr;
+    const std::vector<Vector3>* vectors=nullptr;
 	bool draw_arrow=true;
 
-    OpenGLVectors(const Array<Vector3>* _bases=nullptr,const Array<Vector3>* _vectors=nullptr)
+    OpenGLVectors(const std::vector<Vector3>* _bases=nullptr,const std::vector<Vector3>* _vectors=nullptr)
 		:bases(_bases),vectors(_vectors){name="vectors";color=OpenGLColor::Green();polygon_mode=PolygonMode::Fill;}
 
-	void Set_Data_Pointers(const Array<Vector3>* _bases,const Array<Vector3>* _vectors){bases=_bases;vectors=_vectors;}
+	void Set_Data_Pointers(const std::vector<Vector3>* _bases,const std::vector<Vector3>* _vectors){bases=_bases;vectors=_vectors;}
 
 	virtual void Initialize()
 	{

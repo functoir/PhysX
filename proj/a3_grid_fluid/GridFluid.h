@@ -10,11 +10,11 @@ template<int d> class GridFluid
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	Grid<d> grid;
-	Array<VectorD> u;		////velocity on grid nodes
-	Array<double> div_u;		////velocity divergence on grid nodes (right hand side of the Poisson equation)
-	Array<double> p;			////pressure
-	Array<double> vor;		////vorticity
-	Array<double> smoke_den;	////smoke density
+	std::vector<VectorD> u;		////velocity on grid nodes
+	std::vector<double> div_u;		////velocity divergence on grid nodes (right hand side of the Poisson equation)
+	std::vector<double> p;			////pressure
+	std::vector<double> vor;		////vorticity
+	std::vector<double> smoke_den;	////smoke density
 
 	int node_num=0;
 	VectorD src_pos=VectorD::Ones()*(double).5;
@@ -51,8 +51,8 @@ public:
 	////Hint: read the helper functions between Line 158-192 and use (some of) them in your implementation
 	virtual void Advection(double dt)
 	{
-		Array<VectorD> u_copy=u;
-		Array<double> den_copy=smoke_den;
+		std::vector<VectorD> u_copy=u;
+		std::vector<double> den_copy=smoke_den;
 
 		for(int i=0;i<node_num;i++){
 			u[i]=VectorD::Zero();
@@ -122,7 +122,7 @@ public:
 		}
 
 		////TASK: Vorticity confinement step 2: update N = (grad(|vor|)) / |grad(|vor|)|
-		Array<VectorD> N(node_num,VectorD::Zero());
+		std::vector<VectorD> N(node_num,VectorD::Zero());
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
 			VectorDi node=Coord(i);
@@ -204,7 +204,7 @@ public:
 	{return Vector2(v[1]*w,-v[0]*w);}
 
 	////2D bi-linear interpolation for vectors or vectors (the type is specified by T)
-	template<class T> T Interpolate(const Array<T>& u,VectorD& pos)
+	template<class T> T Interpolate(const std::vector<T>& u,VectorD& pos)
 	{
 		////clamp pos to ensure it is always inside the grid
 		double epsilon=grid.dx*(double)1e-3;
@@ -223,7 +223,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////Other helper functions that you may not need in your implementation
 	////2D bi-linear interpolation helper for vectors or vectors (the type is specified by T)
-	template<class T> T Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const Array<T>& u)
+	template<class T> T Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const std::vector<T>& u)
 	{
 		return ((double)1-frac[0])*((double)1-frac[1])*u[grid.Node_Index(cell)]
 			+frac[0]*((double)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]

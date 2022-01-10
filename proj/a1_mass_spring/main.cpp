@@ -13,7 +13,7 @@
 int main(int argc,char* argv[])
 {
 	////default arguments
-	int test=1;
+	int test=2;
 	int scale=1;
 
 	////parse from command lines
@@ -26,7 +26,7 @@ int main(int argc,char* argv[])
 	std::cout<<"[Mass spring simulation driver arguments]: -test = "<<test<<", -scale = "<<scale<<std::endl;
 
 	////initialize driver
-	MassSpringInteractivDriver<3> driver;
+	MassSpringInteractivDriver driver;
 	driver.scale=scale;
 	driver.test=test;
 	driver.Initialize();

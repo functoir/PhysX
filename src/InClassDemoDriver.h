@@ -32,7 +32,7 @@ public:
 		opengl_trace->Initialize();
 	}
 
-	void Sync_Data(const Array<Vector3>& vertices)
+	void Sync_Data(const std::vector<Vector3>& vertices)
 	{
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices()=vertices;
@@ -41,7 +41,7 @@ public:
 		opengl_trace->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Array<Vector2>& vertices)
+	void Sync_Data(const std::vector<Vector2>& vertices)
 	{
 		int n=(int)vertices.size();
 		opengl_trace->mesh.Vertices().resize(n);
@@ -159,13 +159,13 @@ public:
 	}
 
 	////We do not update connectivities if only vertices are passed in
-	void Sync_Data(const Array<Vector3>& vertices)
+	void Sync_Data(const std::vector<Vector3>& vertices)
 	{
 		opengl_segments->mesh.Vertices()=vertices;
 		opengl_segments->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Array<Vector2>& vertices)
+	void Sync_Data(const std::vector<Vector2>& vertices)
 	{
 		int n=(int)vertices.size();
 		opengl_segments->mesh.Vertices().resize(n);
@@ -187,14 +187,14 @@ public:
 		opengl_segments->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Array<Vector3>& vertices,const Array<Vector2i>& edges)
+	void Sync_Data(const std::vector<Vector3>& vertices,const std::vector<Vector2i>& edges)
 	{
 		opengl_segments->mesh.Vertices()=vertices;
 		opengl_segments->mesh.Elements()=edges;
 		opengl_segments->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Vector3* vertices,const int n,const Array<Vector2i>& edges)
+	void Sync_Data(const Vector3* vertices,const int n,const std::vector<Vector2i>& edges)
 	{
 		opengl_segments->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=vertices[i];
@@ -202,7 +202,7 @@ public:
 		opengl_segments->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Array<Vector2>& vertices,const Array<Vector2i>& edges)
+	void Sync_Data(const std::vector<Vector2>& vertices,const std::vector<Vector2i>& edges)
 	{
 		int n=(int)vertices.size();
 		opengl_segments->mesh.Vertices().resize(n);
@@ -211,7 +211,7 @@ public:
 		opengl_segments->Set_Data_Refreshed();
 	}
 
-	void Sync_Data(const Vector2* vertices,const int n,const Array<Vector2i>& edges)
+	void Sync_Data(const Vector2* vertices,const int n,const std::vector<Vector2i>& edges)
 	{
 		opengl_segments->mesh.Vertices().resize(n);
 		for(int i=0;i<n;i++)opengl_segments->mesh.Vertices()[i]=Vector3(vertices[i][0],vertices[i][1],(double)0);

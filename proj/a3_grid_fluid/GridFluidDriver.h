@@ -20,7 +20,7 @@ template<int d> class GridFluidDriver : public Driver, public OpenGLViewer
 
 	OpenGLSegmentMesh* opengl_vectors=nullptr;							////vector field for velocity
 	OpenGLPolygon* opengl_polygon=nullptr;								////a rectangle for domain boundary
-	Array<OpenGLSolidCircle*> opengl_circles;							////passive particles
+	std::vector<OpenGLSolidCircle*> opengl_circles;							////passive particles
 	Hashset<int> invis_particles;
 	OpenGLColoredTriangleMesh* opengl_mesh=nullptr;						////density field
 

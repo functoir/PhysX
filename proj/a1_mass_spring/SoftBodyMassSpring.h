@@ -9,23 +9,23 @@
 #include "Common.h"
 #include "Particles.h"
 
-template<int d> class SoftBodyMassSpring
-{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<double,d>;
+class SoftBodyMassSpring
+{
 public:
 	////Spring parameters
-	Particles<d> particles;
-	Array<Vector2i> springs;
-	Array<double> rest_length;
-	Array<double> ks;
-	Array<double> kd;
+	Particles<3> particles;								//// The particle system. Each particle has the attributes of position, velocity, mass, and force. Read Particles.h in src to know the details.
+	std::vector<Vector2i> springs;						//// Each element in springs stores a Vector2i for the indices of the two end points.
+	std::vector<double> rest_length;					//// Each element in rest_length specifies the rest length of the spring
+	std::vector<double> ks;								//// Each element in ks specifies the spring stiffness of a spring
+	std::vector<double> kd;								//// Each element in kd specifies the damping coefficient of a spring
 
 	////Boundary nodes
-	Hashtable<int,VectorD> boundary_nodes;
+	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_notes stores the mapping from node index to its specified velocity. E.g., a fixed node will have a zero velocity.
 
 	////Body force
-	VectorD g=VectorD::Unit(1)*(double)-1.;
+	Vector3 g=Vector3::Unit(1)*(double)-1.;			//// gravity
 	
-	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;
+	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ImplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
 
 	////Implicit time integration
 	SparseMatrixT K;
@@ -68,73 +68,119 @@ public:
 	}
 	
 	////Set boundary nodes
-	void Set_Boundary_Node(const int p,const VectorD v=VectorD::Zero()){boundary_nodes[p]=v;}
+	void Set_Boundary_Node(const int p,const Vector3 v=Vector3::Zero()){boundary_nodes[p]=v;}
 	
 	bool Is_Boundary_Node(const int p){return boundary_nodes.find(p)!=boundary_nodes.end();}
-	
-	void Enforce_Boundary_Conditions()
-	{
-		for(auto p:boundary_nodes){
-			int idx=p.first;					////get boundary particle index
-			const VectorD& v=p.second;			////get boundary particle velocity
-			particles.V(idx)=v;					////set boundary particle velocity
-			particles.F(idx)=VectorD::Zero();}	////clear boundary particle force
-	}
 
 	//////////////////////////////////////////////////////////////////////////
-	////P1 TASK: explicit Euler integration and spring force calculation
+	//// P1 TASK: explicit Euler integration and spring force calculation
 
 	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P1 TASK): explicit Euler time integration 
+	//// YOUR IMPLEMENTATION (TASK 1): explicit Euler time integration 
 	void Advance_Explicit_Euler(const double dt)
 	{
-		Particle_Force_Accumulation();
+		//// Step 0: Clear the force on each particle (already done for you)
+		Clear_Force();
 
-		////Step 1) update particle velocity; Step 2) update particle position
-		/* Your implementation start */
+		//// Step 1: add a body force to each particle
+		Apply_Body_Force(dt);
 
-		/* Your implementation end */
+		//// Step 2: calculate the spring force for each spring and add it to the two connecting particles (Hint: you may want to implement the function Spring_Force and call it in your for-loop)
+		Apply_Spring_Force(dt);
+
+		//// Step 3: enforce the boundary conditions (traversing the particles in the unordered_set, set its velocity to be the value read from the unordered_set, and its force to be zero)
+		Enforce_Boundary_Condition();
+
+		//// Step 4: time integration by updating the particle velocities according to their forces and updating particle positions according to the positions
+		Time_Integration(dt);
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P1 TASK): compute spring force f_ij=f_s+f_d 
-	VectorD Spring_Force_Calculation(const int idx)
+	void Clear_Force()
 	{
-		/* Your implementation start */
-
-		/* Your implementation end */
-
-		//return VectorD::Zero();	////replace this line with your implementation
+		for(int i=0;i<particles.Size();i++){particles.F(i)=Vector3::Zero();}
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P1 TASK): accumulate spring forces to particles
-	void Particle_Force_Accumulation()
+	void Apply_Body_Force(const double dt)
 	{
-		////Clear forces on particles
-		for(int i=0;i<particles.Size();i++){particles.F(i)=VectorD::Zero();}
-
-		////Accumulate body forces
+		/* Your implementation start */
 		for(int i=0;i<particles.Size();i++){
 			particles.F(i)+=particles.M(i)*g;}
+		/* Your implementation end */	
+	}
 
-		////Accumulate spring forces
+	void Apply_Spring_Force(const double dt)
+	{
 		/* Your implementation start */
+		for(int i=0;i<(int)springs.size();i++){
+			Vector3 f=Spring_Force(i);
+			particles.F(springs[i][0])+=f;
+			particles.F(springs[i][1])-=f;}
+		/* Your implementation end */	
+	}
 
+	void Enforce_Boundary_Condition()
+	{
+		/* Your implementation start */
+		for(auto p:boundary_nodes){
+			int idx=p.first;					////get boundary particle index
+			const Vector3& v=p.second;			////get boundary particle velocity
+			particles.V(idx)=v;					////set boundary particle velocity
+			particles.F(idx)=Vector3::Zero();}	////clear boundary particle force
+		/* Your implementation end */	
+	}
+
+	void Time_Integration(const double dt)
+	{
+		/* Your implementation start */
+		for(int i=0;i<particles.Size();i++){
+			particles.V(i)+=particles.F(i)/particles.M(i)*dt;
+			particles.X(i)+=particles.V(i)*dt;}	
+		/* Your implementation end */		
+	}
+	
+	Vector3 Spring_Force(const int spring_index)
+	{
+		//// This is an auxiliary function to compute the spring force f=f_s+f_d for the spring with spring_index. 
+		//// You may want to call this function in Apply_Spring_Force
+		
+		/* Your implementation start */
+		int i=springs[spring_index][0];int j=springs[spring_index][1];
+		Vector3 dir=particles.X(j)-particles.X(i);
+		double length=dir.norm();
+		dir/=length;
+		Vector3 rel_dir=particles.V(j)-particles.V(i);
+		Vector3 f_s=ks[spring_index]*(length-rest_length[spring_index])*dir;
+		Vector3 f_d=kd[spring_index]*rel_dir.dot(dir)*dir;
+		return f_s+f_d;
 		/* Your implementation end */
 
-		////Enforce boundary conditions
-		Enforce_Boundary_Conditions();
+		//return Vector3::Zero();	////REPLACE this line with your own implementation
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): 
+	//// TASK 2 (OPTION 1): creating bending springs for hair strand simulation
+	void Initialize_Hair_Strand()
+	{
+		//// You need to initialize a hair model by setting the springs and particles to simulate human hair.
+		//// A key component for a hair simulator is the bending spring (e.g., by connecting particles with a certain index offset).
+		//// Think about how to realize these bending and curly effects with the explicit spring model you have implemented in TASK 1.
+		//// You may also want to take a look at the function Initialize_Simulation_Data() in MassSpringInteractiveDriver.h for the model initialization.
+		
+		/* Your implementation start */
+
+		/* Your implementation end */
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	//// TASK 2 (OPTION 2): implicit time integration for inextensible cloth simulation
+	//// The rest part of this file is all for this task.
+	
 	////Construct K, step 1: initialize the matrix structure 
 	void Initialize_Implicit_K_And_b()
 	{
-		int n=d*particles.Size();
+		int n=3*particles.Size();
 		K.resize(n,n);u.resize(n);u.fill((double)0);b.resize(n);b.fill((double)0);
-		Array<TripletT> elements;
+		std::vector<TripletT> elements;
 		for(int s=0;s<(int)springs.size();s++){int i=springs[s][0];int j=springs[s][1];
 			Add_Block_Triplet_Helper(i,i,elements);
 			Add_Block_Triplet_Helper(i,j,elements);
@@ -143,9 +189,7 @@ public:
 		K.setFromTriplets(elements.begin(),elements.end());
 		K.makeCompressed();	
 	}
-
-	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): 
+	
 	////Construct K, step 2: fill nonzero elements in K
 	void Update_Implicit_K_And_b(const double dt)
 	{
@@ -154,72 +198,102 @@ public:
 		b.fill((double)0);
 
 		/* Your implementation start */
+		////Set K diagonal blocks and rhs
+		for(int i=0;i<particles.Size();i++){
+			for(int ii=0;ii<3;ii++){K.coeffRef(i*3+ii,i*3+ii)+=particles.M(i);}
+			Vector3 rhs=particles.M(i)*particles.V(i)+dt*particles.F(i);Set_Block(b,i,rhs);}
 
+		////Set K blocks with spring and damping Jacobians
+		Matrix3 Ks,Kd;double dt_sq=pow(dt,2);
+		for(int s=0;s<(int)springs.size();s++){
+			int i=springs[s][0];int j=springs[s][1];
+			////Add Ks
+			Compute_Ks_Block(s,Ks);
+			Ks*=-dt_sq;
+			Add_Block_Helper(K,i,j,Ks);
+
+			////Add Kd
+			Compute_Kd_Block(s,Kd);
+			Kd*=-dt;
+			Add_Block_Helper(K,i,j,Kd);
+
+			////Add rhs
+			Vector3 rhs_d_i=Kd*(particles.V(i)-particles.V(j));
+			if(!Is_Boundary_Node(i))Add_Block(b,i,rhs_d_i);
+			if(!Is_Boundary_Node(j))Add_Block(b,j,-rhs_d_i);}
 		/* Your implementation end */
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	////P2 TASK: Implicit Euler time integration
-
-	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): 
 	////Construct K, step 2.1: compute spring force derivative
-	void Compute_Ks_Block(const int s,MatrixD& Ks)
+	void Compute_Ks_Block(const int s,Matrix3& Ks)
 	{
 		/* Your implementation start */
-
+		int i=springs[s][0];int j=springs[s][1];
+		Vector3 x_ij=particles.X(j)-particles.X(i);
+		double length=x_ij.norm();
+		double length_0=rest_length[s];
+		Ks=ks[s]*((length_0/length-(double)1)*Matrix3::Identity()-(length_0/pow(length,3))*x_ij*x_ij.transpose());
 		/* Your implementation end */
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): 
 	////Construct K, step 2.2: compute damping force derivative
-	void Compute_Kd_Block(const int s,MatrixD& Kd)
+	void Compute_Kd_Block(const int s,Matrix3& Kd)
 	{
 		/* Your implementation start */
-
+		int i=springs[s][0];int j=springs[s][1];
+		Vector3 n_ij=(particles.X(j)-particles.X(i)).normalized();
+		Kd=-kd[s]*n_ij*n_ij.transpose();
 		/* Your implementation end */
 	}
 
 	////Implicit Euler time integration
 	void Advance_Implicit_Euler(const double dt)
 	{
-		Particle_Force_Accumulation();
+		//// clear force
+		Clear_Force();
+		//// add a body force to each particle as in explicit Euler
+		Apply_Body_Force(dt);
+		//// calculate the spring force as in explicit Euler
+		Apply_Spring_Force(dt);
+		//// enforce boundary condition
+		Enforce_Boundary_Condition();
+
+
 		Update_Implicit_K_And_b(dt);
 
 		for(int i=0;i<particles.Size();i++){
-			for(int j=0;j<d;j++)u[i*d+j]=particles.V(i)[j];}	////set initial guess to be the velocity from the last time step
+			for(int j=0;j<3;j++)u[i*3+j]=particles.V(i)[j];}	////set initial guess to be the velocity from the last time step
 
 		SparseSolver::CG(K,u,b);	////solve Ku=b using Conjugate Gradient
 
 		for(int i=0;i<particles.Size();i++){
-			VectorD v;for(int j=0;j<d;j++)v[j]=u[i*d+j];
+			Vector3 v;for(int j=0;j<3;j++)v[j]=u[i*3+j];
 			particles.V(i)=v;
 			particles.X(i)+=particles.V(i)*dt;}
 	}
 
-protected:
+	////Hint: you may want to use these functions when assembling your implicit matrix
 	////Add block nonzeros to sparse matrix elements (for initialization)
-	void Add_Block_Triplet_Helper(const int i,const int j,Array<TripletT>& elements)
-	{for(int ii=0;ii<d;ii++)for(int jj=0;jj<d;jj++)elements.push_back(TripletT(i*d+ii,j*d+jj,(double)0));}
+	void Add_Block_Triplet_Helper(const int i,const int j,std::vector<TripletT>& elements)
+	{for(int ii=0;ii<3;ii++)for(int jj=0;jj<3;jj++)elements.push_back(TripletT(i*3+ii,j*3+jj,(double)0));}
 
 	////Add block Ks to K_ij
-	void Add_Block_Helper(SparseMatrixT& K,const int i,const int j,const MatrixD& Ks)
+	void Add_Block_Helper(SparseMatrixT& K,const int i,const int j,const Matrix3& Ks)
 	{
-		SparseFunc::Add_Block<d,MatrixD>(K,i,i,Ks);
-		SparseFunc::Add_Block<d,MatrixD>(K,j,j,Ks);
+		SparseFunc::Add_Block<3,Matrix3>(K,i,i,Ks);
+		SparseFunc::Add_Block<3,Matrix3>(K,j,j,Ks);
 		if(!Is_Boundary_Node(i)&&!Is_Boundary_Node(j)){
-			SparseFunc::Add_Block<d,MatrixD>(K,i,j,-Ks);
-			SparseFunc::Add_Block<d,MatrixD>(K,j,i,-Ks);}
+			SparseFunc::Add_Block<3,Matrix3>(K,i,j,-Ks);
+			SparseFunc::Add_Block<3,Matrix3>(K,j,i,-Ks);}
 	}
 
 	////Set block values on a vector
-	void Set_Block(VectorX& b,const int i,const VectorD& bi)
-	{for(int ii=0;ii<d;ii++)b[i*d+ii]=bi[ii];}
+	void Set_Block(VectorX& b,const int i,const Vector3& bi)
+	{for(int ii=0;ii<3;ii++)b[i*3+ii]=bi[ii];}
 
 	////Add block values to a vector
-	void Add_Block(VectorX& b,const int i,const VectorD& bi)
-	{for(int ii=0;ii<d;ii++)b[i*d+ii]+=bi[ii];}
+	void Add_Block(VectorX& b,const int i,const Vector3& bi)
+	{for(int ii=0;ii<3;ii++)b[i*3+ii]+=bi[ii];}
 };
 
 #endif

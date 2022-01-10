@@ -147,13 +147,13 @@ template<class T_KEY,class T> using HashtableMultiValue=std::unordered_multimap<
 template<class T_KEY> using Hashset=std::unordered_set<T_KEY>;
 
 template<class T1,class T2> using Pair=std::pair<T1,T2>;
-template<class T> using ArrayPtr=std::shared_ptr<Array<T> >;
+template<class T> using ArrayPtr=std::shared_ptr<std::vector<T> >;
 
-using size_type=Array<int>::size_type;
+using size_type=std::vector<int>::size_type;
 using uchar=unsigned char;
 using ushort=unsigned short;
 
-////Array with fixed size
+////std::vector with fixed size
 template<class T,int n> using ArrayF=std::array<T,n>;
 constexpr int Pow(int x,int p){return p==1?x:x*Pow(x,p-1);}
 constexpr int Factorial(int n){return n<=1?1:(n*Factorial(n-1));}
@@ -201,7 +201,7 @@ template<class T,int d1,int d2> void Dim_Conversion(const Vector<T,d1>& input,/*
 	for(int i=n;i<d2;i++)output[i]=filled_value;
 }
 
-template<class T,int d1,int d2> void Dim_Conversion_Array(const Array<Vector<T,d1> >& input,/*result*/Array<Vector<T,d2> >& output,const T filled_value=(T)0)
+template<class T,int d1,int d2> void Dim_Conversion_Array(const std::vector<Vector<T,d1> >& input,/*result*/std::vector<Vector<T,d2> >& output,const T filled_value=(T)0)
 {
 	for(size_type i=0;i<input.size();i++){
 		Dim_Conversion<T,d1,d2>(input[i],output[i],filled_value);}

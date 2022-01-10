@@ -15,7 +15,7 @@ template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
 	double dt=.02;
 	MultiCopter<d> copter;
-	Array<VectorD> targets = {
+	std::vector<VectorD> targets = {
 		VectorD(0.0, 0.0, -1.0),
 		VectorD(1.0, 1.0, -1.2),
 		VectorD(2.0, 0.0, -1.4),
@@ -25,7 +25,7 @@ template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
 
 	OpenGLSegmentMesh* opengl_copter=nullptr;
 	OpenGLSegmentMesh* opengl_circles=nullptr;
-	Array<VectorD> circle_vtx;
+	std::vector<VectorD> circle_vtx;
 	OpenGLParticles<Particles<3> >* opengl_targets=nullptr;
 
 public:

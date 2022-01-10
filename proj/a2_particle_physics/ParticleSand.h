@@ -19,11 +19,11 @@ public:
 	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
 
 	////list of implicit geometries describing the environment, by default it has one element, a circle with its normals pointing inward (Bowl)
-	Array<ImplicitGeometry<d>* > env_objects;	
-	Array<Vector2i> particle_particle_collision_pairs;
-	Array<Vector2i> particle_environment_collision_pairs;
+	std::vector<ImplicitGeometry<d>* > env_objects;	
+	std::vector<Vector2i> particle_particle_collision_pairs;
+	std::vector<Vector2i> particle_environment_collision_pairs;
 
-	Array<VectorD> my_object_vertices={{-1.,5.},{1.,5.}};	////this array stores the positions of the contour of your object for visualization
+	std::vector<VectorD> my_object_vertices={{-1.,5.},{1.,5.}};	////this array stores the positions of the contour of your object for visualization
 
 	virtual void Advance(const double dt)
 	{

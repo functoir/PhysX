@@ -18,7 +18,7 @@ template<int d> class ParticleFluidDriver : public Driver, public OpenGLViewer
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
 	double dt=.02;
 	ParticleFluid<d> fluid;
-	Array<OpenGLSolidCircle*> opengl_circles;
+	std::vector<OpenGLSolidCircle*> opengl_circles;
 
 	Bowl<d>* bowl=nullptr;
 public:

@@ -58,7 +58,7 @@ void OpenGLObject::Clear_OpenGL_Arrays()
 void OpenGLObject::Set_OpenGL_Vertices()
 {Set_OpenGL_Vertices(opengl_vertices,vtx_size);}
 
-void OpenGLObject::Set_OpenGL_Vertices(Array<GLfloat>& opengl_vertices,int& vtx_size)
+void OpenGLObject::Set_OpenGL_Vertices(std::vector<GLfloat>& opengl_vertices,int& vtx_size)
 {
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER,vbo);
@@ -71,7 +71,7 @@ void OpenGLObject::Set_OpenGL_Vertices(Array<GLfloat>& opengl_vertices,int& vtx_
 void OpenGLObject::Set_OpenGL_Elements()
 {Set_OpenGL_Elements(opengl_elements,ele_size);}
 
-void OpenGLObject::Set_OpenGL_Elements(Array<GLuint>& opengl_elemetns,int& ele_size)
+void OpenGLObject::Set_OpenGL_Elements(std::vector<GLuint>& opengl_elemetns,int& ele_size)
 {
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
@@ -97,7 +97,7 @@ void OpenGLObject::Enable_Alpha_Blend() const
 
 void OpenGLObject::Disable_Alpha_Blend() const {glDisable(GL_BLEND);}
 
-void OpenGLObject::Update_Scalar_Range(const Array<Matrix3>& array,double& v_min,double& v_max) const
+void OpenGLObject::Update_Scalar_Range(const std::vector<Matrix3>& array,double& v_min,double& v_max) const
 {
 	v_min=std::numeric_limits<double>::max();v_max=std::numeric_limits<double>::min();
 	for(auto& v:array){Sym_Mat3_Eig eig(v,false);

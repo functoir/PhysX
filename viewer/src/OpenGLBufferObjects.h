@@ -64,7 +64,7 @@ class Fbo_Library
 	static Fbo_Library* Instance();
 	std::shared_ptr<OpenGLFbo> Get(const std::string& name,const int init_type=0);
 protected:
-	Hashtable<std::string,std::shared_ptr<OpenGLFbo> > fbo_hashtable;
+	std::unordered_map<std::string,std::shared_ptr<OpenGLFbo> > fbo_hashtable;
 	std::shared_ptr<OpenGLFbo> Lazy_Initialize_Fbo(const std::string& name,const int type);
 };
 
@@ -236,8 +236,8 @@ class Ubo_Library
 	GLuint Get_Binding_Point(const std::string& name);
 
 protected:
-	Hashtable<std::string,std::shared_ptr<OpenGLUbo> > ubo_hashtable;
-	Hashtable<std::string,std::string> shader_header_hashtable;
+	std::unordered_map<std::string,std::shared_ptr<OpenGLUbo> > ubo_hashtable;
+	std::unordered_map<std::string,std::string> shader_header_hashtable;
 
 	Ubo_Library();
 	void Initialize_Ubos();
@@ -248,7 +248,7 @@ protected:
 
 ////Global access
 void Initialize_Ubos();
-void Bind_Shader_Ubo_Headers(Hashtable<std::string,std::string>& shader_header_hashtable);
+void Bind_Shader_Ubo_Headers(std::unordered_map<std::string,std::string>& shader_header_hashtable);
 std::shared_ptr<OpenGLUbo> Get_Ubo(const std::string& name);
 GLuint Get_Ubo_Binding_Point(const std::string& name);
 bool Bind_Uniform_Block_To_Ubo(std::shared_ptr<OpenGLShaderProgram>& shader,const std::string& ubo_name);	////assuming uniform block name=ubo name

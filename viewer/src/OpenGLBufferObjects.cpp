@@ -177,7 +177,7 @@ namespace OpenGLUbos{
 //////////////////////////////////////////////////////////////////////////
 ////OpenGL UBO classes and library
 
-void Bind_Shader_Ubo_Headers(Hashtable<std::string,std::string>& shader_header_hashtable)
+void Bind_Shader_Ubo_Headers(std::unordered_map<std::string,std::string>& shader_header_hashtable)
 {
 	shader_header_hashtable.insert(std::make_pair("camera",camera));
 	//shader_header_hashtable.insert(std::make_pair("lighting",lighting));

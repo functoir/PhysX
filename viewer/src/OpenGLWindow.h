@@ -37,7 +37,7 @@ public:
 	////Viewer
 	std::shared_ptr<OpenGLViewer> opengl_viewer;
 	////Objects
-	Array<std::unique_ptr<OpenGLObject> > object_list;
+	std::vector<std::unique_ptr<OpenGLObject> > object_list;
 
 	////Texts
 	std::map<std::string,std::string> texts;

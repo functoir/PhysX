@@ -25,15 +25,15 @@ public:
 	////common functions
 	Particles()
 	{
-		if(x==nullptr)x.reset(new Array<VectorD>());	
-		if(v==nullptr)v.reset(new Array<VectorD>());	
-		if(f==nullptr)f.reset(new Array<VectorD>());	
-		if(m==nullptr)m.reset(new Array<double>());	
-		if(c==nullptr)c.reset(new Array<double>());	
-		if(r==nullptr)r.reset(new Array<double>());	
-		if(p==nullptr)p.reset(new Array<double>());	
-		if(den==nullptr)den.reset(new Array<double>());	
-		if(idx==nullptr)idx.reset(new Array<int>());
+		if(x==nullptr)x.reset(new std::vector<VectorD>());	
+		if(v==nullptr)v.reset(new std::vector<VectorD>());	
+		if(f==nullptr)f.reset(new std::vector<VectorD>());	
+		if(m==nullptr)m.reset(new std::vector<double>());	
+		if(c==nullptr)c.reset(new std::vector<double>());	
+		if(r==nullptr)r.reset(new std::vector<double>());	
+		if(p==nullptr)p.reset(new std::vector<double>());	
+		if(den==nullptr)den.reset(new std::vector<double>());	
+		if(idx==nullptr)idx.reset(new std::vector<int>());
 	}
 
 	void Resize(const int size)
@@ -74,10 +74,10 @@ public:
 	const VectorD& X(const int i) const 
 	{return (*x)[i];}
 
-	Array<VectorD>* X()
+	std::vector<VectorD>* X()
 	{return x.get();}
 
-	const Array<VectorD>* X() const 
+	const std::vector<VectorD>* X() const 
 	{return x.get();}
 	
 	ArrayPtr<VectorD> XPtr()
@@ -86,10 +86,10 @@ public:
 	const ArrayPtr<VectorD> XPtr() const
 	{return x;}
 	
-	Array<VectorD>& XRef()
+	std::vector<VectorD>& XRef()
 	{return *x;}
 
-	const Array<VectorD>& XRef() const 
+	const std::vector<VectorD>& XRef() const 
 	{return *x;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -100,10 +100,10 @@ public:
 	const VectorD& V(const int i) const 
 	{return (*v)[i];}
 
-	Array<VectorD>* V()
+	std::vector<VectorD>* V()
 	{return v.get();}
 
-	const Array<VectorD>* V() const 
+	const std::vector<VectorD>* V() const 
 	{return v.get();}
 	
 	ArrayPtr<VectorD> VPtr()
@@ -112,10 +112,10 @@ public:
 	const ArrayPtr<VectorD> VPtr() const
 	{return v;}
 	
-	Array<VectorD>& VRef()
+	std::vector<VectorD>& VRef()
 	{return *v;}
 
-	const Array<VectorD>& VRef() const 
+	const std::vector<VectorD>& VRef() const 
 	{return *v;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -126,10 +126,10 @@ public:
 	const VectorD& F(const int i) const 
 	{return (*f)[i];}
 
-	Array<VectorD>* F()
+	std::vector<VectorD>* F()
 	{return f.get();}
 
-	const Array<VectorD>* F() const 
+	const std::vector<VectorD>* F() const 
 	{return f.get();}
 	
 	ArrayPtr<VectorD> FPtr()
@@ -138,10 +138,10 @@ public:
 	const ArrayPtr<VectorD> FPtr() const
 	{return f;}
 	
-	Array<VectorD>& FRef()
+	std::vector<VectorD>& FRef()
 	{return *f;}
 
-	const Array<VectorD>& FRef() const 
+	const std::vector<VectorD>& FRef() const 
 	{return *f;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -152,10 +152,10 @@ public:
 	const double& M(const int i) const 
 	{return (*m)[i];}
 
-	Array<double>* M()
+	std::vector<double>* M()
 	{return m.get();}
 
-	const Array<double>* M() const 
+	const std::vector<double>* M() const 
 	{return m.get();}
 	
 	ArrayPtr<double> MPtr()
@@ -164,10 +164,10 @@ public:
 	const ArrayPtr<double> MPtr() const
 	{return m;}
 	
-	Array<double>& MRef()
+	std::vector<double>& MRef()
 	{return *m;}
 
-	const Array<double>& MRef() const 
+	const std::vector<double>& MRef() const 
 	{return *m;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -178,10 +178,10 @@ public:
 	const double& C(const int i) const 
 	{return (*c)[i];}
 
-	Array<double>* C()
+	std::vector<double>* C()
 	{return c.get();}
 
-	const Array<double>* C() const 
+	const std::vector<double>* C() const 
 	{return c.get();}
 	
 	ArrayPtr<double> CPtr()
@@ -190,10 +190,10 @@ public:
 	const ArrayPtr<double> CPtr() const
 	{return c;}
 	
-	Array<double>& CRef()
+	std::vector<double>& CRef()
 	{return *c;}
 
-	const Array<double>& CRef() const 
+	const std::vector<double>& CRef() const 
 	{return *c;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -204,10 +204,10 @@ public:
 	const double& R(const int i) const 
 	{return (*r)[i];}
 
-	Array<double>* R()
+	std::vector<double>* R()
 	{return r.get();}
 
-	const Array<double>* R() const 
+	const std::vector<double>* R() const 
 	{return r.get();}
 	
 	ArrayPtr<double> RPtr()
@@ -216,10 +216,10 @@ public:
 	const ArrayPtr<double> RPtr() const
 	{return r;}
 	
-	Array<double>& RRef()
+	std::vector<double>& RRef()
 	{return *r;}
 
-	const Array<double>& RRef() const 
+	const std::vector<double>& RRef() const 
 	{return *r;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -230,10 +230,10 @@ public:
 	const double& P(const int i) const 
 	{return (*p)[i];}
 
-	Array<double>* P()
+	std::vector<double>* P()
 	{return p.get();}
 
-	const Array<double>* P() const 
+	const std::vector<double>* P() const 
 	{return p.get();}
 	
 	ArrayPtr<double> PPtr()
@@ -242,10 +242,10 @@ public:
 	const ArrayPtr<double> PPtr() const
 	{return p;}
 	
-	Array<double>& PRef()
+	std::vector<double>& PRef()
 	{return *p;}
 
-	const Array<double>& PRef() const 
+	const std::vector<double>& PRef() const 
 	{return *p;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -256,10 +256,10 @@ public:
 	const double& D(const int i) const 
 	{return (*den)[i];}
 
-	Array<double>* D()
+	std::vector<double>* D()
 	{return den.get();}
 
-	const Array<double>* D() const 
+	const std::vector<double>* D() const 
 	{return den.get();}
 	
 	ArrayPtr<double> DPtr()
@@ -268,10 +268,10 @@ public:
 	const ArrayPtr<double> DPtr() const
 	{return den;}
 	
-	Array<double>& DRef()
+	std::vector<double>& DRef()
 	{return *den;}
 
-	const Array<double>& DRef() const 
+	const std::vector<double>& DRef() const 
 	{return *den;}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -282,10 +282,10 @@ public:
 	const int& I(const int i) const 
 	{return (*idx)[i];}
 
-	Array<int>* I()
+	std::vector<int>* I()
 	{return idx.get();}
 
-	const Array<int>* I() const 
+	const std::vector<int>* I() const 
 	{return idx.get();}
 	
 	ArrayPtr<int> IPtr()
@@ -294,10 +294,10 @@ public:
 	const ArrayPtr<int> IPtr() const
 	{return idx;}
 	
-	Array<int>& IRef()
+	std::vector<int>& IRef()
 	{return *idx;}
 
-	const Array<int>& IRef() const 
+	const std::vector<int>& IRef() const 
 	{return *idx;}
 };
 #endif

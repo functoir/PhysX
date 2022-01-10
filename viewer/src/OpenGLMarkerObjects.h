@@ -67,7 +67,7 @@ class OpenGLTriangle : public OpenGLObject
 
 class OpenGLPolygon : public OpenGLObject
 {public:typedef OpenGLObject Base;using Base::color;using Base::line_width;
-	Array<Vector3> vtx;
+	std::vector<Vector3> vtx;
 
 	OpenGLPolygon(){name="polygon";color=OpenGLColor::Blue();polygon_mode=PolygonMode::Fill;}
 	
@@ -83,7 +83,7 @@ class OpenGLCircle : public OpenGLObject
 	glm::mat4 model=glm::mat4(1.f);
 
 	int n=16;
-	Array<Vector3> vtx;
+	std::vector<Vector3> vtx;
 
 	OpenGLCircle(){name="circle";color=OpenGLColor::Green();polygon_mode=PolygonMode::Fill;}
 
@@ -100,7 +100,7 @@ class OpenGLSolidCircle : public OpenGLObject
 	glm::mat4 model=glm::mat4(1.f);
 
 	int n=16;
-	Array<Vector3> vtx;
+	std::vector<Vector3> vtx;
 
 	OpenGLSolidCircle(){name="circle";color=OpenGLColor::Green();polygon_mode=PolygonMode::Fill;}
 
@@ -189,7 +189,7 @@ static char input_text[text_size]={0};
 
 class OpenGLUICommand : public OpenGLUI
 {public:typedef OpenGLUI Base;using Base::name;Base::Update_Polygon_Mode;using Base::visible;
-	Array<std::string> commands;
+	std::vector<std::string> commands;
 	OpenGLUICommand():Base(){name="ui_command";}
 
 	bool toggle_exit=false;
