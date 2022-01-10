@@ -97,44 +97,36 @@ public:
 
 	void Clear_Force()
 	{
-		for(int i=0;i<particles.Size();i++){particles.F(i)=Vector3::Zero();}
+		for(int i=0;i<particles.Size();i++){
+			particles.F(i)=Vector3::Zero();
+		}
 	}
 
 	void Apply_Body_Force(const double dt)
 	{
 		/* Your implementation start */
-		for(int i=0;i<particles.Size();i++){
-			particles.F(i)+=particles.M(i)*g;}
+
 		/* Your implementation end */	
 	}
 
 	void Apply_Spring_Force(const double dt)
 	{
 		/* Your implementation start */
-		for(int i=0;i<(int)springs.size();i++){
-			Vector3 f=Spring_Force(i);
-			particles.F(springs[i][0])+=f;
-			particles.F(springs[i][1])-=f;}
+
 		/* Your implementation end */	
 	}
 
 	void Enforce_Boundary_Condition()
 	{
 		/* Your implementation start */
-		for(auto p:boundary_nodes){
-			int idx=p.first;					////get boundary particle index
-			const Vector3& v=p.second;			////get boundary particle velocity
-			particles.V(idx)=v;					////set boundary particle velocity
-			particles.F(idx)=Vector3::Zero();}	////clear boundary particle force
+
 		/* Your implementation end */	
 	}
 
 	void Time_Integration(const double dt)
 	{
 		/* Your implementation start */
-		for(int i=0;i<particles.Size();i++){
-			particles.V(i)+=particles.F(i)/particles.M(i)*dt;
-			particles.X(i)+=particles.V(i)*dt;}	
+
 		/* Your implementation end */		
 	}
 	
@@ -144,14 +136,7 @@ public:
 		//// You may want to call this function in Apply_Spring_Force
 		
 		/* Your implementation start */
-		int i=springs[spring_index][0];int j=springs[spring_index][1];
-		Vector3 dir=particles.X(j)-particles.X(i);
-		double length=dir.norm();
-		dir/=length;
-		Vector3 rel_dir=particles.V(j)-particles.V(i);
-		Vector3 f_s=ks[spring_index]*(length-rest_length[spring_index])*dir;
-		Vector3 f_d=kd[spring_index]*rel_dir.dot(dir)*dir;
-		return f_s+f_d;
+
 		/* Your implementation end */
 
 		//return Vector3::Zero();	////REPLACE this line with your own implementation
@@ -199,28 +184,7 @@ public:
 
 		/* Your implementation start */
 		////Set K diagonal blocks and rhs
-		for(int i=0;i<particles.Size();i++){
-			for(int ii=0;ii<3;ii++){K.coeffRef(i*3+ii,i*3+ii)+=particles.M(i);}
-			Vector3 rhs=particles.M(i)*particles.V(i)+dt*particles.F(i);Set_Block(b,i,rhs);}
 
-		////Set K blocks with spring and damping Jacobians
-		Matrix3 Ks,Kd;double dt_sq=pow(dt,2);
-		for(int s=0;s<(int)springs.size();s++){
-			int i=springs[s][0];int j=springs[s][1];
-			////Add Ks
-			Compute_Ks_Block(s,Ks);
-			Ks*=-dt_sq;
-			Add_Block_Helper(K,i,j,Ks);
-
-			////Add Kd
-			Compute_Kd_Block(s,Kd);
-			Kd*=-dt;
-			Add_Block_Helper(K,i,j,Kd);
-
-			////Add rhs
-			Vector3 rhs_d_i=Kd*(particles.V(i)-particles.V(j));
-			if(!Is_Boundary_Node(i))Add_Block(b,i,rhs_d_i);
-			if(!Is_Boundary_Node(j))Add_Block(b,j,-rhs_d_i);}
 		/* Your implementation end */
 	}
 
@@ -228,11 +192,7 @@ public:
 	void Compute_Ks_Block(const int s,Matrix3& Ks)
 	{
 		/* Your implementation start */
-		int i=springs[s][0];int j=springs[s][1];
-		Vector3 x_ij=particles.X(j)-particles.X(i);
-		double length=x_ij.norm();
-		double length_0=rest_length[s];
-		Ks=ks[s]*((length_0/length-(double)1)*Matrix3::Identity()-(length_0/pow(length,3))*x_ij*x_ij.transpose());
+
 		/* Your implementation end */
 	}
 
@@ -240,9 +200,7 @@ public:
 	void Compute_Kd_Block(const int s,Matrix3& Kd)
 	{
 		/* Your implementation start */
-		int i=springs[s][0];int j=springs[s][1];
-		Vector3 n_ij=(particles.X(j)-particles.X(i)).normalized();
-		Kd=-kd[s]*n_ij*n_ij.transpose();
+
 		/* Your implementation end */
 	}
 

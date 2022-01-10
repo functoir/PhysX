@@ -13,7 +13,7 @@
 int main(int argc,char* argv[])
 {
 	////default arguments
-	int test=2;
+	int test=1;
 	int scale=1;
 
 	////parse from command lines
