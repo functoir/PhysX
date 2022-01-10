@@ -58,7 +58,7 @@ This will:
 - Compile the code for the a0_dynamic_system project and any dependencies
 - Run the assignment and visualize the real-time simulation in the OpenGL window (press 'p' to start/stop simulation)
 
-![Visulization of the Lorenz particle trajectory in the OpenGL Viewer](doc/img/lorenz_system.PNG)
+![Visulization of the particle trajectory in the OpenGL Viewer (Note: This scene is changing for each term. For 2022W, you should see two spheres connected by a segment.)](doc/img/lorenz_system.PNG)
 
 ### Step 4: Start implementing!
 
