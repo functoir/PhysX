@@ -11,12 +11,12 @@
 #include "ImplicitGeometry.h"
 
 template<int d> class ParticleSand
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<real,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<double,d>;
 public:
 	Particles<d> particles;
-	real ks=(real)2e2;		////stiffness for the collision force
-	real kd=(real).5e1;		////damping for the collision force
-	VectorD g=VectorD::Unit(1)*(real)-1.;	////gravity
+	double ks=(double)2e2;		////stiffness for the collision force
+	double kd=(double).5e1;		////damping for the collision force
+	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
 
 	////list of implicit geometries describing the environment, by default it has one element, a circle with its normals pointing inward (Bowl)
 	Array<ImplicitGeometry<d>* > env_objects;	
@@ -25,7 +25,7 @@ public:
 
 	Array<VectorD> my_object_vertices={{-1.,5.},{1.,5.}};	////this array stores the positions of the contour of your object for visualization
 
-	virtual void Advance(const real dt)
+	virtual void Advance(const double dt)
 	{
 		////Clear forces on particles
 		for(int i=0;i<particles.Size();i++){

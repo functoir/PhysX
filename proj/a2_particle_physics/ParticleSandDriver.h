@@ -16,8 +16,8 @@
 #include "InClassDemoDriver.h"
 
 template<int d> class ParticleSandDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
-	real dt=.02;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+	double dt=.02;
 	ParticleSand<d> sand;
 	Array<OpenGLSolidCircle*> opengl_circles;
 
@@ -96,15 +96,15 @@ public:
 		if(left!=1){return false;}
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(real)pos[i];
-		real r=.1*static_cast<float>(rand()%1000)/1000.+.15;
+		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
+		double r=.1*static_cast<float>(rand()%1000)/1000.+.15;
 		Add_Particle(p_pos,r,1.);
 		Add_Solid_Circle(sand.particles.Size()-1);
 		return true;
 	}
 
 protected:
-	void Add_Particle(VectorD pos,real r=.1,real m=1.)
+	void Add_Particle(VectorD pos,double r=.1,double m=1.)
 	{
 		int i=sand.particles.Add_Element();	////return the last element's index
 		sand.particles.X(i)=pos;

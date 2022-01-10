@@ -12,10 +12,10 @@
 #include "OpenGLParticles.h"
 
 template<int d> class GridFluidDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
-	real dt=.02;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+	double dt=.02;
 	GridFluid<d> fluid;
-	real v_rescale=(real).05;
+	double v_rescale=(double).05;
 	bool add_particle=false;
 
 	OpenGLSegmentMesh* opengl_vectors=nullptr;							////vector field for velocity
@@ -61,9 +61,9 @@ public:
 		////initialize polygon
 		opengl_polygon=Add_Interactive_Object<OpenGLPolygon>();
 		opengl_polygon->vtx.push_back(Vector3::Zero());
-		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(real)2);
-		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(real)2+Vector3::Unit(1)*(real)1);
-		opengl_polygon->vtx.push_back(Vector3::Unit(1)*(real)1);
+		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(double)2);
+		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(double)2+Vector3::Unit(1)*(double)1);
+		opengl_polygon->vtx.push_back(Vector3::Unit(1)*(double)1);
 		Set_Color(opengl_polygon,OpenGLColor(.0,1.,1.,1.));
 		Set_Line_Width(opengl_polygon,4.f);
 		opengl_polygon->Set_Data_Refreshed();
@@ -117,7 +117,7 @@ public:
 			fluid.Update_Visualization_Particles(dt);
 			for(int i=0;i<fluid.particles.Size();i++){
 				bool outside=false;
-				real epsilon=fluid.grid.dx*(real).5;
+				double epsilon=fluid.grid.dx*(double).5;
 				for(int j=0;j<d;j++){
 					if(fluid.particles.X(i)[j]<fluid.grid.domain_min[j]+epsilon||
 						fluid.particles.X(i)[j]>fluid.grid.domain_max[j]-epsilon){outside=true;break;}}
@@ -130,7 +130,7 @@ public:
 
 				auto opengl_circle=opengl_circles[i];
 				opengl_circle->pos=V3(fluid.particles.X(i));
-				opengl_circle->pos[2]=(real).05;
+				opengl_circle->pos[2]=(double).05;
 				opengl_circle->Set_Data_Refreshed();}			
 		}
 
@@ -141,16 +141,16 @@ public:
 				int idx=i*6;
 				VectorDi cell=fluid.grid.Cell_Coord(i);
 				VectorD pos1=fluid.grid.Node(cell);
-				real den1=fluid.Interpolate(fluid.smoke_den,pos1);
+				double den1=fluid.Interpolate(fluid.smoke_den,pos1);
 
 				VectorD pos2=pos1+VectorD::Unit(0)*fluid.grid.dx;
-				real den2=fluid.Interpolate(fluid.smoke_den,pos2);
+				double den2=fluid.Interpolate(fluid.smoke_den,pos2);
 
 				VectorD pos3=pos1+VectorD::Unit(0)*fluid.grid.dx+VectorD::Unit(1)*fluid.grid.dx;
-				real den3=fluid.Interpolate(fluid.smoke_den,pos3);
+				double den3=fluid.Interpolate(fluid.smoke_den,pos3);
 
 				VectorD pos4=pos1+VectorD::Unit(1)*fluid.grid.dx;
-				real den4=fluid.Interpolate(fluid.smoke_den,pos4);
+				double den4=fluid.Interpolate(fluid.smoke_den,pos4);
 			
 				opengl_mesh->colors[idx]=den1;
 				opengl_mesh->colors[idx+1]=den2;
@@ -182,7 +182,7 @@ public:
 		if(!add_particle)return false;
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(real)pos[i];
+		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
 		fluid.src_pos=p_pos;
 		Add_Source_Particle(p_pos);
 		return true;
@@ -198,7 +198,7 @@ public:
 
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(real)pos[i];
+		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
 		fluid.src_pos=p_pos;
 		Add_Source_Particle(p_pos);
 		add_particle=true;
@@ -233,8 +233,8 @@ public:
 	////User interaction for manipulating sources
 	void Add_Source_Particle(VectorD p_pos)
 	{
-		real rx=.1*static_cast<float>(rand()%1000)/1000.-.05;
-		real ry=.1*static_cast<float>(rand()%1000)/1000.-.05;
+		double rx=.1*static_cast<float>(rand()%1000)/1000.-.05;
+		double ry=.1*static_cast<float>(rand()%1000)/1000.-.05;
 		p_pos[0]+=rx;p_pos[1]+=ry;
 		if(!invis_particles.empty()){
 			int p=(*invis_particles.begin());
@@ -256,7 +256,7 @@ public:
 	{
 		int i=fluid.particles.Add_Element();	////return the last element's index
 		fluid.particles.X(i)=pos;
-		fluid.particles.C(i)=(real)(rand()%2000-1000)/(real)1000;	////particle vorticity, a random number between [-1,1]
+		fluid.particles.C(i)=(double)(rand()%2000-1000)/(double)1000;	////particle vorticity, a random number between [-1,1]
 	}
 
 	void Add_Solid_Circle(const int i)
@@ -266,7 +266,7 @@ public:
 		opengl_circle->visible=false;
 		opengl_circles.push_back(opengl_circle);
 		opengl_circle->pos=V3(fluid.particles.X(i));
-		opengl_circle->radius=(real).01;
+		opengl_circle->radius=(double).01;
 		opengl_circle->color=c;
 		opengl_circle->Initialize();
 		opengl_circle->Update_Model_Matrix();

@@ -12,8 +12,8 @@
 #include "OpenGLParticles.h"
 
 template<int d> class ToolkitDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
-	real dt=.02;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+	double dt=.02;
 	GridFluid<d> fluid;
 
 	OpenGLTriangleMesh* opengl_tri_mesh=nullptr;						////bunny
@@ -56,9 +56,9 @@ public:
 		////initialize sphere
 		for(int i=0;i<3;i++){
 			OpenGLSphere* opengl_sphere=Add_Interactive_Object<OpenGLSphere>();
-			opengl_sphere->pos=Vector3::Unit(0)*((real).5*(real)i+(real)2);
-			opengl_sphere->radius=(real).02;
-			Set_Color(opengl_sphere,OpenGLColor(.0+.5*(real)i,1.,.0,1.));
+			opengl_sphere->pos=Vector3::Unit(0)*((double).5*(double)i+(double)2);
+			opengl_sphere->radius=(double).02;
+			Set_Color(opengl_sphere,OpenGLColor(.0+.5*(double)i,1.,.0,1.));
 			opengl_sphere->Set_Data_Refreshed();
 			opengl_sphere->Initialize();
 			opengl_spheres.push_back(opengl_sphere);}
@@ -66,9 +66,9 @@ public:
 		////initialize polygon
 		opengl_polygon=Add_Interactive_Object<OpenGLPolygon>();
 		opengl_polygon->vtx.push_back(Vector3::Zero());
-		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(real)2);
-		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(real)2+Vector3::Unit(1)*(real)1);
-		opengl_polygon->vtx.push_back(Vector3::Unit(1)*(real)1);
+		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(double)2);
+		opengl_polygon->vtx.push_back(Vector3::Unit(0)*(double)2+Vector3::Unit(1)*(double)1);
+		opengl_polygon->vtx.push_back(Vector3::Unit(1)*(double)1);
 		Set_Color(opengl_polygon,OpenGLColor(.0,1.,1.,1.));
 		Set_Line_Width(opengl_polygon,4.f);
 		opengl_polygon->Set_Data_Refreshed();

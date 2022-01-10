@@ -10,20 +10,20 @@
 #include "Particles.h"
 
 template<int d> class SoftBodyMassSpring
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<real,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<double,d>;
 public:
 	////Spring parameters
 	Particles<d> particles;
 	Array<Vector2i> springs;
-	Array<real> rest_length;
-	Array<real> ks;
-	Array<real> kd;
+	Array<double> rest_length;
+	Array<double> ks;
+	Array<double> kd;
 
 	////Boundary nodes
 	Hashtable<int,VectorD> boundary_nodes;
 
 	////Body force
-	VectorD g=VectorD::Unit(1)*(real)-1.;
+	VectorD g=VectorD::Unit(1)*(double)-1.;
 	
 	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;
 
@@ -34,15 +34,15 @@ public:
 	virtual void Initialize()
 	{
 		////Initialize default spring parameters for standard tests
-		real ks_0=(real)1,kd_0=(real)1;
+		double ks_0=(double)1,kd_0=(double)1;
 		switch(time_integration){
 		case TimeIntegration::ExplicitEuler:{
-			ks_0=(real)5e2;
-			kd_0=(real)1e1;
+			ks_0=(double)5e2;
+			kd_0=(double)1e1;
 		}break;
 		case TimeIntegration::ImplicitEuler:{
-			ks_0=(real)1e5;
-			kd_0=(real)1e1;			
+			ks_0=(double)1e5;
+			kd_0=(double)1e1;			
 		}break;}
 
 		////Allocate arrays for springs and parameters
@@ -58,7 +58,7 @@ public:
 			Initialize_Implicit_K_And_b();
 	}
 
-	virtual void Advance(const real dt)
+	virtual void Advance(const double dt)
 	{
 		switch(time_integration){
 		case TimeIntegration::ExplicitEuler:
@@ -86,7 +86,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////YOUR IMPLEMENTATION (P1 TASK): explicit Euler time integration 
-	void Advance_Explicit_Euler(const real dt)
+	void Advance_Explicit_Euler(const double dt)
 	{
 		Particle_Force_Accumulation();
 
@@ -133,7 +133,7 @@ public:
 	void Initialize_Implicit_K_And_b()
 	{
 		int n=d*particles.Size();
-		K.resize(n,n);u.resize(n);u.fill((real)0);b.resize(n);b.fill((real)0);
+		K.resize(n,n);u.resize(n);u.fill((double)0);b.resize(n);b.fill((double)0);
 		Array<TripletT> elements;
 		for(int s=0;s<(int)springs.size();s++){int i=springs[s][0];int j=springs[s][1];
 			Add_Block_Triplet_Helper(i,i,elements);
@@ -147,11 +147,11 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////YOUR IMPLEMENTATION (P2 TASK): 
 	////Construct K, step 2: fill nonzero elements in K
-	void Update_Implicit_K_And_b(const real dt)
+	void Update_Implicit_K_And_b(const double dt)
 	{
 		////Clear K and b
 		K.setZero();
-		b.fill((real)0);
+		b.fill((double)0);
 
 		/* Your implementation start */
 
@@ -182,7 +182,7 @@ public:
 	}
 
 	////Implicit Euler time integration
-	void Advance_Implicit_Euler(const real dt)
+	void Advance_Implicit_Euler(const double dt)
 	{
 		Particle_Force_Accumulation();
 		Update_Implicit_K_And_b(dt);
@@ -201,7 +201,7 @@ public:
 protected:
 	////Add block nonzeros to sparse matrix elements (for initialization)
 	void Add_Block_Triplet_Helper(const int i,const int j,Array<TripletT>& elements)
-	{for(int ii=0;ii<d;ii++)for(int jj=0;jj<d;jj++)elements.push_back(TripletT(i*d+ii,j*d+jj,(real)0));}
+	{for(int ii=0;ii<d;ii++)for(int jj=0;jj<d;jj++)elements.push_back(TripletT(i*d+ii,j*d+jj,(double)0));}
 
 	////Add block Ks to K_ij
 	void Add_Block_Helper(SparseMatrixT& K,const int i,const int j,const MatrixD& Ks)

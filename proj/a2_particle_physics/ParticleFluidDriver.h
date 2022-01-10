@@ -15,8 +15,8 @@
 #include "ParticleFluid.h"
 
 template<int d> class ParticleFluidDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
-	real dt=.02;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+	double dt=.02;
 	ParticleFluid<d> fluid;
 	Array<OpenGLSolidCircle*> opengl_circles;
 
@@ -25,9 +25,9 @@ public:
 	virtual void Initialize()
 	{
 		////driver initialization, initialize simulation data
-		real dx=.35;int nx=20;int ny=20;
+		double dx=.35;int nx=20;int ny=20;
 		for(int i=0;i<nx;i++){for(int j=0;j<ny;j++){
-			VectorD pos;pos[0]=(real)i*dx-1.;pos[1]=(real)j*dx+3.;
+			VectorD pos;pos[0]=(double)i*dx-1.;pos[1]=(double)j*dx+3.;
 			Add_Particle(pos);}}
 
 		bowl=new Bowl<d>(VectorD::Unit(1)*8,8);
@@ -61,7 +61,7 @@ public:
 		for(int i=0;i<fluid.particles.Size();i++){
 			auto opengl_circle=opengl_circles[i];
 			opengl_circle->pos=V3(fluid.particles.X(i));
-			real c=(fluid.particles.C(i))/(real)100;
+			double c=(fluid.particles.C(i))/(double)100;
 			opengl_circle->color=OpenGLColor(c,.6f,.2f);
 			opengl_circle->Set_Data_Refreshed();}
 	}
@@ -85,15 +85,15 @@ public:
 		if(left!=1){return false;}
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(real)pos[i];
-		real r=.1*static_cast<float>(rand()%1000)/1000.+.15;
+		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
+		double r=.1*static_cast<float>(rand()%1000)/1000.+.15;
 		Add_Particle(p_pos);
 		Add_Solid_Circle(fluid.particles.Size()-1);
 		return true;
 	}
 
 protected:
-	void Add_Particle(VectorD pos,real m=1.)
+	void Add_Particle(VectorD pos,double m=1.)
 	{
 		int i=fluid.particles.Add_Element();	////return the last element's index
 		fluid.particles.X(i)=pos;

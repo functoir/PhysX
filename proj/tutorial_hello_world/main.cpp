@@ -16,10 +16,10 @@ void Test_Eigen()
 
     Vector3d vd(1.,2.,3.);
     Vector3i vi=vd.cast<int>();
-    Vector3d vt=vi.cast<real>();
+    Vector3d vt=vi.cast<double>();
     std::cout<<"vi: "<<vi.transpose()<<", vt: "<<vt.transpose()<<std::endl;
 
-    real array[5]={1,2,3,4,5};
+    double array[5]={1,2,3,4,5};
     for(auto x:array)std::cout<<x<<", ";std::cout<<std::endl;
 }
 
@@ -27,7 +27,7 @@ void Test_Particles_And_Mesh()
 {
 	std::cout<<"--- Test_Particles_And_Mesh ---"<<std::endl;
 	const int d=3;
-	using VectorD=Vector<real,d>;
+	using VectorD=Vector<double,d>;
 	using VectorDi=Vector<int,d>;
 
     Particles<d> particles;
@@ -35,7 +35,7 @@ void Test_Particles_And_Mesh()
 
     particles.Add_Element();
     particles.X(0)=Vector3::Ones();
-    particles.V(0)=Vector3::Ones()*(real)2;
+    particles.V(0)=Vector3::Ones()*(double)2;
     std::cout<<"[Particle] #particles: "<<particles.Size()<<std::endl;
     std::cout<<"[Particle] X(0): "<<particles.X(0).transpose()<<", V(0): "<<particles.V(0).transpose()<<std::endl;
 

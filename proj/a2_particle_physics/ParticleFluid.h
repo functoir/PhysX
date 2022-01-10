@@ -12,17 +12,17 @@
 //////////////////////////////////////////////////////////////////////////
 ////Kernel function
 template<int d> class Kernel
-{using VectorD=Vector<real,d>;
+{using VectorD=Vector<double,d>;
 public:
 	////precomputed coefs;
-	real h;
-	real coef_Wspiky;
-	real coef_dWspiky;
-	real coef_Wvis;
-	real coef_d2Wvis;
-	real pi=3.1415927;
+	double h;
+	double coef_Wspiky;
+	double coef_dWspiky;
+	double coef_Wvis;
+	double coef_d2Wvis;
+	double pi=3.1415927;
 
-	void Precompute_Coefs(real _h)
+	void Precompute_Coefs(double _h)
 	{
 		h=_h;
 		coef_Wspiky=15.0/(pi*pow(h,6));
@@ -32,26 +32,26 @@ public:
 	}
 
 	////Kernel Spiky
-	real Wspiky(const VectorD& xji)
+	double Wspiky(const VectorD& xji)
 	{
-		real r=xji.norm();
+		double r=xji.norm();
 		if(r>=0&&r<=h){return 15.0/(pi*pow(h,6))*pow(h-r,3);}
 		else{return 0;}
 	}
 	VectorD gradientWspiky(const VectorD& v){
-		real r=v.norm();
+		double r=v.norm();
 		if(r<= h&&r>0){return -45.0/(pi*pow(h,6))*pow(h-r,2)*v/r;}
 		else{return VectorD::Zero();}
 	}
 
 	////Kernel viscosity
-	real Wvis(const VectorD& xji){
-		real r=xji.norm();
+	double Wvis(const VectorD& xji){
+		double r=xji.norm();
 		if(r>=0&&r<=h){return 15.0/(2*pi*pow(h,3))*((-pow(r,3)/(2*pow(h,3))+r*r/(h*h)+h/(2*r)-1));}
 		else{return 0;}
 	}
-	real laplacianWvis(const VectorD& v){
-		real r=v.norm();
+	double laplacianWvis(const VectorD& v){
+		double r=v.norm();
 		if(r<=h&&r>0){return 45.0/(pi*pow(h,6))*(h-r);}
 		else{return 0;}
 	}
@@ -60,9 +60,9 @@ public:
 //////////////////////////////////////////////////////////////////////////
 ////Spatial hashing
 template<int d> class SpatialHashing
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
-	real dx=1.;	////grid cell size
+	double dx=1.;	////grid cell size
 	Hashtable<VectorDi,Array<int> > voxels;
 
 	void Update_Voxels(const Array<VectorD>& points)
@@ -85,7 +85,7 @@ public:
 	////You need to traverse all the 3^d neighboring cells in the background grid around the cell occupied by "pos", and then check the distance between each particle in each neighboring cell and the given "pos"
 	////Use the helper function Cell_Coord to get the cell coordinates for a given "pos"
 	////Use the helper function Nb_R to get the cell coordinates of the ith neighboring cell around the cell "coord"
-	bool Find_Nbs(const VectorD& pos,const Array<VectorD>& points,const real kernel_radius,/*returned result*/Array<int>& nbs) const
+	bool Find_Nbs(const VectorD& pos,const Array<VectorD>& points,const double kernel_radius,/*returned result*/Array<int>& nbs) const
 	{
 		/* Your implementation start */
 		/* Your implementation end */
@@ -104,19 +104,19 @@ protected:	////Helper functions
 //////////////////////////////////////////////////////////////////////////
 ////Particle fluid simulator
 template<int d> class ParticleFluid
-{using VectorD=Vector<real,d>;
+{using VectorD=Vector<double,d>;
 public:
 	Particles<d> particles;
 	Array<Array<int> > neighbors;
 	SpatialHashing<d> spatial_hashing;
 	Kernel<d> kernel;
 
-	real kernel_radius=(real).8;			////kernel radius
-	real pressure_density_coef=(real)1e1;	////pressure-density-relation coefficient, used in Update_Pressure()
-	real density_0=(real)10.;				////rest density, used in Update_Pressure()
-	real viscosity_coef=(real)1e1;			////viscosity coefficient, used in Update_Viscosity_Force()
-	real kd=(real)1e2;						////stiffness for environmental collision response
-	VectorD g=VectorD::Unit(1)*(real)-1.;	////gravity
+	double kernel_radius=(double).8;			////kernel radius
+	double pressure_density_coef=(double)1e1;	////pressure-density-relation coefficient, used in Update_Pressure()
+	double density_0=(double)10.;				////rest density, used in Update_Pressure()
+	double viscosity_coef=(double)1e1;			////viscosity coefficient, used in Update_Viscosity_Force()
+	double kd=(double)1e2;						////stiffness for environmental collision response
+	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
 	
 	////Environment objects
 	Array<ImplicitGeometry<d>* > env_objects;
@@ -138,7 +138,7 @@ public:
 			neighbors[i]=nbs;}
 	}
 
-	virtual void Advance(const real dt)
+	virtual void Advance(const double dt)
 	{
 		for(int i=0;i<particles.Size();i++){
 			particles.F(i)=VectorD::Zero();}
@@ -198,7 +198,7 @@ public:
 	{
 		for(int i=0;i<particles.Size();i++){
 			for(int j=0;j<env_objects.size();j++){
-				real phi=env_objects[j]->Phi(particles.X(i));
+				double phi=env_objects[j]->Phi(particles.X(i));
 				if(phi<particles.R(i)){
 					VectorD normal=env_objects[j]->Normal(particles.X(i));
 					particles.F(i)+=normal*kd*(particles.R(i)-phi)*particles.D(i);}}}

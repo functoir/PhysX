@@ -12,8 +12,8 @@
 #include "MultiCopter.h"
 
 template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using Base=Driver;
-	real dt=.02;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+	double dt=.02;
 	MultiCopter<d> copter;
 	Array<VectorD> targets = {
 		VectorD(0.0, 0.0, -1.0),
@@ -34,7 +34,7 @@ public:
 		copter.Initialize(flag);
 
 		const VectorD dir = -VectorD::UnitZ();
-		const real d1 = copter.arm_length / (real)(std::sqrt(2.0));
+		const double d1 = copter.arm_length / (double)(std::sqrt(2.0));
 		copter.Add_Rotor(VectorD(d1, -d1, 0.0), dir);
 		copter.Add_Rotor(VectorD(d1, d1, 0.0), dir);
 		copter.Add_Rotor(VectorD(-d1, d1, 0.0), dir);
@@ -62,11 +62,11 @@ public:
 		
 		for(int i=0;i<copter.body_rotor_pos.size();i++){
 			Vector3 center=copter.body_rotor_pos[i];
-			real r=.02f;int n=16;
-			real theta=3.1415927f*2.f/(real)n;
+			double r=.02f;int n=16;
+			double theta=3.1415927f*2.f/(double)n;
 			int start=(*mesh.vertices).size();
 			for(int j=0;j<n;j++){
-				real angle=(real)j*theta;
+				double angle=(double)j*theta;
 				Vector3 p=center+Vector3(r*cos(angle),r*sin(angle),-0.005);
 				circle_vtx.push_back(p);
 				(*mesh.vertices).push_back(copter.World_Coord(p));}
@@ -102,7 +102,7 @@ public:
 	////update simulation and visualization for each time step
 	virtual void Toggle_Next_Frame()
 	{
-		static real t = 0.0;
+		static double t = 0.0;
 		int idx = (int)(t / 5.0);
 		if (idx > 5) idx = 5;
 		copter.Advance(dt, targets[idx]);

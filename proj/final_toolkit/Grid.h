@@ -3,19 +3,19 @@
 #include "Common.h"
 
 template<int d> class Grid
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	VectorDi cell_counts;
 	VectorDi node_counts;
-	real dx;
+	double dx;
 	VectorD domain_min;
 	VectorD domain_max;
 
 	////Initializer
-	Grid(const VectorDi& _cell_counts=VectorDi::Zero(),const real _dx=(real)0,const VectorD& _domain_min=VectorD::Zero());
+	Grid(const VectorDi& _cell_counts=VectorDi::Zero(),const double _dx=(double)0,const VectorD& _domain_min=VectorD::Zero());
 	Grid& operator=(const Grid& copy);
 	Grid(const Grid& copy){*this=copy;}
-    void Initialize(const VectorDi& _cell_counts=VectorDi::Zero(),const real _dx=(real)0,const VectorD& _domain_min=VectorD::Zero());
+    void Initialize(const VectorDi& _cell_counts=VectorDi::Zero(),const double _dx=(double)0,const VectorD& _domain_min=VectorD::Zero());
 
 	////Coordinate operations
     static VectorDi Coord(const int index,const VectorDi& counts);                      ////general index->coord

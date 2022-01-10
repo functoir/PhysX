@@ -2,14 +2,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////Initializer
-template<int d> Grid<d>::Grid(const VectorDi& _cell_counts,const real _dx,const VectorD& _domain_min)
-:cell_counts(_cell_counts),node_counts(_cell_counts+VectorDi::Ones()),dx(_dx),domain_min(_domain_min){domain_max=domain_min+cell_counts.template cast<real>()*dx;}
+template<int d> Grid<d>::Grid(const VectorDi& _cell_counts,const double _dx,const VectorD& _domain_min)
+:cell_counts(_cell_counts),node_counts(_cell_counts+VectorDi::Ones()),dx(_dx),domain_min(_domain_min){domain_max=domain_min+cell_counts.template cast<double>()*dx;}
 
 template<int d> Grid<d>& Grid<d>::operator=(const Grid& copy)
 {cell_counts=copy.cell_counts;node_counts=copy.node_counts;dx=copy.dx;domain_min=copy.domain_min;domain_max=copy.domain_max;return *this;}
 
-template<int d> void Grid<d>::Initialize(const VectorDi& _cell_counts,const real _dx,const VectorD& _domain_min)
-{cell_counts=_cell_counts;node_counts=cell_counts+VectorDi::Ones();dx=_dx;domain_min=_domain_min;domain_max=domain_min+cell_counts.template cast<real>()*dx;}
+template<int d> void Grid<d>::Initialize(const VectorDi& _cell_counts,const double _dx,const VectorD& _domain_min)
+{cell_counts=_cell_counts;node_counts=cell_counts+VectorDi::Ones();dx=_dx;domain_min=_domain_min;domain_max=domain_min+cell_counts.template cast<double>()*dx;}
 
 ////Coordinate operations
 template<int d> Vector<int,d> Grid<d>::Coord(const int index,const VectorDi& counts) {/*not impl*/return Vector<int,d>::Zero();}
@@ -24,9 +24,9 @@ template<int d> Vector<int,d> Grid<d>::Cell_Coord(const VectorD& pos) const {Vec
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////Position operations
-template<int d> Vector<real,d> Grid<d>::Node(const VectorDi& node) const {return domain_min+node.template cast<real>()*dx;}
+template<int d> Vector<double,d> Grid<d>::Node(const VectorDi& node) const {return domain_min+node.template cast<double>()*dx;}
 
-template<int d> Vector<real,d> Grid<d>::Center(const VectorDi& cell) const {return domain_min+(cell.template cast<real>()+(real).5*VectorD::Ones())*dx;}
+template<int d> Vector<double,d> Grid<d>::Center(const VectorDi& cell) const {return domain_min+(cell.template cast<double>()+(double).5*VectorD::Ones())*dx;}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////Index operations

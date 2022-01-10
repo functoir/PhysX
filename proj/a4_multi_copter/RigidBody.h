@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 ////Rigid body simulator
 template<int d> class RigidBody
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<real,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using MatrixD=Matrix<double,d>;
 public:
 	VectorD position=VectorD::Zero();
 	VectorD velocity=VectorD::Zero();

@@ -7,8 +7,8 @@
 ////MultiCopter simulator
 template<int d> class MultiCopter
 {
-	using VectorD = Vector<real, d>; using VectorDi = Vector<int, d>; using MatrixD = Matrix<real, d>;
-	using Vector2 = Vector<real, 2>; using Matrix2 = Matrix<real, 2>;
+	using VectorD = Vector<double, d>; using VectorDi = Vector<int, d>; using MatrixD = Matrix<double, d>;
+	using Vector2 = Vector<double, 2>; using Matrix2 = Matrix<double, 2>;
 public:
 	RigidBody<d> rigid_body;
 	Array<VectorD> body_rotor_pos;
@@ -17,12 +17,12 @@ public:
 	Array<VectorD> body_thrust_vec;
 
 	// Parameters
-	real mass;
+	double mass;
 	VectorD body_inertia;
-	real arm_length;
-	real lambda;
-	real g;
-	real t;
+	double arm_length;
+	double lambda;
+	double g;
+	double t;
 
 	virtual void Initialize(const int flag)
 	{
@@ -113,22 +113,22 @@ public:
 			0, s_roll / c_pitch, c_roll / c_pitch).finished() * (R.transpose() * omega);
 	}
 
-	const real Clamp(const real val, const real min_val, const real max_val)
+	const double Clamp(const double val, const double min_val, const double max_val)
 	{
-		real new_val = val;
+		double new_val = val;
 		if (new_val > max_val) new_val = max_val;
 		if (new_val < min_val) new_val = min_val;
 		return new_val;
 	}
 
-	virtual void Advance(const real dt, const VectorD& target)
+	virtual void Advance(const double dt, const VectorD& target)
 	{
-		Array<real> thrusts(4, 0.0);
-		real mg = mass * g;
+		Array<double> thrusts(4, 0.0);
+		double mg = mass * g;
 		if (thrust_flag == 0)
 		{
 			// For simulation.
-			real baseline = mg * (1.0 + 0.01 * std::cos(t)) / 4.0;
+			double baseline = mg * (1.0 + 0.01 * std::cos(t)) / 4.0;
 			thrusts[0] = baseline + 0.001 * std::sin(t);
 			thrusts[1] = baseline - 0.001 * std::sin(t);
 			thrusts[2] = baseline - 0.001 * std::sin(t);
@@ -139,34 +139,34 @@ public:
 			// For control.
 			// Sensing and noises.
 			const VectorD p = rigid_body.position + VectorD::Random().cwiseProduct(VectorD(0.02, 0.02, 0.01));
-			const real z_rate = rigid_body.velocity.z();
+			const double z_rate = rigid_body.velocity.z();
 			const VectorD v = rigid_body.WorldVectorToLocalVector(rigid_body.velocity);
 			const VectorD rpy = RotationToRollPitchYaw(rigid_body.R) + VectorD::Random().cwiseProduct(VectorD(0.05, 0.05, 0.1));
 			const VectorD rpy_rate = AngularRateToEulerRate(rpy, rigid_body.R, rigid_body.omega);
 
 			// Altitude control.
-			const real z_ref = target.z();
-			const real z = p.z();
+			const double z_ref = target.z();
+			const double z = p.z();
 			// Clamp total_thrust between 0.5mg and 1.5mg.
-			const real min_thrust = 0.5 * mass * g, max_thrust = 1.5 * mass * g;
-			real total_thrust = Clamp(AltitudeController(mass * g, z_ref, z, z_rate), min_thrust, max_thrust);
+			const double min_thrust = 0.5 * mass * g, max_thrust = 1.5 * mass * g;
+			double total_thrust = Clamp(AltitudeController(mass * g, z_ref, z, z_rate), min_thrust, max_thrust);
 
 			// Yaw control.
-			const real yaw = rpy(2);
-			const real yaw_rate = rpy_rate(2);
-			const real tau_yaw = YawController(0.0, yaw, yaw_rate);
+			const double yaw = rpy(2);
+			const double yaw_rate = rpy_rate(2);
+			const double tau_yaw = YawController(0.0, yaw, yaw_rate);
 
 			// Xy control.
 			const Vector2 pitch_roll_cmd = XyController(yaw, target.head(2), p.head(2), v.head(2));
 			// A simple PD controller.
-			const real pitch_ref = pitch_roll_cmd(0), roll_ref = pitch_roll_cmd(1);
-			const real tau_pitch = 0.013 * (pitch_ref - rpy(1)) - 0.002 * rpy_rate(1);
-			const real tau_roll = 0.01 * (roll_ref - rpy(0)) - 0.0028 * rpy_rate(0);
+			const double pitch_ref = pitch_roll_cmd(0), roll_ref = pitch_roll_cmd(1);
+			const double tau_pitch = 0.013 * (pitch_ref - rpy(1)) - 0.002 * rpy_rate(1);
+			const double tau_roll = 0.01 * (roll_ref - rpy(0)) - 0.0028 * rpy_rate(0);
 
-			const real bound_d = 0.5 * mass * g;
-			const real d_phi = Clamp(tau_roll / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
-			const real d_theta = Clamp(tau_pitch / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
-			const real d_psi = Clamp(tau_yaw / 4.0 / lambda, -bound_d, bound_d);
+			const double bound_d = 0.5 * mass * g;
+			const double d_phi = Clamp(tau_roll / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
+			const double d_theta = Clamp(tau_pitch / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
+			const double d_psi = Clamp(tau_yaw / 4.0 / lambda, -bound_d, bound_d);
 			thrusts[0] = 0.25 * total_thrust + d_phi + d_theta - d_psi;
 			thrusts[1] = 0.25 * total_thrust - d_phi + d_theta + d_psi;
 			thrusts[2] = 0.25 * total_thrust - d_phi - d_theta - d_psi;
@@ -193,7 +193,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////LV1: Rigid body simulation
-	void Advance_Rigid_Body(const real dt)
+	void Advance_Rigid_Body(const double dt)
 	{
 		const VectorD old_p = rigid_body.position;
 		const VectorD old_v = rigid_body.velocity;
@@ -205,7 +205,7 @@ public:
 		// net_force should be the sum of the gravitational force and thrusts in the
 		// *world* frame.
 		//
-		// You can use VectorD::UnitZ() to define a unit vector (0, 0, 1). The real variables
+		// You can use VectorD::UnitZ() to define a unit vector (0, 0, 1). The double variables
 		// mass and g defines the mass of the copter and the gravitational acceleration, which
 		// you can access directly here.
 		//
@@ -258,25 +258,25 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////LV2: PD Controller
 
-	Vector2 XyController(const real yaw, const Vector2& xy_ref, const Vector2& xy, const Vector2& v)
+	Vector2 XyController(const double yaw, const Vector2& xy_ref, const Vector2& xy, const Vector2& v)
 	{
 		const Vector2 xy_error = xy_ref - xy;
 		Matrix2 R = Matrix2::Identity();
-		const real c = std::cos(yaw), s = std::sin(yaw);
+		const double c = std::cos(yaw), s = std::sin(yaw);
 		R(0, 0) = c; R(0, 1) = s; R(1, 0) = -s; R(1, 1) = c;
 		Vector2 local_xy_error = R * xy_error;
 
 		const Vector2 min_bound(-3.0, -3.0);
 		const Vector2 max_bound(3.0, 3.0);
 		local_xy_error = local_xy_error.cwiseMin(max_bound).cwiseMax(min_bound);
-		const real x_err = local_xy_error.x();
-		const real y_err = local_xy_error.y();
-		const real P = 0.2;
-		const real D = 0.25;
-		const real dx_err = -v.x();
-		const real dy_err = -v.y();
-		real pitch = 0.0;
-		real roll = 0.0;
+		const double x_err = local_xy_error.x();
+		const double y_err = local_xy_error.y();
+		const double P = 0.2;
+		const double D = 0.25;
+		const double dx_err = -v.x();
+		const double dy_err = -v.y();
+		double pitch = 0.0;
+		double roll = 0.0;
 
 		pitch = -P * x_err - D * dx_err;
 		roll = P * y_err + D * dy_err;
@@ -285,11 +285,11 @@ public:
 	}
 
 	// -- TASK 3.3: Implement your altitude controller here --
-	real AltitudeController(const real total_weight, const real z_ref, const real z, const real z_rate)
+	double AltitudeController(const double total_weight, const double z_ref, const double z, const double z_rate)
 	{
-		const real P_z = 0.2;
-		const real D_z = 0.3;
-		real total_control_thrust = 0.0;
+		const double P_z = 0.2;
+		const double D_z = 0.3;
+		double total_control_thrust = 0.0;
 
 		// -- Your implementation starts --
 		// -- Your implementation ends --
@@ -298,11 +298,11 @@ public:
 	}
 
 	// -- TASK 3.4: Implement your yaw controller here --
-	real YawController(const real yaw_ref, const real yaw, const real yaw_rate)
+	double YawController(const double yaw_ref, const double yaw, const double yaw_rate)
 	{
-		const real P_yaw = 0.004;
-		const real D_yaw = 0.3 * 0.004;
-		real total_control_torque = 0.0;
+		const double P_yaw = 0.004;
+		const double D_yaw = 0.3 * 0.004;
+		double total_control_torque = 0.0;
 
 		// -- Your implementation starts --
 		// -- Your implementation ends --

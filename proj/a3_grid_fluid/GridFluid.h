@@ -7,39 +7,39 @@
 //////////////////////////////////////////////////////////////////////////
 ////Grid fluid simulator
 template<int d> class GridFluid
-{using VectorD=Vector<real,d>;using VectorDi=Vector<int,d>;
+{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;
 public:
 	Grid<d> grid;
 	Array<VectorD> u;		////velocity on grid nodes
-	Array<real> div_u;		////velocity divergence on grid nodes (right hand side of the Poisson equation)
-	Array<real> p;			////pressure
-	Array<real> vor;		////vorticity
-	Array<real> smoke_den;	////smoke density
+	Array<double> div_u;		////velocity divergence on grid nodes (right hand side of the Poisson equation)
+	Array<double> p;			////pressure
+	Array<double> vor;		////vorticity
+	Array<double> smoke_den;	////smoke density
 
 	int node_num=0;
-	VectorD src_pos=VectorD::Ones()*(real).5;
-	VectorD src_vel=VectorD::Unit(0)*(real)1.5;
-	real src_radius=(real).1;
+	VectorD src_pos=VectorD::Ones()*(double).5;
+	VectorD src_vel=VectorD::Unit(0)*(double)1.5;
+	double src_radius=(double).1;
 
 	virtual void Initialize()
 	{
 		int n=64;
 		VectorDi cell_counts=VectorDi::Ones()*n;
 		cell_counts[1]/=2;
-		real dx=(real)2./(real)n;
+		double dx=(double)2./(double)n;
 		VectorD domain_min=VectorD::Zero();
 		grid.Initialize(cell_counts,dx,domain_min);
 		node_num=grid.node_counts.prod();
 
-		u.resize(node_num,VectorD::Unit(0)*(real).01);
-		div_u.resize(node_num,(real)0);
-		p.resize(node_num,(real)0);
-		vor.resize(node_num,(real)0);
-		smoke_den.resize(node_num,(real)0);
+		u.resize(node_num,VectorD::Unit(0)*(double).01);
+		div_u.resize(node_num,(double)0);
+		p.resize(node_num,(double)0);
+		vor.resize(node_num,(double)0);
+		smoke_den.resize(node_num,(double)0);
 	}
 
 	////Timestep update
-	void Advance(const real dt)
+	void Advance(const double dt)
 	{
 		Source();
 		Advection(dt);
@@ -49,10 +49,10 @@ public:
 
 	////TASK: Advection step: advect BOTH velocity and density on the grid using the semi-Lagrangian method
 	////Hint: read the helper functions between Line 158-192 and use (some of) them in your implementation
-	virtual void Advection(real dt)
+	virtual void Advection(double dt)
 	{
 		Array<VectorD> u_copy=u;
-		Array<real> den_copy=smoke_den;
+		Array<double> den_copy=smoke_den;
 
 		for(int i=0;i<node_num;i++){
 			u[i]=VectorD::Zero();
@@ -64,16 +64,16 @@ public:
 
 	virtual void Projection()
 	{
-		real dx=grid.dx;
-		real dx2=grid.dx*grid.dx;
+		double dx=grid.dx;
+		double dx2=grid.dx*grid.dx;
 
 		////Projection step 1: calculate the velocity divergence on each node
 		////Read this sample code to learn how to access data with the node index and coordinate
-		std::fill(div_u.begin(),div_u.end(),(real)0);
+		std::fill(div_u.begin(),div_u.end(),(double)0);
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore the nodes on the boundary
 			VectorDi node=Coord(i);
-			div_u[i]=(real)0;
+			div_u[i]=(double)0;
 
 			for(int j=0;j<d;j++){
 				VectorD u_1=u[Idx(node-VectorDi::Unit(j))];
@@ -83,7 +83,7 @@ public:
 
 		////TASK: Projection step 2: solve the Poisson's equation -lap p= div u 
 		////using the Gauss-Seidel iterations
-		std::fill(p.begin(),p.end(),(real)0);
+		std::fill(p.begin(),p.end(),(double)0);
 		for(int iter=0;iter<40;iter++){
 			for(int i=0;i<node_num;i++){
 				if(Bnd(i))continue;		////ignore the nodes on the boundary
@@ -106,16 +106,16 @@ public:
 	}
 
 	////TASK: implement the key steps for vorticity confinement
-	void Vorticity_Confinement(const real dt)
+	void Vorticity_Confinement(const double dt)
 	{
-		real dx=grid.dx;
+		double dx=grid.dx;
 
 		////Vorticity confinement step 1: update vorticity
-		std::fill(vor.begin(),vor.end(),(real)0);
+		std::fill(vor.begin(),vor.end(),(double)0);
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
 			VectorDi node=Coord(i);
-			vor[i]=(real)0;
+			vor[i]=(double)0;
 
 			/*Your implementation starts*/
 			/*Your implementation ends*/
@@ -133,7 +133,7 @@ public:
 		}
 
 		////TASK: Vorticity confinement step 3: calculate confinement force and use it to update velocity
-		real vor_conf_coef=(real)4;
+		double vor_conf_coef=(double)4;
 		for(int i=0;i<node_num;i++){
 			if(Bnd(i))continue;		////ignore boundary nodes
 			VectorD f=vor_conf_coef*dx*Cross(N[i],vor[i]);
@@ -150,7 +150,7 @@ public:
 			VectorD pos=grid.Node(i);
 			if((pos-src_pos).norm()<src_radius){
 				u[i]=src_vel;
-				smoke_den[i]=(real)1.;
+				smoke_den[i]=(double)1.;
 			}
 		}
 	}
@@ -158,16 +158,16 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////vortex particles
 	////This is the Gaussian kernel function you might need to use in calculating your confinement force
-	real Kernel(const real length)
+	double Kernel(const double length)
 	{
-		real r=grid.dx*(real)4;
-		if(length>r)return (real)0;
-		real coef1=(real)1/(real)2*(r*r);
-		real coef2=(real)1/(r*r);
-		return (real).1*coef2*exp(-length*length*coef1);
+		double r=grid.dx*(double)4;
+		if(length>r)return (double)0;
+		double coef1=(double)1/(double)2*(r*r);
+		double coef2=(double)1/(r*r);
+		return (double).1*coef2*exp(-length*length*coef1);
 	}
 
-	void Particle_Vorticity_Confinement(const real dt)
+	void Particle_Vorticity_Confinement(const double dt)
 	{
 		////Now we use vortex particles to preserve the vorticity in the domain
 		////particles.C represents the vorticity carried on each particle
@@ -176,7 +176,7 @@ public:
 			if(Bnd(i))continue;		////ignore boundary nodes
 			VectorDi node=Coord(i);
 			VectorD node_pos=grid.Node(node);
-			vor[i]=(real)0;
+			vor[i]=(double)0;
 
 			////Your implementation to calculate the confinement force for each grid node due to each particle
 			////Hint: recall your implementation in the vorticity confinement function
@@ -200,14 +200,14 @@ public:
 	VectorD Pos(const int node_index) const
 	{return grid.Node(node_index);}
 
-	Vector2 Cross(const Vector2& v,const real w) const
+	Vector2 Cross(const Vector2& v,const double w) const
 	{return Vector2(v[1]*w,-v[0]*w);}
 
 	////2D bi-linear interpolation for vectors or vectors (the type is specified by T)
 	template<class T> T Interpolate(const Array<T>& u,VectorD& pos)
 	{
 		////clamp pos to ensure it is always inside the grid
-		real epsilon=grid.dx*(real)1e-3;
+		double epsilon=grid.dx*(double)1e-3;
 		for(int i=0;i<d;i++){
 			if(pos[i]<=grid.domain_min[i])pos[i]=grid.domain_min[i]+epsilon;
 			else if(pos[i]>=grid.domain_max[i])pos[i]=grid.domain_max[i]-epsilon;}
@@ -215,7 +215,7 @@ public:
 		////calculate the index, fraction, and interpolated values from the array
 		VectorD cell_with_frac=(pos-grid.domain_min)/grid.dx;
 		VectorDi cell=cell_with_frac.template cast<int>();
-		VectorD frac=cell_with_frac-cell.template cast<real>();
+		VectorD frac=cell_with_frac-cell.template cast<double>();
 		return Interpolate_Helper<T>(cell,frac,u);
 	}
 	//////////////////////////////////////////////////////////////////////////
@@ -225,9 +225,9 @@ public:
 	////2D bi-linear interpolation helper for vectors or vectors (the type is specified by T)
 	template<class T> T Interpolate_Helper(const Vector2i& cell,const Vector2& frac,const Array<T>& u)
 	{
-		return ((real)1-frac[0])*((real)1-frac[1])*u[grid.Node_Index(cell)]
-			+frac[0]*((real)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]
-			+((real)1-frac[0])*frac[1]*u[grid.Node_Index(Vector2i(cell[0],cell[1]+1))]
+		return ((double)1-frac[0])*((double)1-frac[1])*u[grid.Node_Index(cell)]
+			+frac[0]*((double)1-frac[1])*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]))]
+			+((double)1-frac[0])*frac[1]*u[grid.Node_Index(Vector2i(cell[0],cell[1]+1))]
 			+frac[0]*frac[1]*u[grid.Node_Index(Vector2i(cell[0]+1,cell[1]+1))];
 	}
 
@@ -254,7 +254,7 @@ public:
 		particles.X(0)=VectorD::Zero();
 	}
 
-	void Update_Visualization_Particles(const real dt)
+	void Update_Visualization_Particles(const double dt)
 	{
 		for(int i=0;i<particles.Size();i++){
 			VectorD v=Interpolate(u,particles.X(i));

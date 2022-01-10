@@ -8,23 +8,23 @@
 template<int d>
 class MyFirstDriver : public Driver
 {
-	using VectorD=Vector<real,d>;
+	using VectorD=Vector<double,d>;
 	using Base=Driver;
 public:
 	Particles<d> particles;
-	real r=(real)1;
-	VectorD g=VectorD::Unit(1)*(real)-10;
+	double r=(double)1;
+	VectorD g=VectorD::Unit(1)*(double)-10;
 	SegmentMesh<d> segment_mesh;
 
 	virtual void Initialize()
 	{
 		std::cout<<"initialize my first driver"<<std::endl;
 		particles.Resize(1);
-		particles.X(0)=VectorD::Unit(1)*(real)2;
-		particles.V(0)=VectorD::Unit(1)*(real)-1;
+		particles.X(0)=VectorD::Unit(1)*(double)2;
+		particles.V(0)=VectorD::Unit(1)*(double)-1;
 	}
 
-	virtual void Advance_One_Time_Step(const real dt,const real time)
+	virtual void Advance_One_Time_Step(const double dt,const double time)
 	{
 		std::cout<<"my first driver, step "<<dt<<std::endl;
 		//particles.X(0)+=VectorD::Unit(0)*dt;
@@ -44,9 +44,9 @@ protected:
 		segment_mesh.Elements().clear();
 
 		int n=32;
-		real pi=3.1415927;
+		double pi=3.1415927;
 		for(int i=0;i<n;i++){
-			real theta=2.*pi*(real)i/(real)n;
+			double theta=2.*pi*(double)i/(double)n;
 			VectorD pos=VectorD::Zero();
 			pos[0]=particles.X(0)[0]+r*cos(theta);
 			pos[1]=particles.X(0)[1]+r*sin(theta);
