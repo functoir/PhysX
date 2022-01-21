@@ -44,12 +44,12 @@ public:
     std::vector<Vector3> velocity;				//// array of particle velocities
     std::vector<Vector3> color;					//// array of particle colors
     std::vector<double> radii;					//// array of particle radii
-    double dt=.02;								//// time step
+    double dt = .02;							//// time step
     
     /*TODO: add your own additional data structures for particles if necessary*/
     std::vector<double> masses;
     
-    //// segment data structure (for visualization purpose only)
+    /// segment data structure (for visualization purpose only)
     std::vector<std::vector<Vector3> > segment_mesh;			//// array of segment meshes (update this array in Advance Simulation for segment motion if necessary)
     //// each segment mesh stores its segment vertices are stored as [s0_0,s0_1,s1_0,s1_1,s2_0,s2_1,...], with si_0 and si_1 as the first and second vertex of the segment si
     std::vector<Vector3> segment_colors;						//// specify a segment color for each segment_mesh (not each segment)
@@ -70,9 +70,23 @@ public:
      * \param max: upper bound.
      * \return: random number in range, (double)
      */
-    double randomFloat(int min = 0, int max = 1)
+    static double randomFloat(int min = 0, int max = 1)
     {
         double num = rand();
+        while (num > (max - min)) num /= 7;
+        return num + min;
+    }
+    
+    /**
+     * Generate a random number within a specified range.
+     *
+     * @param min: lower bound.
+     * @param max; upper bound.
+     * @return: INTEGER
+     */
+    static int randomInt(int min = 0, int max = 1)
+    {
+        int num = rand();
         while (num > (max - min)) num /= 7;
         return num + min;
     }
@@ -245,7 +259,7 @@ public:
             forces.push_back(netForce);
         }
         
-        for (int body = 0; body < numBodies; body++) {
+        for (auto body = 0; body < numBodies; body++) {
             
             /* update position with current velocity */
             Vector3 posA = position[body] + velocity[body] * dt * TIME_SCALE;

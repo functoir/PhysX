@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //// Dartmouth Physical Computing Programming Assignment 1: Mass Spring
-//// Author: TODO: PUT YOUR NAME HERE
+//// Author: AMITTAI WEKESA
 ////////////////////////////////////////////////////////////////////////// 
 
 #ifndef __SoftBodyMassSpring_h__
@@ -33,7 +33,7 @@ public:
 	virtual void Initialize()
 	{
 		////Initialize default spring parameters for standard tests
-		double ks_0=(double)1,kd_0=(double)1;
+		auto ks_0 = (double) 1, kd_0 = (double)1;
 		switch(time_integration){
 		case TimeIntegration::ExplicitEuler:{
 			ks_0=(double)5e2;
