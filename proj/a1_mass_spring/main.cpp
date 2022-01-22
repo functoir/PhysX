@@ -16,15 +16,22 @@ int main(int argc,char* argv[])
 	int test=1;
 	int scale=1;
 
-	////parse from command lines
+	//parse from command lines
 	for(int i=0;i<argc;i++){
 		if(strcmp(argv[i],"-test")==0){
-			test=atoi(argv[++i]);}
+			test=atoi(argv[i+1]);
+            std::cout << "argv @ " << i << ": " << argv[i] << std::endl;
+            std::cout<<"test="<<test<<std::endl;
+            i += 1;
+        }
 		if(strcmp(argv[i],"-scale")==0){
 				scale=atoi(argv[++i]);}
 	}
 	std::cout<<"[Mass spring simulation driver arguments]: -test = "<<test<<", -scale = "<<scale<<std::endl;
 
+    
+    // custom test toggle
+    test=4;
 	////initialize driver
 	MassSpringInteractivDriver driver;
 	driver.scale=scale;

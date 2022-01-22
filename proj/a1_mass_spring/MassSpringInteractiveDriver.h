@@ -58,23 +58,28 @@ public:
 	////here we initialize three tests for rod, cloth, and beam
 	virtual void Initialize_Simulation_Data()
 	{
+        
+        std::cout << "test : " << test << std::endl;
+        
 		switch(test){
 		case 1:{	////1d rod
 			////initialize spring vertices
-			double length=(double)1;int n=8;double dx=length/(double)n;
+			auto length=(double)1;int n=8;double dx=length/(double)n;
 			soft_body.particles.Resize(n);
 			for(int i=0;i<n;i++){
 				soft_body.particles.X(i)=Vector3::Unit(0)*(double)i*dx;
 				soft_body.particles.M(i)=(double)1;}
 			////initialize springs
-			for(int i=0;i<n-1;i++){Vector2i s(i,i+1);
-				soft_body.springs.push_back(s);}
+			for(int i=0;i<n-1;i++){
+                Vector2i s(i,i+1);
+				soft_body.springs.push_back(s);
+            }
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
-		}break;
+		} break;
 		case 2:{	////2d cloth
 			////create a cloth mesh
-			double length=(double)1;int width=4*scale;int height=6*scale;double step=length/(double)width;
+			auto length=(double)1;int width=4*scale;int height=6*scale;double step=length/(double)width;
 			TriangleMesh<3> cloth_mesh;
 			Build_Cloth_Mesh(width,height,step,&cloth_mesh,0,2);
 			int n=(int)cloth_mesh.Vertices().size();

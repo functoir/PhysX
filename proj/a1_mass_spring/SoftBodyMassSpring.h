@@ -33,7 +33,7 @@ public:
 	virtual void Initialize()
 	{
 		////Initialize default spring parameters for standard tests
-		auto ks_0 = (double) 1, kd_0 = (double)1;
+		auto ks_0 = (double) 1, kd_0 = (double) 1;
 		switch(time_integration){
 		case TimeIntegration::ExplicitEuler:{
 			ks_0=(double)5e2;
@@ -96,34 +96,52 @@ public:
 
 	void Clear_Force()
 	{
-		for(int i=0;i<particles.Size();i++){particles.F(i)=Vector3::Zero();}
+		for (int i=0; i<particles.Size(); i++) {
+            particles.F(i)=Vector3::Zero();
+        }
 	}
 
 	void Apply_Body_Force(const double dt)
 	{
 		/* Your implementation start */
-
+        for (auto i=0; i < particles.Size(); i++) {
+            particles.F(i) += g * particles.M(i);
+        }
 		/* Your implementation end */	
 	}
 
 	void Apply_Spring_Force(const double dt)
 	{
 		/* Your implementation start */
-
+        for (int i=0; i<springs.size(); i++) {
+            Vector3 f = Spring_Force(i);
+            const Vector2i& spring = springs[i];
+            particles.F(spring[0]) += f;
+            particles.F(spring[1]) -= f;
+        }
 		/* Your implementation end */	
 	}
 
 	void Enforce_Boundary_Condition()
 	{
 		/* Your implementation start */
-
+        for (int i=0; i<particles.Size(); i++) {
+            if (Is_Boundary_Node(i)) {
+                particles.V(i) = boundary_nodes[i];
+                particles.F(i) = Vector3::Zero();
+            }
+        }
 		/* Your implementation end */	
 	}
 
 	void Time_Integration(const double dt)
 	{
 		/* Your implementation start */
-
+        for (int i=0; i<particles.Size(); i++) {
+            auto acceleration = particles.F(i) / particles.M(i);
+            particles.V(i) += acceleration * dt;
+            particles.X(i) += particles.V(i) * dt;
+        }
 		/* Your implementation end */		
 	}
 	
@@ -133,10 +151,14 @@ public:
 		//// You may want to call this function in Apply_Spring_Force
 		
 		/* Your implementation start */
-
+        const Vector2i& spring = springs[spring_index];
+        Vector3 pos1 = particles.X(spring[0]);
+        Vector3 pos2 = particles.X(spring[1]);
+        Vector3 distance = pos2 - pos1;
+        double length = distance.norm();
+        Vector3 f = (ks[spring_index] * (length - rest_length[spring_index]) * distance.normalized());
+        return f;
 		/* Your implementation end */
-
-		return Vector3::Zero();	////REPLACE this line with your own implementation
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -149,7 +171,93 @@ public:
 		//// You may also want to take a look at the function Initialize_Simulation_Data() in MassSpringInteractiveDriver.h for the model initialization.
 		
 		/* Your implementation start */
-
+        //// initialize the particles
+        double length = 1.;                                      // hair length
+        int n = 20;                                               // number of particles
+        double dx = length / n;                                  // particle spacing
+        particles.Resize(n);                                // resize the particle array
+        
+        auto ks_0 = (double) 1, kd_0 = (double) 1;
+        switch(time_integration){
+            case TimeIntegration::ExplicitEuler:{
+                ks_0=(double)5e2;
+                kd_0=(double)1e1;
+            }break;
+            case TimeIntegration::ImplicitEuler:{
+                ks_0=(double)1e5;
+                kd_0=(double)1e1;
+            }break;
+        }
+        
+        // initialize the particles
+        for(int i=0; i<n; i++){
+            particles.X(i) = Vector3::Unit(0.) * i * dx;
+            particles.M(i) = 1.;
+        }
+        // initialize connection springs
+        for (int i = 0; i < n-1; i++) {
+            springs.emplace_back(Vector2i(i, i+1));
+            rest_length.push_back(dx);
+//            ks.push_back(ks_0);
+        }
+        ////set boundary conditions
+        Set_Boundary_Node(0);
+        
+        //// initialize the curl springs
+        auto dampening = 0.8;
+        for (int i=0; i < n-2; i++) {
+            springs.emplace_back(Vector2i(i, i + 2));
+            rest_length.push_back(dx * dampening * 2);
+//            ks.push_back(ks_0 * 0.6);
+        }
+        for (int i = 0; i < n-3; i++) {
+            springs.emplace_back(Vector2i(i, i + 3));
+            rest_length.push_back(dx * dampening * 2.8);
+//            ks.push_back(ks_0 * 1.4);
+        }
+        for (int i = 0; i < n-4; i++) {
+            springs.emplace_back(Vector2i(i, i + 4));
+            rest_length.push_back(dx * dampening * 3.2);
+//            ks.push_back(ks_0 * 1.5);
+        }
+        for (int i = 0; i < n-5; i++) {
+            springs.emplace_back(Vector2i(i, i + 5));
+            rest_length.push_back(dx * dampening * 3);
+//            ks.push_back(ks_0 * 0.6);
+        }
+        for (int i = 0; i < n-6; i++) {
+            springs.emplace_back(Vector2i(i, i + 6));
+            rest_length.push_back(dx * dampening * 2.4);
+//            ks.push_back(ks_0 * 0.6);
+        }
+        for (int i = 0; i < n-7; i++) {
+            springs.emplace_back(Vector2i(i, i + 7));
+            rest_length.push_back(dx * dampening * 1.9);
+//            ks.push_back(ks_0 * 0.6);
+        }
+        
+        ks.resize(springs.size(), ks_0);                                              // clear the spring stiffness array
+//        for (int i = 0; i < n-8; i++) {
+//            springs.emplace_back(Vector2i(i, i + 8));
+//            rest_length.push_back(0.2);
+//            ks.push_back(ks_0 * 2.0);
+//        }
+//        for (int i = 0; i < n-9; i++) {
+//            springs.emplace_back(Vector2i(i, i + 9));
+//            rest_length.push_back(0.2);
+//            ks.push_back(ks_0 * 2.0);
+//        }
+        //// initialize the rest length
+//        for (int i=0; i<n; i++) {
+//            rest_length.push_back(0.1);
+//        }
+//        for (int i = n; i < particles.Size(); i++) {
+//            if (i % 2 == 0) {
+//                rest_length.push_back(0.15);
+//            } else {
+//                rest_length.push_back(0.17);
+//            }
+//        }
 		/* Your implementation end */
 	}
 
@@ -163,7 +271,9 @@ public:
 		int n=3*particles.Size();
 		K.resize(n,n);u.resize(n);u.fill((double)0);b.resize(n);b.fill((double)0);
 		std::vector<TripletT> elements;
-		for(int s=0;s<(int)springs.size();s++){int i=springs[s][0];int j=springs[s][1];
+		for(auto &spring : springs){
+            int i=spring[0];
+            int j=spring[1];
 			Add_Block_Triplet_Helper(i,i,elements);
 			Add_Block_Triplet_Helper(i,j,elements);
 			Add_Block_Triplet_Helper(j,i,elements);
@@ -177,7 +287,7 @@ public:
 	{
 		////Clear K and b
 		K.setZero();
-		b.fill((double)0);
+		b.fill((double) 0);
 
 		/* Your implementation start */
 
@@ -188,7 +298,7 @@ public:
 	void Compute_Ks_Block(const int s,Matrix3& Ks)
 	{
 		/* Your implementation start */
-
+  
 		/* Your implementation end */
 	}
 
