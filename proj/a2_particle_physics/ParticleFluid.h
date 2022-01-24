@@ -203,6 +203,10 @@ public:
 					VectorD normal=env_objects[j]->Normal(particles.X(i));
 					particles.F(i)+=normal*kd*(particles.R(i)-phi)*particles.D(i);}}}
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	////YOUR IMPLEMENTATION (P2 TASK): In addition to the required function implementations, you are also asked to implement one additional feature to enhance the fluid effects. You may modify any part of the starter code for your implementation.
+
 };
 
 #endif
