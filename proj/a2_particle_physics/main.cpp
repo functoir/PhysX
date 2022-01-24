@@ -12,7 +12,8 @@
 
 int main(int argc,char* argv[])
 {
-	int driver=2;
+	//// change the driver id to switch between sand and fluid 
+	int driver=1;
 
 	switch(driver){
 	case 1:{
