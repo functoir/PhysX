@@ -1,8 +1,7 @@
-//#####################################################################
-// Particle Sand (DEM)
-// Dartmouth COSC 89.18/189.02: Computational Methods for Physical Systems, Assignment starter code
-// Contact: Bo Zhu (bo.zhu@dartmouth.edu)
-//#####################################################################
+//////////////////////////////////////////////////////////////////////////
+//// Dartmouth Physical Computing Programming Assignment 2: DEM Particle Sand
+//// Author: TODO: PUT YOUR NAME HERE
+////////////////////////////////////////////////////////////////////////// 
 
 #ifndef __ParticleSand_h__
 #define __ParticleSand_h__
@@ -18,7 +17,7 @@ public:
 	double kd=(double).5e1;		////damping for the collision force
 	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
 
-	////list of implicit geometries describing the environment, by default it has one element, a circle with its normals pointing inward (Bowl)
+	////a list of implicit geometries describing the environment, by default it has one element, a circle with its normals pointing inward (Bowl)
 	std::vector<ImplicitGeometry<d>* > env_objects;	
 	std::vector<Vector2i> particle_particle_collision_pairs;
 	std::vector<Vector2i> particle_environment_collision_pairs;

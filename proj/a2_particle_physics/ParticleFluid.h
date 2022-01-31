@@ -1,8 +1,7 @@
-//#####################################################################
-// Particle Fluid (SPH)
-// Dartmouth COSC 89.18/189.02: Computational Methods for Physical Systems, Assignment starter code
-// Contact: Bo Zhu (bo.zhu@dartmouth.edu)
-//#####################################################################
+//////////////////////////////////////////////////////////////////////////
+//// Dartmouth Physical Computing Programming Assignment 2: SPH Particle Fluid
+//// Author: TODO: PUT YOUR NAME HERE
+////////////////////////////////////////////////////////////////////////// 
 #ifndef __ParticleFluid_h__
 #define __ParticleFluid_h__
 #include "Common.h"
@@ -38,6 +37,7 @@ public:
 		if(r>=0&&r<=h){return 15.0/(pi*pow(h,6))*pow(h-r,3);}
 		else{return 0;}
 	}
+
 	VectorD gradientWspiky(const VectorD& v){
 		double r=v.norm();
 		if(r<= h&&r>0){return -45.0/(pi*pow(h,6))*pow(h-r,2)*v/r;}
@@ -203,6 +203,10 @@ public:
 					VectorD normal=env_objects[j]->Normal(particles.X(i));
 					particles.F(i)+=normal*kd*(particles.R(i)-phi)*particles.D(i);}}}
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	////YOUR IMPLEMENTATION (P2 TASK): In addition to the required function implementations, you are also asked to implement one additional feature to enhance the fluid effects. You may modify any part of the starter code for your implementation.
+
 };
 
 #endif
