@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //// Dartmouth Physical Computing Programming Assignment 2: SPH Particle Fluid
-//// Author: TODO: PUT YOUR NAME HERE
+//// Author: AMITTAI WEKESA
 ////////////////////////////////////////////////////////////////////////// 
 #ifndef __ParticleFluid_h__
 #define __ParticleFluid_h__
@@ -88,8 +88,21 @@ public:
 	bool Find_Nbs(const VectorD& pos,const std::vector<VectorD>& points,const double kernel_radius,/*returned result*/std::vector<int>& nbs) const
 	{
 		/* Your implementation start */
+        for (int i = 0; i < pow(3, d); i++) {
+            auto coordinate = Cell_Coord(pos);
+            auto iter = voxels.find(Nb_R(coordinate, i));
+            if (iter != voxels.end()) {
+                std::vector<int> bucket = iter->second;
+                for (int& j : bucket) {
+                    if (points[j].norm() <= kernel_radius)
+                    {
+                        nbs.push_back(j);
+                    }
+                }
+            }
+        }
 		/* Your implementation end */
-		return nbs.size()>0;
+		return !nbs.empty();
 	}
 
 protected:	////Helper functions
@@ -161,6 +174,14 @@ public:
 	void Update_Density()
 	{
 		/* Your implementation start */
+        for (int i = 0; i < particles.Size(); i++)
+        {
+            particles.D(i) = 0;
+            for (int j : neighbors[i])
+            {
+                particles.D(i) += kernel.Wspiky(particles.X(i) - particles.X(j)) * particles.M(j);
+            }
+        }
 		/* Your implementation end */
 	}
 
@@ -169,6 +190,10 @@ public:
 	void Update_Pressure()
 	{
 		/* Your implementation start */
+        for (int i = 0; i < particles.Size(); i++)
+        {
+            particles.P(i) = pressure_density_coef * (particles.D(i) - density_0);
+        }
 		/* Your implementation end */
 	}
 
@@ -177,21 +202,48 @@ public:
 	void Update_Pressure_Force()
 	{
 		/* Your implementation start */
+        for (int i = 0; i < particles.Size(); i++) {
+            VectorD pressure = VectorD::Zero();
+            
+            for (int& j : neighbors[i]) {
+                auto average_pressure = (particles.P(i) + particles.P(j)) / 2;
+                auto other_volume = particles.M(j) / particles.D(j);
+                pressure += average_pressure * other_volume * kernel.gradientWspiky(particles.X(i) - particles.X(j));
+                //TODO: should this be V(i)?
+            }
+            particles.F(i) -= pressure;
+        }
 		/* Your implementation end */
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): compute the viscosity force for each particle based on its current velocity difference (particles.V(j)-particles.V(i)) and the kernel function Laplacian (laplacianWvis), and then add the force to particles.F(i)
+	////YOUR IMPLEMENTATION (P2 TASK): compute the viscosity force for each particle
+	/// based on its current velocity difference (particles.V(j)-particles.V(i))
+	/// and the kernel function Laplacian (laplacianWvis),
+	/// and then add the force to particles.F(i)
 	void Update_Viscosity_Force()
 	{
-		/* Your implementation start */
-		/* Your implementation end */
+        /* Your implementation start */
+        for (int i = 0; i < particles.Size(); i++) {
+            VectorD viscosity(VectorD::Zero());
+            
+            for (int& j : neighbors[i]) {
+                auto velocity_difference = particles.V(j) - particles.V(i);
+                auto other_volume = particles.M(j) / particles.D(j);
+                viscosity += velocity_difference * other_volume * kernel.laplacianWvis(particles.X(i) - particles.X(j));
+                //TODO: should this be V(i)?
+            }
+            particles.F(i) += viscosity_coef * viscosity;
+            
+        }
+        /* Your implementation end */
 	}
 
 	void Update_Body_Force()
 	{
-		for(int i=0;i<particles.Size();i++){
-			particles.F(i)+=particles.D(i)*g;}	
+		for (int i = 0; i < particles.Size(); i++) {
+			particles.F(i)+=particles.D(i)*g;
+        }
 	}
 
 	void Update_Boundary_Collision_Force()
@@ -205,7 +257,10 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	////YOUR IMPLEMENTATION (P2 TASK): In addition to the required function implementations, you are also asked to implement one additional feature to enhance the fluid effects. You may modify any part of the starter code for your implementation.
+	////YOUR IMPLEMENTATION (P2 TASK):
+	/// In addition to the required function implementations,
+	/// you are also asked to implement one additional feature to enhance the fluid effects.
+	/// You may modify any part of the starter code for your implementation.
 
 };
 
