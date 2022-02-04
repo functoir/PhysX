@@ -94,7 +94,8 @@ public:
             if (iter != voxels.end()) {
                 std::vector<int> bucket = iter->second;
                 for (int& j : bucket) {
-                    if (points[j].norm() <= kernel_radius)
+                    auto distance = (pos - points[j]).norm();
+                    if (distance <= kernel_radius)
                     {
                         nbs.push_back(j);
                     }
@@ -121,6 +122,7 @@ template<int d> class ParticleFluid
 public:
 	Particles<d> particles;
 	std::vector<std::vector<int> > neighbors;
+    std::vector<int> boundary_particles;
 	SpatialHashing<d> spatial_hashing;
 	Kernel<d> kernel;
 
@@ -130,6 +132,7 @@ public:
 	double viscosity_coef=(double)1e1;			////viscosity coefficient, used in Update_Viscosity_Force()
 	double kd=(double)1e2;						////stiffness for environmental collision response
 	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
+//	VectorD g = VectorD::Zero();
 	
 	////Environment objects
 	std::vector<ImplicitGeometry<d>* > env_objects;
@@ -143,12 +146,27 @@ public:
 	{
 		spatial_hashing.Clear_Voxels();
 		spatial_hashing.Update_Voxels(particles.XRef());
+        
+        // track boundary particles
+        boundary_particles.clear();
 
 		neighbors.resize(particles.Size());
 		for(int i=0;i<particles.Size();i++){
 			std::vector<int> nbs;
 			spatial_hashing.Find_Nbs(particles.X(i),particles.XRef(),kernel_radius,nbs);
-			neighbors[i]=nbs;}
+			neighbors[i]=nbs;
+            
+            /* if less than 10 neighbors, assume it is a boundary particle
+               This is a hack,
+               and I do not have any scientific justification for it,
+               but it seems to work, so I'm inclined to not fix it.
+               I printed out the number of neighbors and the averages
+               were roughly [14 to 18], so I think < 10 is a good threshold. */
+            
+            if (nbs.size() < 10) {
+                boundary_particles.push_back(i);
+            }
+        }
 	}
 
 	virtual void Advance(const double dt)
@@ -163,6 +181,7 @@ public:
 		Update_Viscosity_Force();
 		Update_Body_Force();
 		Update_Boundary_Collision_Force();
+        Update_Particle_Surface_Tension();
 
 		for(int i=0;i<particles.Size();i++){
 			particles.V(i)+=particles.F(i)/particles.D(i)*dt;
@@ -203,15 +222,14 @@ public:
 	{
 		/* Your implementation start */
         for (int i = 0; i < particles.Size(); i++) {
-            VectorD pressure = VectorD::Zero();
+            VectorD pressure_force = VectorD::Zero();
             
             for (int& j : neighbors[i]) {
                 auto average_pressure = (particles.P(i) + particles.P(j)) / 2;
                 auto other_volume = particles.M(j) / particles.D(j);
-                pressure += average_pressure * other_volume * kernel.gradientWspiky(particles.X(i) - particles.X(j));
-                //TODO: should this be V(i)?
+                pressure_force += average_pressure * other_volume * kernel.gradientWspiky(particles.X(i) - particles.X(j));
             }
-            particles.F(i) -= pressure;
+            particles.F(i) -= pressure_force;
         }
 		/* Your implementation end */
 	}
@@ -261,6 +279,64 @@ public:
 	/// In addition to the required function implementations,
 	/// you are also asked to implement one additional feature to enhance the fluid effects.
 	/// You may modify any part of the starter code for your implementation.
+    
+//    void Update_Particle_Surface_Tension() {
+//        auto surface_tension_coef = 10;                           // good for controlling and testing
+//        for (int i = 0; i < boundary_particles.size(); i++) {
+//            VectorD surface_tension;
+//            for (int& j: neighbors[i]) {
+//
+//                /* For each neighbor of a boundary particle,
+//                 * Find a force of attraction between them constraining their movement to each other point
+//                 * (To create the chain effect).
+//                 *
+//                 * I found one paper describing such a way of computing the surface tension force:
+//                 * https://www.osti.gov/servlets/purl/1430982
+//                 * I used the "height function approach" listed in the paper:
+//                 *       F = coeff * curvature * (unit direction unit from particle to neighbor)
+//                 *       where the curvature (as defined by calculus)
+//                 *       is the scalar rate of change of the (unit gradient vector).
+//                 *       It appears to work and has some adverse & interesting results when you tweak
+//                 *       surface_tension_coef to higher values.
+//                 *
+//                 */
+//                auto position_difference = particles.X(i) - particles.X(j);
+//                auto position_difference_norm = position_difference.norm() * 1/0.7;
+//                auto position_difference_direction = position_difference.normalized() * 0.7;
+//                auto gradient = kernel.gradientWspiky(position_difference_direction);
+//                auto gradient_norm = gradient.norm() * 1/0.7;
+//                auto gradient_direction = gradient.normalized() * 0.7;
+//                auto curvature = position_difference_norm * gradient_norm * (kernel.gradientWspiky(gradient_direction)).norm();
+//                surface_tension = surface_tension_coef * curvature * gradient_direction;
+//                particles.F(i) += surface_tension;
+//                particles.F(j) -= surface_tension;
+//            }
+//        }
+//    }
+    
+    void Update_Particle_Surface_Tension() {
+        auto surface_tension_coef = 10;                           // good for controlling and testing
+        for (int i = 0; i < particles.Size(); i++) {
+            VectorD total = VectorD::Zero();
+//            for (int& j: neighbors[i]) {
+            for (int j = 0; j < particles.Size(); j++) {
+                auto position_difference = particles.X(i) - particles.X(j);
+                auto kernel_weight = kernel.Wspiky(position_difference);
+                auto other_mass = particles.M(j);
+                
+                // compute curvature
+                auto gradient = kernel.gradientWspiky(position_difference.normalized());
+                auto gradient_direction = gradient.normalized() * 0.7;
+                auto curvature = position_difference.norm() * gradient.norm() * (kernel.gradientWspiky(gradient_direction)).norm();
+                total += -curvature * kernel_weight * other_mass * position_difference;
+            }
+            particles.F(i) += surface_tension_coef * total;
+        }
+    
+    }
+    
+    
+
 
 };
 

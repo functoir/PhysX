@@ -48,7 +48,7 @@ class Curve : Sphere<d>
 public:
     VectorD center;
     double radius;
-    Curve(VectorD _center=VectorD::Zero(),double _radius=1.) : center(_center),radius(_radius){}
+    explicit Curve(VectorD _center=VectorD::Zero(),double _radius=1.) : center(_center),radius(_radius){}
     virtual double Phi(const VectorD& pos) const {return (pos-center).norm()-radius;}
     virtual VectorD Normal(const VectorD& pos) const {return (pos-center).normalized();}
     
@@ -71,8 +71,6 @@ public:
         opengl_circle->n=64;
         opengl_circle->pos=V3(this->center);
         opengl_circle->radius=this->radius;
-//        opengl_circle->color=OpenGLColor(1.f,.6f,.2f);
-//        opengl_circle->line_width=4.f;
         opengl_circle->Set_Data_Refreshed();
         opengl_circle->Initialize();
     }
