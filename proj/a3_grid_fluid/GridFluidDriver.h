@@ -11,10 +11,10 @@
 #include "OpenGLMarkerObjects.h"
 #include "OpenGLParticles.h"
 
-template<int d> class GridFluidDriver : public Driver, public OpenGLViewer
-{using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
+class GridFluidDriver : public Driver, public OpenGLViewer
+{using Base=Driver;
 	double dt=.02;
-	GridFluid<d> fluid;
+	GridFluid fluid;
 	double v_rescale=(double).05;
 	bool add_particle=false;
 
@@ -53,7 +53,7 @@ public:
 		for(int i=0;i<fluid.node_num;i++){
 			opengl_vectors->mesh.elements[i]=Vector2i(i*2,i*2+1);
 			(*opengl_vectors->mesh.vertices)[i*2]=V3(fluid.grid.Node(fluid.grid.Node_Coord(i)));
-			VectorD pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
+			Vector2 pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
 			(*opengl_vectors->mesh.vertices)[i*2+1]=V3(pos2);}
 		opengl_vectors->Set_Data_Refreshed();
 		opengl_vectors->Initialize();
@@ -73,11 +73,11 @@ public:
 		
 		int cell_num=fluid.grid.cell_counts.prod();
 		for(int i=0;i<cell_num;i++){
-			VectorDi cell=fluid.grid.Cell_Coord(i);
-			VectorD pos1=fluid.grid.Node(cell);
-			VectorD pos2=pos1+VectorD::Unit(0)*fluid.grid.dx;
-			VectorD pos3=pos1+VectorD::Unit(0)*fluid.grid.dx+VectorD::Unit(1)*fluid.grid.dx;
-			VectorD pos4=pos1+VectorD::Unit(1)*fluid.grid.dx;
+			Vector2i cell=fluid.grid.Cell_Coord(i);
+			Vector2 pos1=fluid.grid.Node(cell);
+			Vector2 pos2=pos1+Vector2::Unit(0)*fluid.grid.dx;
+			Vector2 pos3=pos1+Vector2::Unit(0)*fluid.grid.dx+Vector2::Unit(1)*fluid.grid.dx;
+			Vector2 pos4=pos1+Vector2::Unit(1)*fluid.grid.dx;
 
 			int n=(int)opengl_mesh->mesh.Vertices().size();
 			opengl_mesh->mesh.Vertices().push_back(V3(pos1));
@@ -107,7 +107,7 @@ public:
 		////velocity visualization
 		if(draw_velocity){
 			for(int i=0;i<fluid.node_num;i++){
-				VectorD pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
+				Vector2 pos2=fluid.grid.Node(fluid.grid.Node_Coord(i))+fluid.u[i]*v_rescale;
 				(*opengl_vectors->mesh.vertices)[i*2+1]=V3(pos2);}
 			opengl_vectors->Set_Data_Refreshed();
 		}
@@ -118,7 +118,7 @@ public:
 			for(int i=0;i<fluid.particles.Size();i++){
 				bool outside=false;
 				double epsilon=fluid.grid.dx*(double).5;
-				for(int j=0;j<d;j++){
+				for(int j=0;j<2;j++){
 					if(fluid.particles.X(i)[j]<fluid.grid.domain_min[j]+epsilon||
 						fluid.particles.X(i)[j]>fluid.grid.domain_max[j]-epsilon){outside=true;break;}}
 				if(outside){
@@ -139,17 +139,17 @@ public:
 			int cell_num=fluid.grid.cell_counts.prod();
 			for(int i=0;i<cell_num;i++){
 				int idx=i*6;
-				VectorDi cell=fluid.grid.Cell_Coord(i);
-				VectorD pos1=fluid.grid.Node(cell);
+				Vector2i cell=fluid.grid.Cell_Coord(i);
+				Vector2 pos1=fluid.grid.Node(cell);
 				double den1=fluid.Interpolate(fluid.smoke_den,pos1);
 
-				VectorD pos2=pos1+VectorD::Unit(0)*fluid.grid.dx;
+				Vector2 pos2=pos1+Vector2::Unit(0)*fluid.grid.dx;
 				double den2=fluid.Interpolate(fluid.smoke_den,pos2);
 
-				VectorD pos3=pos1+VectorD::Unit(0)*fluid.grid.dx+VectorD::Unit(1)*fluid.grid.dx;
+				Vector2 pos3=pos1+Vector2::Unit(0)*fluid.grid.dx+Vector2::Unit(1)*fluid.grid.dx;
 				double den3=fluid.Interpolate(fluid.smoke_den,pos3);
 
-				VectorD pos4=pos1+VectorD::Unit(1)*fluid.grid.dx;
+				Vector2 pos4=pos1+Vector2::Unit(1)*fluid.grid.dx;
 				double den4=fluid.Interpolate(fluid.smoke_den,pos4);
 			
 				opengl_mesh->colors[idx]=den1;
@@ -182,7 +182,7 @@ public:
 		if(!add_particle)return false;
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
+		Vector2 p_pos;for(int i=0;i<2;i++)p_pos[i]=(double)pos[i];
 		fluid.src_pos=p_pos;
 		Add_Source_Particle(p_pos);
 		return true;
@@ -193,12 +193,12 @@ public:
 		if(left!=1&&left!=-1){return false;}
 		if(left==-1&&add_particle){
 			add_particle=false;
-			fluid.src_pos=VectorD::Ones()*-1;	////turn off source
+			fluid.src_pos=Vector2::Ones()*-1;	////turn off source
 			return true;}
 
 		Vector3f win_pos=opengl_window->Project(Vector3f::Zero());
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
-		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
+		Vector2 p_pos;for(int i=0;i<2;i++)p_pos[i]=(double)pos[i];
 		fluid.src_pos=p_pos;
 		Add_Source_Particle(p_pos);
 		add_particle=true;
@@ -210,7 +210,7 @@ public:
 	{
 		OpenGLViewer::Initialize_Common_Callback_Keys();
 		Bind_Callback_Key('v',&Keyboard_Event_V_Func,"press v");
-		Bind_Callback_Key('d',&Keyboard_Event_V_Func,"press d");
+		Bind_Callback_Key('2',&Keyboard_Event_V_Func,"press 2");
 	}
 
 	virtual void Keyboard_Event_V()
@@ -231,7 +231,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	////User interaction for manipulating sources
-	void Add_Source_Particle(VectorD p_pos)
+	void Add_Source_Particle(Vector2 p_pos)
 	{
 		double rx=.1*static_cast<float>(rand()%1000)/1000.-.05;
 		double ry=.1*static_cast<float>(rand()%1000)/1000.-.05;
@@ -252,7 +252,7 @@ public:
 		}
 	}
 
-	void Add_Particle(VectorD pos)
+	void Add_Particle(Vector2 pos)
 	{
 		int i=fluid.particles.Add_Element();	////return the last element's index
 		fluid.particles.X(i)=pos;

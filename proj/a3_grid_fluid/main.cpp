@@ -12,16 +12,9 @@
 
 int main(int argc,char* argv[])
 {
-	int driver=1;
-
-	switch(driver){
-	case 1:{
-		GridFluidDriver<2> driver;
-		driver.Initialize();
-		driver.Run();	
-	}break;
-	}
-	
+	GridFluidDriver driver;
+	driver.Initialize();
+	driver.Run();	
 }
 
 #endif
