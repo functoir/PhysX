@@ -231,40 +231,41 @@ void OpenGLWindow::Display_Offscreen()
 
 void OpenGLWindow::Display_Text()
 {
-	if(texts.empty())return;
-
-    // Text rendering uses features that are not available on MacOSX
-    // Disable it.
-#ifdef __APPLE__
-    return;
-#endif
-    
-    auto camera=Get_Camera_Ubo();
-    glm::mat4& ortho=camera->object.ortho;
-
-    glPushAttrib(GL_ENABLE_BIT);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadMatrixf(glm::value_ptr(ortho));
-    glColor3f(.5f,.5f,.5f);
-
-    Vector2f step={10.f,15.f};
-	int i=0;for(auto iter:texts){const std::string& text=iter.second;
-		for(auto j=0;j<text.size();j++){
-			Vector2f pos=Vector2f(step[0]*(float)j,(float)win_h-step[1]*((float)(i)+1.f));
-			glRasterPos2f(pos[0],pos[1]);
-			glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[j]);}i++;}
-
-    glPopAttrib();
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+    //// comment this function out to avoid display Error on Mac
+//	if(texts.empty())return;
+//
+//    // Text rendering uses features that are not available on MacOSX
+//    // Disable it.
+//#ifdef __APPLE__
+//    return;
+//#endif
+//    
+//    auto camera=Get_Camera_Ubo();
+//    glm::mat4& ortho=camera->object.ortho;
+//
+//    glPushAttrib(GL_ENABLE_BIT);
+//    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_LIGHTING);
+//
+//    glMatrixMode(GL_MODELVIEW);
+//    glPushMatrix();
+//    glLoadIdentity();
+//    glMatrixMode(GL_PROJECTION);
+//    glPushMatrix();
+//    glLoadMatrixf(glm::value_ptr(ortho));
+//    glColor3f(.5f,.5f,.5f);
+//
+//    Vector2f step={10.f,15.f};
+//	int i=0;for(auto iter:texts){const std::string& text=iter.second;
+//		for(auto j=0;j<text.size();j++){
+//			Vector2f pos=Vector2f(step[0]*(float)j,(float)win_h-step[1]*((float)(i)+1.f));
+//			glRasterPos2f(pos[0],pos[1]);
+//			glutBitmapCharacter(GLUT_BITMAP_9_BY_15,text[j]);}i++;}
+//
+//    glPopAttrib();
+//    glPopMatrix();
+//    glMatrixMode(GL_MODELVIEW);
+//    glPopMatrix();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
