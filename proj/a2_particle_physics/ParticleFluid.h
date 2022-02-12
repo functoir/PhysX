@@ -328,7 +328,8 @@ public:
                 auto gradient = kernel.gradientWspiky(position_difference.normalized());
                 auto gradient_direction = gradient.normalized() * 0.7;
                 auto curvature = position_difference.norm() * gradient.norm() * (kernel.gradientWspiky(gradient_direction)).norm();
-                total += -curvature * kernel_weight * other_mass * position_difference;
+//                total += -curvature * kernel_weight * other_mass * position_difference;
+                total += -kernel_weight * other_mass * position_difference;
             }
             particles.F(i) += surface_tension_coef * total;
         }

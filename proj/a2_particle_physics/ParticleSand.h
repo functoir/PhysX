@@ -73,22 +73,6 @@ public:
 	////The collision response force consists of a spring force and a damping force
 	virtual void Particle_Environment_Collision_Response()
 	{
-//		for(auto& collision_pair : particle_environment_collision_pairs){
-//			int particle_index = collision_pair[0];	////particle index
-//			int object_index = collision_pair[1];	////env_objects index
-//
-//			/* Your implementation start */
-//            double distance = env_objects[object_index]->Phi(particles.X(particle_index));
-//            VectorD normal = env_objects[object_index]->Normal(particles.X(particle_index));
-//            auto environment_velocity = VectorD::Zero();
-//            VectorD spring_force = -ks * (distance - particles.R(particle_index)) * normal;
-//            VectorD damping_force = -kd * (environment_velocity - particles.V(particle_index)).dot(normal) * normal;
-//            VectorD collision_force = spring_force + damping_force;
-//			/* Your implementation end */
-//
-//			particles.F(particle_index)+=collision_force;
-//		}
-        
         for(auto& collision_pair : particle_environment_collision_pairs){
             int particle_index=collision_pair[0];
             int object_index=collision_pair[1];
