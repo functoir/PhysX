@@ -11,10 +11,10 @@ template<int d> class MultiCopter
 	using Vector2 = Vector<double, 2>; using Matrix2 = Matrix<double, 2>;
 public:
 	RigidBody<d> rigid_body;
-	std::vector<VectorD> body_rotor_pos;
-	std::vector<VectorD> body_rotor_dir;
+	Array<VectorD> body_rotor_pos;
+	Array<VectorD> body_rotor_dir;
 	int thrust_flag;
-	std::vector<VectorD> body_thrust_vec;
+	Array<VectorD> body_thrust_vec;
 
 	// Parameters
 	double mass;
@@ -76,6 +76,7 @@ public:
 		yaw = acos(cos_yaw);
 		if (X1(1) < 0) yaw = -yaw;
 		return VectorD(roll, pitch, yaw);
+
 		// Sanity check:
 		// const Matrix3 R1 = AngleAxis(yaw, Vector3::UnitZ())
 		//  * AngleAxis(pitch, Vector3::UnitY())
@@ -123,7 +124,7 @@ public:
 
 	virtual void Advance(const double dt, const VectorD& target)
 	{
-		std::vector<double> thrusts(4, 0.0);
+		Array<double> thrusts(4, 0.0);
 		double mg = mass * g;
 		if (thrust_flag == 0)
 		{
@@ -148,7 +149,7 @@ public:
 			const double z_ref = target.z();
 			const double z = p.z();
 			// Clamp total_thrust between 0.5mg and 1.5mg.
-			const double min_thrust = 0.5 * mass * g, max_thrust = 1.5 * mass * g;
+			const double min_thrust = 0.9 * mass * g, max_thrust = 1.5 * mass * g;
 			double total_thrust = Clamp(AltitudeController(mass * g, z_ref, z, z_rate), min_thrust, max_thrust);
 
 			// Yaw control.
@@ -163,7 +164,7 @@ public:
 			const double tau_pitch = 0.013 * (pitch_ref - rpy(1)) - 0.002 * rpy_rate(1);
 			const double tau_roll = 0.01 * (roll_ref - rpy(0)) - 0.0028 * rpy_rate(0);
 
-			const double bound_d = 0.5 * mass * g;
+			const double bound_d = 0.06 * mass * g;
 			const double d_phi = Clamp(tau_roll / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
 			const double d_theta = Clamp(tau_pitch / 2.0 / std::sqrt(2.0) / arm_length, -bound_d, bound_d);
 			const double d_psi = Clamp(tau_yaw / 4.0 / lambda, -bound_d, bound_d);
@@ -218,6 +219,7 @@ public:
 		VectorD net_force = VectorD::Zero();
 
 		// -- Your implementation starts --
+
 		// -- Your implementation ends --
 
 		////Angular motion
@@ -252,6 +254,7 @@ public:
 		VectorD body_net_torque = VectorD::Zero();
 
 		// -- Your implementation starts --
+
 		// -- Your implementation ends --	
 	}
 
@@ -266,6 +269,7 @@ public:
 		R(0, 0) = c; R(0, 1) = s; R(1, 0) = -s; R(1, 1) = c;
 		Vector2 local_xy_error = R * xy_error;
 
+		// Clamp position error.
 		const Vector2 min_bound(-3.0, -3.0);
 		const Vector2 max_bound(3.0, 3.0);
 		local_xy_error = local_xy_error.cwiseMin(max_bound).cwiseMax(min_bound);
@@ -281,7 +285,9 @@ public:
 		pitch = -P * x_err - D * dx_err;
 		roll = P * y_err + D * dy_err;
 
-		return Vector2(pitch, roll);
+		// Clamp angles.
+		const double max_abs_angle = 10.0 / 180.0 * 3.1415926;
+		return Vector2(pitch, roll).cwiseMin(max_abs_angle).cwiseMax(-max_abs_angle);
 	}
 
 	// -- TASK 3.3: Implement your altitude controller here --
@@ -292,6 +298,7 @@ public:
 		double total_control_thrust = 0.0;
 
 		// -- Your implementation starts --
+
 		// -- Your implementation ends --
 
 		return total_control_thrust;
@@ -305,6 +312,7 @@ public:
 		double total_control_torque = 0.0;
 
 		// -- Your implementation starts --
+
 		// -- Your implementation ends --
 
 		return total_control_torque;

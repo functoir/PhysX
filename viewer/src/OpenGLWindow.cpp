@@ -50,6 +50,7 @@ public:
     TV vFrom,vTo,vrFrom,vrTo;
     Matrix4f mNow,mDown,mDeltaNow; //note that these only work in world space
     bool dragging;
+	bool use_drone_view=false;
     OpenGLWindow* window;
 
     OpenGLArcball():dragging(false)
@@ -62,10 +63,13 @@ public:
     vFrom=vTo=vrFrom=vrTo=TV::Zero();
 	mNow=mDown=mDeltaNow=Matrix4f::Identity();
 
-	//////for Drone test only
-	//qNow=qDown=qDrag=Eigen::AngleAxisf(3.1415927f*-.05f,Vector3f::Unit(1))
-	//	*Eigen::AngleAxisf(3.1415927f*.3f,Vector3f::Unit(0));
-	//mNow=From_Linear(qNow.toRotationMatrix());
+	////for Drone test only
+	if(use_drone_view){
+		qNow=qDown=qDrag=Eigen::AngleAxisf(3.1415927f*-.05f,Vector3f::Unit(1))
+			*Eigen::AngleAxisf(3.1415927f*.3f,Vector3f::Unit(0));
+		mNow=From_Linear(qNow.toRotationMatrix());	
+	}
+
 
 	mDeltaNow=From_Linear(qDrag.toRotationMatrix());
 	}
@@ -310,6 +314,14 @@ void OpenGLWindow::Update_Camera()
     glm::mat4 inv_view=glm::inverse(view);
     position=glm::vec4(inv_view[3][0],inv_view[3][1],inv_view[3][2],1.f);
     camera->Set_Block_Attributes();
+}
+
+void OpenGLWindow::Set_Drone_View()
+{
+	arcball->use_drone_view=true;
+	arcball->Reinitialize();
+	arcball_matrix=arcball->Value();
+	rotation_matrix=arcball->Value();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
