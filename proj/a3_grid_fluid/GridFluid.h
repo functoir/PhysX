@@ -32,7 +32,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//// Helper functions for grid access
 	//// Read these functions carefully before your implementation
-	
+	//////////////////////////////////////////////////////////////////////////
 	//// return the grid node index given its coordinate
 	int Idx(const Vector2i& node_coord) const 
 	{return grid.Node_Index(node_coord);}
@@ -90,7 +90,7 @@ public:
 	{
 		Vector2i cell;
 		Vector2 frac;
-		Clamp_Pos(pos);
+		pos=Clamp_Pos(pos);
 		Calculate_Cell_Index_And_Position(pos,cell,frac);
 		return Bilinear_Interpolation(cell,frac,u);
 	}
@@ -100,7 +100,7 @@ public:
 	{
 		Vector2i cell;
 		Vector2 frac;
-		Clamp_Pos(pos);
+		pos=Clamp_Pos(pos);
 		Calculate_Cell_Index_And_Position(pos,cell,frac);
 		return Bilinear_Interpolation(cell,frac,u);
 	}
@@ -243,7 +243,7 @@ public:
 			vor[i]=(double)0;
 
 			/*Your implementation starts*/
-			
+
 			/*Your implementation ends*/
 		}
 
@@ -255,7 +255,7 @@ public:
 			N[i]=Vector2::Zero();
 
 			/*Your implementation starts*/
-			
+
 			/*Your implementation ends*/
 		}
 
@@ -297,7 +297,7 @@ public:
 			//// Calculate the confinement force for each grid node due to each particle
 			//// Hint: recall your implementation in the vorticity confinement function
 			/*Your implementation starts*/
-			
+
 			/*Your implementation ends*/
 		}		
 	}
