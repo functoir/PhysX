@@ -7,7 +7,7 @@
 #include "Common.h"
 #include "Grid.h"
 #include "Particles.h"
-
+  
 //////////////////////////////////////////////////////////////////////////
 ////Grid fluid simulator 2D
 class GridFluid
