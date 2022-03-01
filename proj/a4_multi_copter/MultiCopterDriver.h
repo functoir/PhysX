@@ -13,6 +13,11 @@
 #include "Particles.h"
 #include "MultiCopter.h"
 
+//////////////////////////////////////////////////////////////////////////
+//// MultiCopter simulator
+//// Modified by: AMITTAI WEKESA
+//// Date: 03/01/2022
+
 template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
 {using Base=Driver; using VectorD = Vector<double, d>;
 	double dt=.02;
@@ -42,14 +47,16 @@ public:
 	MultiCopterDriver() {
 		
 		//// default targets and obstacles
-		targets = {
-			Vector3(0.0, 0.0, -1.0),
-			Vector3(1.0, 1.0, -1.2),
-			Vector3(2.0, 0.0, -1.4),
-			Vector3(1.0, -1.0, -1.2),
-			Vector3(0.0, 0.0, -1.0),
-			Vector3(0.0, 0.0, 0.0)
-		};
+		
+        // TODO: unmute to use default targets.
+//		targets = {
+//			Vector3(0.0, 0.0, -1.0),
+//			Vector3(1.0, 1.0, -1.2),
+//			Vector3(2.0, 0.0, -1.4),
+//			Vector3(1.0, -1.0, -1.2),
+//			Vector3(0.0, 0.0, -1.0),
+//			Vector3(0.0, 0.0, 0.0)
+//		};
 
 		obstacles = {
 			Vector3(1.,1.,0.),
@@ -59,6 +66,33 @@ public:
 		
 		//// -- TASK 3.5: Specify your own targets and obstacles here --
 		// -- Your implementation starts --
+		//TODO: unmute lines 64 to 88 to use custom targets.
+  
+        targets = {
+            // go forward
+            { 0.5, 0.5, -0.5 },
+            { 1.0, 0.7, -0.6 },
+            { 1.3, 1.0, -0.5 },
+            { 1.5, 1.5, -0.5 },
+            { 1.7, 2.0, -0.5 },
+            { 2.0, 2.3, -0.5 },
+            { 2.5, 2.5, -0.5 },
+            { 3.0, 2.7, -0.5 },
+            { 3.3, 3.0, -0.5 },
+            { 3.5, 3.5, -0.5 },
+            // go back
+            { 3.0, 3.3, -0.5 },
+            { 2.7, 3.0, -0.5 },
+            { 2.5, 2.5, -0.5 },
+            { 2.3, 2.0, -0.5 },
+            { 2.0, 1.7, -0.5 },
+            { 1.5, 1.5, -0.5 },
+            { 1.0, 1.3, -0.5 },
+            { 0.7, 1.0, -0.6 },
+            { 0.5, 0.5, -0.5 },
+            { 0.0, 0.0, -0.5 },
+            { 0.0, 0.0, 0.0 }
+        };
 
 		// -- Your implementation ends --
 

@@ -4,7 +4,10 @@
 #include "RigidBody.h"
 
 //////////////////////////////////////////////////////////////////////////
-////MultiCopter simulator
+//// MultiCopter simulator
+//// Modified by: AMITTAI WEKESA
+//// Date: 03/01/2022
+
 template<int d> class MultiCopter
 {
 	using VectorD = Vector<double, d>; using VectorDi = Vector<int, d>; using MatrixD = Matrix<double, d>;
@@ -225,8 +228,8 @@ public:
         
         VectorD weight_force = VectorD::UnitZ() * mass * g;
         VectorD acceleration = (net_force + weight_force) / mass;
-        rigid_body.position = old_p + dt * old_v;
         rigid_body.velocity = old_v + dt * acceleration;
+        rigid_body.position = old_p + dt * rigid_body.velocity;
 		// -- Your implementation ends --
 
 		////Angular motion
@@ -246,13 +249,13 @@ public:
 		// - Use the relation \dot{R} = old_omega x old_R and new_R = old_R + dt * \dot{R} to update R.
 		// - Update rigid_body.omega by computing the angular acceleration. Recall that the Euler's
 		//   equation is:
-		//	 I\dot{w} + w x Iw = tau
+		//	 inertia\dot{w} + w x Iw = tau
 		//   This equation is true in *both world and body frames*. So you can choose to update omega
 		//	 in either the world or body frames as long as you are consistent. Assuming you do everything
 		//	 in the world frame:
 		//   * tau = net torque in the world frame. To get its value, you need to use old_R to convert
 		//		 body_net_torque;
-		//	 * I = inertia in the world frame. Use I = R * body_inertia * R^\top to compute its value;
+		//	 * inertia = inertia in the world frame. Use inertia = R * body_inertia * R^\top to compute its value;
 		//   * w = old_omega.
 		//   * \dot{w} = the time derivative of omega. Use new_omega = old_omega + dt * \dot{w} to update omega.
 		//
@@ -263,41 +266,21 @@ public:
 		// -- Your implementation starts --
         int sign;
         for (int i = 0; i < 4; i++) {
-            body_net_torque += body_rotor_pos[i].cross(body_thrust_vec[i]);
             sign = (i % 2 == 0) ? 1 : -1;
-            body_net_torque += sign * body_thrust_vec[i] * lambda;
+            body_net_torque += body_rotor_pos[i].cross(body_thrust_vec[i]);
+            body_net_torque += body_thrust_vec[i] * lambda * sign;
         }
-        
-        MatrixD dotR = Cross(old_omega, old_R);
-        
-        rigid_body.R = old_R + dt * dotR;
-        
-        VectorD tau = old_R * body_net_torque;
-        MatrixD inertia_matrix;
+        MatrixD dot_R;
         for (int i = 0; i < 3; i++) {
-            inertia_matrix(i, i) = body_inertia[i];
+            dot_R.col(i) = old_omega.cross(old_R.col(i));
         }
-        
-        MatrixD I = old_R * inertia_matrix * old_R.transpose();
-        VectorD w = old_omega;
-        VectorD dotw = I.inverse() * (tau - w.cross(I * w));
-        rigid_body.omega = old_omega + dt * dotw;
+        rigid_body.R += dt * dot_R;
+        VectorD tau = old_R * body_net_torque;
+        MatrixD inertia = old_R * body_inertia.asDiagonal() * rigid_body.Rt;
+        MatrixD inertia_inv = old_R * body_inertia.cwiseInverse().asDiagonal() * rigid_body.Rt;
+        rigid_body.omega = old_omega + dt * inertia_inv * (tau - old_omega.cross(inertia * old_omega));
 		// -- Your implementation ends --	
 	}
-    
-    MatrixD Cross(VectorD v, MatrixD m)
-    {
-        MatrixD ans;
-        for (int i = 0; i < 3; i++)
-        {
-            VectorD a, b;
-            for (int j = 0; j < 3; j++) a[j] = v[j];
-            for (int j = 0; j < 3; j++) b[j] = m(j, i);
-            a = a.cross(b);
-            for (int j = 0; j < 3; j++) ans(j, i) = a[j];
-        }
-        return ans;
-    }
 
 	//////////////////////////////////////////////////////////////////////////
 	////LV2: PD Controller
@@ -339,7 +322,7 @@ public:
 		double total_control_thrust = 0.0;
 
 		// -- Your implementation starts --
-        total_control_thrust = total_weight - P_z * (z_ref - z) + D_z * z_rate;
+        total_control_thrust += total_weight - P_z * (z_ref - z) + D_z * z_rate;
 		// -- Your implementation ends --
 
 		return total_control_thrust;
@@ -353,7 +336,7 @@ public:
 		double total_control_torque = 0.0;
 
 		// -- Your implementation starts --
-        total_control_torque = P_yaw * (yaw_ref - yaw) - D_yaw * yaw_rate;
+        total_control_torque += P_yaw * (yaw_ref - yaw) - D_yaw * yaw_rate;
 		// -- Your implementation ends --
 
 		return total_control_torque;
