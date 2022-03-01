@@ -219,7 +219,18 @@ public:
 		VectorD net_force = VectorD::Zero();
 
 		// -- Your implementation starts --
+<<<<<<< HEAD
 
+=======
+        for (auto& thrust_force : body_thrust_vec) {
+            net_force += old_R * thrust_force;
+        }
+        
+        VectorD weight_force = VectorD::UnitZ() * mass * g;
+        VectorD acceleration = (net_force + weight_force) / mass;
+        rigid_body.position = old_p + dt * old_v;
+        rigid_body.velocity = old_v + dt * acceleration;
+>>>>>>> main
 		// -- Your implementation ends --
 
 		////Angular motion
@@ -254,9 +265,47 @@ public:
 		VectorD body_net_torque = VectorD::Zero();
 
 		// -- Your implementation starts --
+<<<<<<< HEAD
 
+=======
+        int sign;
+        for (int i = 0; i < 4; i++) {
+            body_net_torque += body_rotor_pos[i].cross(body_thrust_vec[i]);
+            sign = (i % 2 == 0) ? 1 : -1;
+            body_net_torque += sign * body_thrust_vec[i] * lambda;
+        }
+        
+        MatrixD dotR = Cross(old_omega, old_R);
+        
+        rigid_body.R = old_R + dt * dotR;
+        
+        VectorD tau = old_R * body_net_torque;
+        MatrixD inertia_matrix;
+        for (int i = 0; i < 3; i++) {
+            inertia_matrix(i, i) = body_inertia[i];
+        }
+        
+        MatrixD I = old_R * inertia_matrix * old_R.transpose();
+        VectorD w = old_omega;
+        VectorD dotw = I.inverse() * (tau - w.cross(I * w));
+        rigid_body.omega = old_omega + dt * dotw;
+>>>>>>> main
 		// -- Your implementation ends --	
 	}
+    
+    MatrixD Cross(VectorD v, MatrixD m)
+    {
+        MatrixD ans;
+        for (int i = 0; i < 3; i++)
+        {
+            VectorD a, b;
+            for (int j = 0; j < 3; j++) a[j] = v[j];
+            for (int j = 0; j < 3; j++) b[j] = m(j, i);
+            a = a.cross(b);
+            for (int j = 0; j < 3; j++) ans(j, i) = a[j];
+        }
+        return ans;
+    }
 
 	//////////////////////////////////////////////////////////////////////////
 	////LV2: PD Controller
@@ -298,7 +347,11 @@ public:
 		double total_control_thrust = 0.0;
 
 		// -- Your implementation starts --
+<<<<<<< HEAD
 
+=======
+        total_control_thrust = total_weight - P_z * (z_ref - z) + D_z * z_rate;
+>>>>>>> main
 		// -- Your implementation ends --
 
 		return total_control_thrust;
@@ -312,7 +365,11 @@ public:
 		double total_control_torque = 0.0;
 
 		// -- Your implementation starts --
+<<<<<<< HEAD
 
+=======
+        total_control_torque = P_yaw * (yaw_ref - yaw) - D_yaw * yaw_rate;
+>>>>>>> main
 		// -- Your implementation ends --
 
 		return total_control_torque;

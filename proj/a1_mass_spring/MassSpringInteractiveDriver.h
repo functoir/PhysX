@@ -28,7 +28,7 @@ public:
 		Initialize_Simulation_Data();
 		
 		segments.Initialize(this);
-		segments.Sync_Data(soft_body.particles.XRef(),soft_body.springs);
+		segments.Sync_Data(soft_body.particles.XRef(),soft_body.visualizer_springs);
 
 		int n=soft_body.particles.Size();
 		points.resize(n);
@@ -58,23 +58,29 @@ public:
 	////here we initialize three tests for rod, cloth, and beam
 	virtual void Initialize_Simulation_Data()
 	{
+        
+        std::cout << "test : " << test << std::endl;
+        
 		switch(test){
 		case 1:{	////1d rod
 			////initialize spring vertices
-			double length=(double)1;int n=8;double dx=length/(double)n;
+			auto length=(double)1;int n=8;double dx=length/(double)n;
 			soft_body.particles.Resize(n);
 			for(int i=0;i<n;i++){
 				soft_body.particles.X(i)=Vector3::Unit(0)*(double)i*dx;
 				soft_body.particles.M(i)=(double)1;}
 			////initialize springs
-			for(int i=0;i<n-1;i++){Vector2i s(i,i+1);
-				soft_body.springs.push_back(s);}
+			for(int i=0;i<n-1;i++){
+                Vector2i s(i,i+1);
+				soft_body.springs.push_back(s);
+            }
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
-		}break;
+            soft_body.visualizer_springs = soft_body.springs;
+		} break;
 		case 2:{	////2d cloth
 			////create a cloth mesh
-			double length=(double)1;int width=4*scale;int height=6*scale;double step=length/(double)width;
+			auto length=(double)1;int width=4*scale;int height=6*scale;double step=length/(double)width;
 			TriangleMesh<3> cloth_mesh;
 			Build_Cloth_Mesh(width,height,step,&cloth_mesh,0,2);
 			int n=(int)cloth_mesh.Vertices().size();
@@ -87,6 +93,7 @@ public:
 				soft_body.particles.M(i)=(double)1;}
 			////copy cloth mesh edges to springs
 			soft_body.springs=edges;
+            soft_body.visualizer_springs = soft_body.springs;
 
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
@@ -96,12 +103,14 @@ public:
 			int n=4*scale;double dx=(double)1/(double)n;
 			Build_Beam_Particles_And_Springs(soft_body.particles,soft_body.springs,n,dx);
 			for(int i=0;i<4;i++)soft_body.Set_Boundary_Node(i);
+            soft_body.visualizer_springs = soft_body.springs;
 		}break;
 
 		//////////////////////////////////////////////////////////////////////////
 		////YOUR IMPLEMENTATION (TASK 2: OPTION 1): simulate a single hair strand
 		case 4:{
 			soft_body.Initialize_Hair_Strand();
+            soft_body.visualizer_springs = soft_body.real_springs;
 		}break;
 		}
 

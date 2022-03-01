@@ -20,9 +20,9 @@
 #include <iostream>
 using namespace std;
 
-const int GLOBAL_SCALE = pow(10, 6);
-const int MASS_SCALE = pow(10, 24);
-const int TIME_SCALE = 3.154 * pow(10, 4);
+const int GLOBAL_SCALE = (int) (pow(10, 6));
+const int MASS_SCALE = (int) (pow(10, 24));
+const int TIME_SCALE = (int) (3.154 * pow(10, 4));
 
 class DynamicSystemDriver : public Driver, public OpenGLViewer
 {
@@ -44,12 +44,12 @@ public:
     std::vector<Vector3> velocity;				//// array of particle velocities
     std::vector<Vector3> color;					//// array of particle colors
     std::vector<double> radii;					//// array of particle radii
-    double dt=.02;								//// time step
+    double dt = .02;							//// time step
     
     /*TODO: add your own additional data structures for particles if necessary*/
     std::vector<double> masses;
     
-    //// segment data structure (for visualization purpose only)
+    /// segment data structure (for visualization purpose only)
     std::vector<std::vector<Vector3> > segment_mesh;			//// array of segment meshes (update this array in Advance Simulation for segment motion if necessary)
     //// each segment mesh stores its segment vertices are stored as [s0_0,s0_1,s1_0,s1_1,s2_0,s2_1,...], with si_0 and si_1 as the first and second vertex of the segment si
     std::vector<Vector3> segment_colors;						//// specify a segment color for each segment_mesh (not each segment)
@@ -70,9 +70,23 @@ public:
      * \param max: upper bound.
      * \return: random number in range, (double)
      */
-    double randomFloat(int min = 0, int max = 1)
+    static double randomFloat(int min = 0, int max = 1)
     {
         double num = rand();
+        while (num > (max - min)) num /= 7;
+        return num + min;
+    }
+    
+    /**
+     * Generate a random number within a specified range.
+     *
+     * @param min: lower bound.
+     * @param max; upper bound.
+     * @return: INTEGER
+     */
+    static int randomInt(int min = 0, int max = 1)
+    {
+        int num = rand();
         while (num > (max - min)) num /= 7;
         return num + min;
     }
@@ -148,43 +162,43 @@ public:
         }
         
         {
-            position.push_back(Vector3(0, 0, 0));
-            position.push_back(Vector3(DIST_MERCURY, 0, 0));
-            position.push_back(Vector3(DIST_VENUS, 0, 0));
-            position.push_back(Vector3(DIST_EARTH, 0, 0));
-            position.push_back(Vector3(DIST_MARS, 0, 0));
-            position.push_back(Vector3(DIST_JUPITER, 0, 0));
-            position.push_back(Vector3(DIST_SATURN, 0, 0));
-            position.push_back(Vector3(DIST_URANUS, 0, 0));
-            position.push_back(Vector3(DIST_NEPTUNE, 0, 0));
-            position.push_back(Vector3(DIST_PLUTO, 0, 0));
+            position.emplace_back(Vector3(0, 0, 0));
+            position.emplace_back(Vector3(DIST_MERCURY, 0, 0));
+            position.emplace_back(Vector3(DIST_VENUS, 0, 0));
+            position.emplace_back(Vector3(DIST_EARTH, 0, 0));
+            position.emplace_back(Vector3(DIST_MARS, 0, 0));
+            position.emplace_back(Vector3(DIST_JUPITER, 0, 0));
+            position.emplace_back(Vector3(DIST_SATURN, 0, 0));
+            position.emplace_back(Vector3(DIST_URANUS, 0, 0));
+            position.emplace_back(Vector3(DIST_NEPTUNE, 0, 0));
+            position.emplace_back(Vector3(DIST_PLUTO, 0, 0));
             
         }
         
         {
-            velocity.push_back(Vector3(0, 0, 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_MERCURY), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_VENUS), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_EARTH), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_MARS), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_JUPITER), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_SATURN), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_URANUS), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_NEPTUNE), 0));
-            velocity.push_back(Vector3(0, sqrt(G * MASS_SUN / DIST_PLUTO), 0));
+            velocity.emplace_back(Vector3(0, 0, 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_MERCURY), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_VENUS), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_EARTH), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_MARS), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_JUPITER), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_SATURN), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_URANUS), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_NEPTUNE), 0));
+            velocity.emplace_back(Vector3(0, sqrt(G * MASS_SUN / DIST_PLUTO), 0));
         }
         
         {
-            color.push_back(Vector3(255, 142, 0));
-            color.push_back(Vector3(186, 0, 180));
-            color.push_back(Vector3(255, 23, 77));
-            color.push_back(Vector3(0, 0, 255));
-            color.push_back(Vector3(255, 23, 0));
-            color.push_back(Vector3(25, 25, 255));
-            color.push_back(Vector3(6, 255, 0));
-            color.push_back(Vector3(0, 0, 162));
-            color.push_back(Vector3(23, 73, 162));
-            color.push_back(Vector3(255, 255, 20));
+            color.emplace_back(Vector3(255, 142, 0));
+            color.emplace_back(Vector3(186, 0, 180));
+            color.emplace_back(Vector3(255, 23, 77));
+            color.emplace_back(Vector3(0, 0, 255));
+            color.emplace_back(Vector3(255, 23, 0));
+            color.emplace_back(Vector3(25, 25, 255));
+            color.emplace_back(Vector3(6, 255, 0));
+            color.emplace_back(Vector3(0, 0, 162));
+            color.emplace_back(Vector3(23, 73, 162));
+            color.emplace_back(Vector3(255, 255, 20));
         }
         
         
@@ -245,7 +259,7 @@ public:
             forces.push_back(netForce);
         }
         
-        for (int body = 0; body < numBodies; body++) {
+        for (auto body = 0; body < numBodies; body++) {
             
             /* update position with current velocity */
             Vector3 posA = position[body] + velocity[body] * dt * TIME_SCALE;
@@ -300,7 +314,7 @@ public:
             opengl_spheres[i]=sphere;
         }
         
-        if(segment_mesh.size()>0){
+        if(!segment_mesh.empty()){
             for(int s=0;s<segment_mesh.size();s++){
                 int segment_number=segment_mesh[s].size()/2;
                 std::vector<Vector3>& segment_vertices=segment_mesh[s];

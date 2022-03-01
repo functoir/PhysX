@@ -41,7 +41,8 @@ public:
 			if(time+dt>=target_time){dt=target_time-time;done=true;}
 			else if(time+2*dt>=target_time){dt=(double).5*(target_time-time);}
 			Advance_One_Time_Step(dt,time);
-			time+=dt;}
+			time+=dt;
+        }
 	}
 
 	virtual void Advance_One_Time_Step(const double dt,const double time)

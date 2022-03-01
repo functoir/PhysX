@@ -17,9 +17,20 @@ template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
 {using Base=Driver;
 	double dt=.02;
 	MultiCopter<d> copter;
+<<<<<<< HEAD
 	std::vector<Vector3> targets;
 	std::vector<Vector3> waypoints;
 	std::vector<Vector3> obstacles;
+=======
+	std::vector<VectorD> targets = {
+		VectorD(0.0, 0.0, -1.0),
+		VectorD(1.0, 1.0, -1.2),
+		VectorD(2.0, 0.0, -1.4),
+		VectorD(1.0, -1.0, -1.2),
+		VectorD(0.0, 0.0, -1.0),
+		VectorD(0.0, 0.0, 0.0)
+    };
+>>>>>>> main
 
 	OpenGLSegmentMesh* opengl_copter=nullptr;
 	OpenGLSegmentMesh* opengl_circles=nullptr;

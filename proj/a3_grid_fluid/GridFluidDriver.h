@@ -1,3 +1,5 @@
+/// Modified: Amittai Siavava
+
 #ifndef __GridFluidDriver_h__
 #define __GridFluidDriver_h__
 #include <random>
@@ -48,7 +50,8 @@ public:
 		opengl_vectors->mesh.vertices->resize(fluid.node_num*2);
 
 		for(int i=0;i<fluid.particles.Size();i++){
-			Add_Solid_Circle(i);}
+			Add_Solid_Circle(i);
+        }
 
 		for(int i=0;i<fluid.node_num;i++){
 			opengl_vectors->mesh.elements[i]=Vector2i(i*2,i*2+1);
@@ -126,7 +129,8 @@ public:
 					opengl_circles[i]->Set_Data_Refreshed();
 					invis_particles.insert(i);
 					fluid.particles.I(i)=-1;
-					continue;}
+					continue;
+                }
 
 				auto opengl_circle=opengl_circles[i];
 				opengl_circle->pos=V3(fluid.particles.X(i));
@@ -158,14 +162,34 @@ public:
 			
 				opengl_mesh->colors[idx+3]=den1;
 				opengl_mesh->colors[idx+4]=den3;
-				opengl_mesh->colors[idx+5]=den4;}
+				opengl_mesh->colors[idx+5]=den4;
+            }
 			opengl_mesh->Set_Data_Refreshed();		
 		}
 	}
+    
+    void
+    Add_Custom_Source_Particles()
+    {
+        for (auto& source : fluid.custom_sources) {
+            if (source.isEffusive) {
+                Vector3f win_pos=opengl_window->Project(Vector3f((float) source.getX()[0], (float) source.getX()[1], 0.f));
+                Vector3f pos=opengl_window->Unproject(win_pos);
+                Vector2 p_pos;
+                for(int i=0; i < 2; i++) {
+                    p_pos[i] = (double)pos[i];
+                }
+                fluid.src_pos=p_pos;
+                Add_Source_Particle(p_pos);
+                add_particle=true;
+            }
+        }
+    }
 
 	////update simulation and visualization for each time step
 	virtual void Toggle_Next_Frame()
 	{
+        this->Add_Custom_Source_Particles();
 		fluid.Advance(dt);
 		Sync_Simulation_And_Visualization_Data();
 		OpenGLViewer::Toggle_Next_Frame();
@@ -247,8 +271,8 @@ public:
 			invis_particles.erase(p);
 		}
 		else{
-			Add_Particle(p_pos);
-			Add_Solid_Circle(fluid.particles.Size()-1);	
+            Add_Particle(p_pos);
+            Add_Solid_Circle(fluid.particles.Size()-1);
 		}
 	}
 
@@ -261,7 +285,8 @@ public:
 
 	void Add_Solid_Circle(const int i)
 	{
-		OpenGLColor c(1.f,0.68f,0.26f,1.f);
+//		OpenGLColor c(1.f,0.68f,0.26f,1.f);
+        OpenGLColor c(1.f,1.f,1.f,1.f);
 		auto opengl_circle=Add_Interactive_Object<OpenGLSolidCircle>();
 		opengl_circle->visible=false;
 		opengl_circles.push_back(opengl_circle);

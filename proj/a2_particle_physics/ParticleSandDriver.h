@@ -12,8 +12,11 @@
 #include "OpenGLCommon.h"
 #include "OpenGLWindow.h"
 #include "OpenGLViewer.h"
+#include "OpenGLMesh.h"
+#include "OpenGLMarkerObjects.h"
+#include "OpenGLParticles.h"
 #include "ParticleSand.h"
-#include "InClassDemoDriver.h"
+//#include "InClassDemoDriver.h"
 
 template<int d> class ParticleSandDriver : public Driver, public OpenGLViewer
 {using VectorD=Vector<double,d>;using VectorDi=Vector<int,d>;using Base=Driver;
@@ -22,7 +25,6 @@ template<int d> class ParticleSandDriver : public Driver, public OpenGLViewer
 	std::vector<OpenGLSolidCircle*> opengl_circles;
 
 	Bowl<d>* bowl=nullptr;
-	Curve my_object;
 
 public:
 	virtual void Initialize()
@@ -35,6 +37,10 @@ public:
 
 		bowl=new Bowl<d>(VectorD::Unit(1)*8,8);
 		sand.env_objects.push_back(bowl);
+        
+        auto my_object = new Curve<d>(VectorD::Zero(1)*4,4);
+        sand.my_object = my_object;
+  
 
 		////viewer initialization, initialize visualization data
 		OpenGLViewer::Initialize();
@@ -61,10 +67,10 @@ public:
 
 	void Initialize_My_Object()
 	{
-		my_object.Initialize(this);
-		my_object.Sync_Data(sand.my_object_vertices);	
-		my_object.Set_Linewidth(4.);
-		my_object.Set_Color(0.,0.,0.);
+		sand.my_object->Initialize(this);
+		sand.my_object->Sync_Data(sand.my_object_vertices);
+		sand.my_object->Set_Linewidth(4.);
+		sand.my_object->Set_Color(0.,0.,0.);
 	}
 
 	void Sync_Simulation_And_Visualization_Data()
@@ -74,7 +80,7 @@ public:
 			opengl_circle->pos=V3(sand.particles.X(i));
 			opengl_circle->Set_Data_Refreshed();}
 
-		my_object.Sync_Data(sand.my_object_vertices);
+		sand.my_object->Sync_Data(sand.my_object_vertices);
 	}
 
 	////update simulation and visualization for each time step
