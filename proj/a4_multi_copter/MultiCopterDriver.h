@@ -21,7 +21,8 @@ template<int d> class MultiCopterDriver : public Driver, public OpenGLViewer
 		VectorD(2.0, 0.0, -1.4),
 		VectorD(1.0, -1.0, -1.2),
 		VectorD(0.0, 0.0, -1.0),
-		VectorD(0.0, 0.0, 0.0)};
+		VectorD(0.0, 0.0, 0.0)
+    };
 
 	OpenGLSegmentMesh* opengl_copter=nullptr;
 	OpenGLSegmentMesh* opengl_circles=nullptr;

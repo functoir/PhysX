@@ -131,8 +131,8 @@ public:
 	double density_0=(double)10.;				////rest density, used in Update_Pressure()
 	double viscosity_coef=(double)1e1;			////viscosity coefficient, used in Update_Viscosity_Force()
 	double kd=(double)1e2;						////stiffness for environmental collision response
-	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
-//	VectorD g = VectorD::Zero();
+//	VectorD g=VectorD::Unit(1)*(double)-1.;	////gravity
+	VectorD g = VectorD::Zero();
 	
 	////Environment objects
 	std::vector<ImplicitGeometry<d>* > env_objects;
@@ -315,7 +315,7 @@ public:
 //    }
     
     void Update_Particle_Surface_Tension() {
-        auto surface_tension_coef = 10;                           // good for controlling and testing
+        auto surface_tension_coef = 200;                           // good for controlling and testing
         for (int i = 0; i < particles.Size(); i++) {
             VectorD total = VectorD::Zero();
 //            for (int& j: neighbors[i]) {

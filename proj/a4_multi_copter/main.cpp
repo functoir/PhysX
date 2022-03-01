@@ -9,7 +9,8 @@
 #ifndef __Main_cpp__
 #define __Main_cpp__
 
-int main(int argc,char* argv[])
+int
+main(int argc, const char* argv[])
 {
 	////0-Test simulation (LV1, 3.1-3.2)
 	////1-Test controller (LV2, 3.3-3.5)
