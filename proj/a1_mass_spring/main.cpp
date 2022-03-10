@@ -16,7 +16,7 @@ int main(int argc,char* argv[])
 	int test=1;
 	int scale=1;
 
-	//parse from command lines
+	//parse from command line
 	for(int i=0;i<argc;i++){
         std::cout << "argv @ " << i << ": " << argv[i] << std::endl;
 		if (strcmp(argv[i], "-test") == 0) {

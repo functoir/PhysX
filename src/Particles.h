@@ -6,6 +6,9 @@
 #ifndef __Particles_h__
 #define __Particles_h__
 #include "Common.h"
+#include <memory>
+#include <set>
+#include <cstdbool>
 
 template<int d> class Particles
 {using VectorD=Vector<double,d>;
@@ -18,8 +21,16 @@ public:
 	ArrayPtr<double> c;			////color
 	ArrayPtr<double> r;			////radius
 	ArrayPtr<double> p;			////pressure
-	ArrayPtr<double> den;			////density
+	ArrayPtr<double> den;		////density
 	ArrayPtr<int> idx;			////index, for rigid body
+	
+    //// project extensions
+    ArrayPtr<std::set<int>> neighbors;	////neighbor list
+    ArrayPtr<int> cardinality;  //// cardinality, i.e. number of neighbors
+    ArrayPtr<int> nb_max;		//// maximum number of neighbors
+    ArrayPtr<double> stiffness; //// stiffness parameter
+    ArrayPtr<bool> equality;    //// equality --> true = equality, false = inequality
+    
 
 	//////////////////////////////////////////////////////////////////////////
 	////common functions
@@ -28,12 +39,18 @@ public:
 		if(x==nullptr)x.reset(new std::vector<VectorD>());	
 		if(v==nullptr)v.reset(new std::vector<VectorD>());	
 		if(f==nullptr)f.reset(new std::vector<VectorD>());	
-		if(m==nullptr)m.reset(new std::vector<double>());	
-		if(c==nullptr)c.reset(new std::vector<double>());	
-		if(r==nullptr)r.reset(new std::vector<double>());	
-		if(p==nullptr)p.reset(new std::vector<double>());	
-		if(den==nullptr)den.reset(new std::vector<double>());	
-		if(idx==nullptr)idx.reset(new std::vector<int>());
+		if(m==nullptr)m = std::make_shared<std::vector<double>>();
+		if(c==nullptr)c = std::make_shared<std::vector<double>>();
+		if(r==nullptr)r = std::make_shared<std::vector<double>>();
+		if(p==nullptr)p = std::make_shared<std::vector<double>>();
+		if(den==nullptr)den = std::make_shared<std::vector<double>>();
+		if(idx==nullptr)idx = std::make_shared<std::vector<int>>();
+        
+        //// project extensions
+        if (neighbors == nullptr)     neighbors     = std::make_shared<std::vector<std::set<int>>>();
+        if (cardinality == nullptr)   cardinality   = std::make_shared<std::vector<int>>();
+        if (neighbors == nullptr)     stiffness     = std::make_shared<std::vector<double>>();
+        if (equality == nullptr)      equality      = std::make_shared<std::vector<bool>>();
 	}
 
 	void Resize(const int size)
@@ -47,6 +64,12 @@ public:
 		p->resize((size_type)size,(double)0);
 		den->resize((size_type)size,(double)0);
 		idx->resize((size_type)size,0);
+        
+        //// project extensions
+        neighbors->resize((size_type)size);
+        cardinality->resize((size_type)size);
+        stiffness->resize((size_type)size);
+        equality->resize((size_type)size);
 	}
 
 	int Add_Element()
@@ -61,6 +84,12 @@ public:
 		den->push_back((double)0);
 		idx->push_back(0);
 		return (int)x->size()-1;
+        
+        //// project extensions
+        neighbors->push_back(std::set<int>());
+        cardinality->push_back(0);
+        stiffness->push_back(0);
+        equality->push_back(false);
 	}
 
 	int Size() const {return (int)(*x).size();}
@@ -68,6 +97,24 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////functions for separate attributes
 	////functions for x
+    
+    //// Extension methods for Final Project.
+    std::set<int>& Neighbors(const int i) {
+        return (*neighbors)[i];
+    }
+    
+    int Cardinality(const int i) {
+        return (*cardinality)[i];
+    }
+    
+    double Stiffness(const int i) {
+        return (*stiffness)[i];
+    }
+    
+    bool Equality(const int i) {
+        return (*equality)[i];
+    }
+    
 	VectorD& X(const int i)
 	{return (*x)[i];}
 	
