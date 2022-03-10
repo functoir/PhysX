@@ -30,6 +30,7 @@ public:
     ArrayPtr<int> nb_max;		//// maximum number of neighbors
     ArrayPtr<double> stiffness; //// stiffness parameter
     ArrayPtr<bool> equality;    //// equality --> true = equality, false = inequality
+    ArrayPtr<double> w;         //// calculation weight --> just inverse of mass, not actual weight!
     
 
 	//////////////////////////////////////////////////////////////////////////
@@ -51,6 +52,7 @@ public:
         if (cardinality == nullptr)   cardinality   = std::make_shared<std::vector<int>>();
         if (neighbors == nullptr)     stiffness     = std::make_shared<std::vector<double>>();
         if (equality == nullptr)      equality      = std::make_shared<std::vector<bool>>();
+        if (w == nullptr)             w             = std::make_shared<std::vector<double>>();
 	}
 
 	void Resize(const int size)
@@ -70,6 +72,7 @@ public:
         cardinality->resize((size_type)size);
         stiffness->resize((size_type)size);
         equality->resize((size_type)size);
+        w->resize((size_type)size);
 	}
 
 	int Add_Element()
@@ -83,13 +86,14 @@ public:
 		p->push_back((double)0);
 		den->push_back((double)0);
 		idx->push_back(0);
-		return (int)x->size()-1;
         
         //// project extensions
         neighbors->push_back(std::set<int>());
         cardinality->push_back(0);
         stiffness->push_back(0);
         equality->push_back(false);
+        w->push_back((double)0);
+		return (int)x->size()-1;
 	}
 
 	int Size() const {return (int)(*x).size();}
@@ -114,6 +118,18 @@ public:
     bool Equality(const int i) {
         return (*equality)[i];
     }
+    
+    double W(const int i) {
+        return (*w)[i];
+    }
+    
+    void InitializeWeights() {
+        for (int i = 0; i < Size(); i++) {
+            (*w)[i] = 1. / M(i);
+        }
+    }
+    
+    
     
 	VectorD& X(const int i)
 	{return (*x)[i];}

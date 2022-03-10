@@ -21,6 +21,8 @@ public:
     std::vector<Vector2i>& visualizer_springs = real_springs;
     int connections = 0;
     
+    int NUM_ITERATIONS = 10;
+    
 	////Boundary nodes
 	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_notes stores the mapping from node index to its specified velocity. E.g., a fixed node will have a zero velocity.
 
@@ -35,6 +37,12 @@ public:
 
 	virtual void Initialize()
 	{
+        
+        //// Project work
+        //// Initialize the particles
+        
+        
+        
 		////Initialize default spring parameters for standard tests
 		auto ks_0 = (double) 1, kd_0 = (double) 1;
 		switch(time_integration){
@@ -97,6 +105,78 @@ public:
 		//// Step 4: time integration by updating the particle velocities according to their forces and updating particle positions according to the positions
 		Time_Integration(dt);
 	}
+    
+    void Advance_Position_Based_Dynamics(const int dt) {
+        std::vector<Vector3> next_positions;		////position
+        
+        // TODO Step 1: update velocities.
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            particles.V(i) += particles.W(i) * particles.F(i) * dt;
+        }
+        // TODO Step 2: damp velocities.
+        
+        // TODO Step 3: calculate next positions.
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            next_positions.emplace_back(particles.X(i) + particles.V(i) * dt);
+        }
+        
+        // TODO Step 4: generate collision constraints.
+        
+        
+        // TODO iterate NUM_ITERATIONS times and propagate constraints.
+        auto step = 0;
+        while (step++ < NUM_ITERATIONS) {
+            // TODO: propagate collision constraints
+        }
+        
+        // TODO Step 5: update velocities, positions.
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            particles.V(i) = (next_positions[i] - particles.X(i)) / dt;
+            particles.X(i) = next_positions[i];
+        }
+        
+    }
+    
+    void Damp_Velocities() {
+        Vector3 sum_positions = Vector3::Zero();
+        Vector3 sum_velocities = Vector3::Zero();
+        Vector3 sum_angular_momentum = Vector3::Zero();
+        Matrix3 inertia_tensor = Matrix3::Zero();
+        std::vector<Vector3> radii;
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            sum_positions += particles.X(i);
+            sum_velocities += particles.V(i);
+        }
+        
+        Vector3 x_cm = sum_positions / particles.Size();
+        Vector3 v_cm = sum_velocities / particles.Size();
+        
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            Vector3 r = particles.X(i) - x_cm;
+            auto r_v = r.cross(particles.V(i));
+            inertia_tensor += r_v;
+            
+            for (int j = 0; j < 3; j++) {
+                inertia_tensor(j, j) += r_v[j];
+            }
+            
+            
+            Vector3 linear_momentum = particles.M(i) * particles.V(i);
+            sum_angular_momentum += r.cross(linear_momentum);
+            
+            inertia_tensor +=
+            radii.emplace_back(r);
+        }
+        
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            auto omega =
+            particles.V(i) -= v_cm;
+            particles.W(i) -= sum_angular_momentum.dot(radii[i]) / particles.M(i);
+        }
+    }
+    
+    
+    
 
 	void Clear_Force()
 	{
@@ -226,6 +306,9 @@ public:
             particles.M(i)=(double)1.;
             angle += 120;
         }
+        
+        particles.InitializeWeights();
+        
         // initialize connection springs
         auto l1 = (particles.X(1) - particles.X(0)).norm();
         for (int i = 0; i < n-1; i++) {
