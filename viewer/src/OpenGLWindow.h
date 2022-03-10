@@ -92,6 +92,7 @@ public:
 	////Camera
 	void Initialize_Camera();
 	void Update_Camera();
+	void Set_Drone_View();		////for A3
 
 	////Glut callbacks
 	static void Idle_Func_Glut();
