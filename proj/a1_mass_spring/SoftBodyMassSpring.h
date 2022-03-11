@@ -27,14 +27,8 @@ public:
 	////Boundary nodes
 	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_notes stores the mapping from node index to its specified velocity. E.g., a fixed node will have a zero velocity.
 
-	////Body force
-//	Vector3 g=Vector3::Unit(1)*(double)-1.;			//// gravity
+	//// Gravitational Force
     Vector3 g=Vector3(0, -0.3, 0);			//// gravity
-//	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
-
-	////Implicit time integration
-//	SparseMatrixT K;
-//	VectorX u,b;
 
 	virtual void Initialize()
 	{
@@ -158,7 +152,7 @@ public:
         for (int i = 0; i < particles.Size(); i++) {
             for (int j = i; j < particles.Size(); j++) {
                 if (i != j) {
-                    if ( (particles.X(i) - particles.X(j)).norm() < (particles.R(i) + particles.R(j)) ) {
+                    if ( (particles.X(i) - particles.X(j)).norm() < 1.5 * (particles.R(i) + particles.R(j)) ) {
                         collision_pairs.emplace_back(std::make_pair(i, j));
                     }
                 }
@@ -237,9 +231,7 @@ public:
        
         particles.Resize(n);                                // resize the particle array
         connections = 0;                                         // initialize the number of connections
-        auto ks_0 = (double) 1, kd_0 = (double) 1;
-        
-        // initialize the particles
+        auto direct_constraints_weight = (double) 1, kd_0 = (double) 1;
         int angle = 0;
         for(int i=0; i<n; i++){
             auto dx = dX * 3 * cos(angle);
@@ -252,32 +244,31 @@ public:
         
         particles.InitializeWeights();
         
-        // initialize connection springs
+        // initialize connection constraints
         auto l1 = (particles.X(1) - particles.X(0)).norm();
         for (int i = 0; i < n-1; i++) {
             std::pair<int, int> constraint = {i, i+1};
             innate_constraints.emplace_back(constraint);
             visualizer_springs.emplace_back(constraint.first, constraint.second );
-            innate_constraint_strengths.emplace_back(ks_0);
+            innate_constraint_strengths.emplace_back(direct_constraints_weight);
             connections++;
         }
         ////set boundary conditions
         Set_Boundary_Node(0);
         
         //// initialize the curl constraints
-        auto ks_1 = ks_0 / 100;
-        auto kd_1 = kd_0 / 100;
+        auto secondary_constraints_weight = direct_constraints_weight / 100;
         
         for (int i=2; i < 10; i++) {
-            addBendConstraints(n, i, ks_1 * 5, kd_1 * 5);
+            addBendConstraints(n, i, secondary_constraints_weight * 5);
         }
         
         for (int i = 13; i < 30; i+=3) {
-            addBendConstraints(n, i, ks_1 * 5, kd_1 * 5);
+            addBendConstraints(n, i, secondary_constraints_weight * 5);
         }
 		/* Your implementation end */
 	}
-    void addBendConstraints(int totalSprings, int step, double ksVal, double kdVal)
+    void addBendConstraints(int totalSprings, int step, double ksVal)
     {
         auto l = (particles.X(step) - particles.X(0)).norm();
         for (int i = 0; i < totalSprings-step; i++) {
@@ -285,29 +276,5 @@ public:
             innate_constraint_strengths.emplace_back(ksVal);
         }
     }
-
-	////Hint: you may want to use these functions when assembling your implicit matrix
-	////Add block nonzeros to sparse matrix elements (for initialization)
-	void Add_Block_Triplet_Helper(const int i,const int j,std::vector<TripletT>& elements)
-	{for(int ii=0;ii<3;ii++)for(int jj=0;jj<3;jj++)elements.push_back(TripletT(i*3+ii,j*3+jj,(double)0));}
-
-	////Add block Ks to K_ij
-	void Add_Block_Helper(SparseMatrixT& K,const int i,const int j,const Matrix3& Ks)
-	{
-		SparseFunc::Add_Block<3,Matrix3>(K,i,i,Ks);
-		SparseFunc::Add_Block<3,Matrix3>(K,j,j,Ks);
-		if(!Is_Boundary_Node(i)&&!Is_Boundary_Node(j)){
-			SparseFunc::Add_Block<3,Matrix3>(K,i,j,-Ks);
-			SparseFunc::Add_Block<3,Matrix3>(K,j,i,-Ks);}
-	}
-
-	////Set block values on a vector
-	void Set_Block(VectorX& b,const int i,const Vector3& bi)
-	{for(int ii=0;ii<3;ii++)b[i*3+ii]=bi[ii];}
-
-	////Add block values to a vector
-	void Add_Block(VectorX& b,const int i,const Vector3& bi)
-	{for(int ii=0;ii<3;ii++)b[i*3+ii]+=bi[ii];}
 };
-
 #endif
