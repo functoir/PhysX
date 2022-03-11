@@ -68,10 +68,10 @@ public:
 		idx->resize((size_type)size,0);
         
         //// project extensions
-        neighbors->resize((size_type)size);
-        cardinality->resize((size_type)size);
-        stiffness->resize((size_type)size);
-        equality->resize((size_type)size);
+//        neighbors->resize((size_type)size);
+//        cardinality->resize((size_type)size);
+//        stiffness->resize((size_type)size);
+//        equality->resize((size_type)size);
         w->resize((size_type)size);
 	}
 

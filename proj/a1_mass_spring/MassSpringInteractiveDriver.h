@@ -64,54 +64,166 @@ public:
 		switch(test){
 		case 1:{	////1d rod
 			////initialize spring vertices
-			auto length=(double)1;int n=8;double dx=length/(double)n;
+			auto length=(double)1;
+            int n=4;
+            double dx=length/(double)n;
 			soft_body.particles.Resize(n);
 			for(int i=0;i<n;i++){
-				soft_body.particles.X(i)=Vector3::Unit(0)*(double)i*dx;
-				soft_body.particles.M(i)=(double)1;}
-			////initialize springs
-			for(int i=0;i<n-1;i++){
-                Vector2i s(i,i+1);
-				soft_body.springs.push_back(s);
+				soft_body.particles.X(i)=Vector3::Unit(0)*(double)i * dx;
+				soft_body.particles.M(i)=(double)1;
+                soft_body.particles.R(i) = 0.01;
             }
+            soft_body.particles.InitializeWeights();
+            
+            for (int i = 0; i < soft_body.particles.Size(); i++) {
+                std:: cout << "M = " << soft_body.particles.M(i) << "W = " << soft_body.particles.W(i) << std::endl;
+            }
+            
+            // initialize constraints
+            for (int i = 0; i < n-1; i++) {
+                soft_body.innate_constraints.emplace_back( i, i+1 );
+                soft_body.innate_constraint_strengths.emplace_back(1);
+                soft_body.visualizer_springs.emplace_back(i, i+1);
+            }
+            
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
-            soft_body.visualizer_springs = soft_body.springs;
+            std::cout << "test 1 init done" << std::endl;
 		} break;
-		case 2:{	////2d cloth
+        
+        case 2: {
+            auto length=(double)1;
+            int n = 4;
+            double dx=length/(double)n;
+            soft_body.particles.Resize(3*n + 1);
+            
+            Vector3 second_start(-0.5, 0, 0);
+            Vector3 third_start = Vector3(-0.25, 0, 0);
+            
+            for(int i=0;i<n;i++){
+                soft_body.particles.X(i)=Vector3::Unit(0)*(double)i * dx;
+                soft_body.particles.M(i)=(double)1;
+                soft_body.particles.R(i) = 0.01;
+                
+                soft_body.particles.X(i+n)= second_start + Vector3::Unit(0)*(double)i * -dx;
+                soft_body.particles.M(i+n)=(double)1;
+                soft_body.particles.R(i+n) = 0.01;
+                
+                soft_body.particles.X(i+2*n)= third_start + Vector3::Unit(1)*(double)i * dx;
+                soft_body.particles.M(i+2*n)=(double)2;
+                soft_body.particles.R(i+2*n) = 0.01;
+                
+                if (i == n-1) {
+                    soft_body.particles.X(3 * n) = Vector3::Unit(1) * (double)(i + 1.) * dx;
+                    soft_body.particles.M(3 * n) = (double)1;
+                    soft_body.particles.R(3 * n) = 0.01;
+                }
+            }
+            soft_body.particles.InitializeWeights();
+    
+            // initialize constraints
+            for (int i = 0; i < n-1; i++) {
+                soft_body.innate_constraints.emplace_back( i, i+1 );
+                soft_body.innate_constraint_strengths.emplace_back(1);
+                soft_body.visualizer_springs.emplace_back(i, i+1);
+                
+                soft_body.innate_constraints.emplace_back( i+n, i+n+1 );
+                soft_body.innate_constraint_strengths.emplace_back(1);
+                soft_body.visualizer_springs.emplace_back(i+n, i+n+1);
+                
+                soft_body.innate_constraints.emplace_back( i+2*n, i+2*n+1 );
+                soft_body.innate_constraint_strengths.emplace_back(1);
+                soft_body.visualizer_springs.emplace_back(i+2*n, i+2*n+1);
+            }
+    
+            ////set boundary conditions
+            soft_body.Set_Boundary_Node(0);
+            soft_body.Set_Boundary_Node(n);
+            soft_body.Set_Boundary_Node(2*n);
+            std::cout << "test 2 init done" << std::endl;
+        } break;
+		case 3:{	////2d cloth
 			////create a cloth mesh
 			auto length=(double)1;int width=4*scale;int height=6*scale;double step=length/(double)width;
 			TriangleMesh<3> cloth_mesh;
 			Build_Cloth_Mesh(width,height,step,&cloth_mesh,0,2);
 			int n=(int)cloth_mesh.Vertices().size();
 			std::vector<Vector2i> edges;Get_Mesh_Edges(cloth_mesh,edges);
-			
-			////copy cloth mesh vertices to spring particles 
+
+			////copy cloth mesh vertices to particles
 			soft_body.particles.Resize(n);
-			for(int i=0;i<n;i++){
+			for (int i = 0; i < n; i++) {
 				soft_body.particles.X(i)=cloth_mesh.Vertices()[i];
-				soft_body.particles.M(i)=(double)1;}
-			////copy cloth mesh edges to springs
-			soft_body.springs=edges;
-            soft_body.visualizer_springs = soft_body.springs;
+				soft_body.particles.M(i)=(double)1;
+                soft_body.particles.R(i) = 0.01;
+            }
+            
+            soft_body.particles.InitializeWeights();
+            
+			////copy cloth mesh edges to constraints
+			for (auto &edge : edges) {
+                soft_body.innate_constraints.emplace_back(edge[0],edge[1]);
+                soft_body.innate_constraint_strengths.emplace_back(1);
+                soft_body.visualizer_springs.emplace_back(edge[0],edge[1]);
+            }
 
 			////set boundary conditions
 			soft_body.Set_Boundary_Node(0);
 			soft_body.Set_Boundary_Node(width-1);
 		}break;
-		case 3:{	////3d volumetric beam
-			int n=4*scale;double dx=(double)1/(double)n;
-			Build_Beam_Particles_And_Springs(soft_body.particles,soft_body.springs,n,dx);
-			for(int i=0;i<4;i++)soft_body.Set_Boundary_Node(i);
-            soft_body.visualizer_springs = soft_body.springs;
+		case 4:{	////3d volumetric beam
+			int n = 4 * scale;
+            double dx = (double)1/(double)n;
+            BuildBeamParticlesAndConstraints(n, dx);
+			for (int i=0; i < 4; i++) {
+                soft_body.Set_Boundary_Node(i);
+            }
+            
+            soft_body.visualizer_springs.clear();
+            for (auto& edge : soft_body.innate_constraints) {
+                soft_body.innate_constraint_strengths.emplace_back(0.3);
+                soft_body.visualizer_springs.emplace_back(edge.first, edge.second);
+            }
 		}break;
 
 		//////////////////////////////////////////////////////////////////////////
 		////YOUR IMPLEMENTATION (TASK 2: OPTION 1): simulate a single hair strand
-		case 4:{
+		case 5:{
 			soft_body.Initialize_Hair_Strand();
-            soft_body.visualizer_springs = soft_body.real_springs;
+   
+   
+//            soft_body.visualizer_springs = soft_body.real_springs;
 		}break;
+        
+        case 6: {
+            auto length=(double)20;
+            int n = 500;
+            double dx=length/(double)n;
+            soft_body.particles.Resize(750);
+    
+            Vector3 first_start(-10, 0, 0);
+            Vector3 second_start(-10, 1.0, 0);
+            
+            
+    
+            for(int i=0;i<n;i++){
+                soft_body.particles.X(i)= first_start + Vector3::Unit(0)*(double)i * dx;
+                soft_body.particles.M(i)=(double)1;
+                soft_body.particles.R(i) = 0.01;
+            }
+            
+            for (int i = 0; i < n-1; i++) {
+                soft_body.Set_Boundary_Node(i);
+            }
+            
+            for (int i = n; i < 750; i++) {
+                soft_body.particles.X(i)= second_start + Vector3::Unit(0)*(double) (i - n) * 2 * dx;
+                soft_body.particles.M(i)=(double)1;
+                soft_body.particles.R(i) = 0.01;
+            }
+            soft_body.particles.InitializeWeights();
+            std::cout << "test 6 init done" << std::endl;
+        } break;
 		}
 
 		soft_body.Initialize();
@@ -145,9 +257,10 @@ protected:
 	void Build_Beam_Particles_And_Springs(Particles<3>& particles,std::vector<Vector2i>& edges,int n,double dx,Vector3 pos=Vector3::Zero())
 	{
 		particles.Resize(n*4);
-		for(int i=0;i<particles.Size();i++){
-			particles.M(i)=(double)1;}
-		for(int i=0;i<n;i++){
+		for(int i=0;i<particles.Size();i++) {
+			particles.M(i)=(double)1;
+        }
+		for(int i=0; i < n; i++) {
 			particles.X(i*4)=pos+Vector3(dx*(double)i,(double)0,(double)0);
 			particles.X(i*4+1)=pos+Vector3(dx*(double)i,(double)0,(double)dx);
 			particles.X(i*4+2)=pos+Vector3(dx*(double)i,(double)dx,(double)0);
@@ -167,6 +280,39 @@ protected:
 				edges.push_back(Vector2i(i*4+2,i*4+5));
 				edges.push_back(Vector2i(i*4+3,i*4+4));}}
 	}
+    
+    void BuildBeamParticlesAndConstraints(int n, double dx, Vector3 pos=Vector3::Zero())
+    {
+        auto& particles = soft_body.particles;
+        auto& edges = soft_body.innate_constraints;
+        particles.Resize(n*4);
+        for(int i=0;i<particles.Size();i++) {
+            particles.M(i)=(double)1;
+        }
+        
+        particles.InitializeWeights();
+        for(int i=0; i < n; i++) {
+            particles.X(i*4)=pos+Vector3(dx*(double)i,(double)0,(double)0);
+            particles.X(i*4+1)=pos+Vector3(dx*(double)i,(double)0,(double)dx);
+            particles.X(i*4+2)=pos+Vector3(dx*(double)i,(double)dx,(double)0);
+            particles.X(i*4+3)=pos+Vector3(dx*(double)i,(double)dx,(double)dx);
+            edges.emplace_back( i*4, i*4+1);
+            edges.emplace_back( i*4+1, i*4+3);
+            edges.emplace_back( i*4+3, i*4+2);
+            edges.emplace_back( i*4+2, i*4 );
+            if(i < n-1) {
+                edges.emplace_back(i*4,i*4+4 );
+                edges.emplace_back(i*4+1,i*4+5 );
+                edges.emplace_back(i*4+2,i*4+6 );
+                edges.emplace_back(i*4+3,i*4+7 );
+                
+                edges.emplace_back(i*4, i*4+7);
+                edges.emplace_back(i*4+1,i*4+6);
+                edges.emplace_back(i*4+2,i*4+5);
+                edges.emplace_back(i*4+3,i*4+4);
+            }
+        }
+    }
 
 	Vector2i Sorted(const Vector2i& v){return v[0]>v[1]?v:Vector2i(v[1],v[0]);}
 };

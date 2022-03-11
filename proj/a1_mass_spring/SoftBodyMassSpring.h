@@ -13,203 +13,206 @@ class SoftBodyMassSpring
 public:
 	////Spring parameters
 	Particles<3> particles;								//// The particle system. Each particle has the attributes of position, velocity, mass, and force. Read Particles.h in src to know the details.
-	std::vector<Vector2i> springs;						//// Each element in springs stores a Vector2i for the indices of the two end points.
-	std::vector<double> rest_length;					//// Each element in rest_length specifies the rest length of the spring
-	std::vector<double> ks;								//// Each element in ks specifies the spring stiffness of a spring
-	std::vector<double> kd;								//// Each element in kd specifies the damping coefficient of a spring
-    std::vector<Vector2i> real_springs;
-    std::vector<Vector2i>& visualizer_springs = real_springs;
+
     int connections = 0;
     
     int NUM_ITERATIONS = 10;
+    double DAMPING_COEFFICIENT = 0.001;
+    
+    std::vector<std::pair<int, int>> innate_constraints;
+    std::vector<double> innate_constraint_strengths;
+    std::vector<Vector2i> visualizer_springs;
+    std::vector<double> separation_distances;
     
 	////Boundary nodes
 	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_notes stores the mapping from node index to its specified velocity. E.g., a fixed node will have a zero velocity.
 
 	////Body force
-	Vector3 g=Vector3::Unit(1)*(double)-1.;			//// gravity
-//    Vector3 g=Vector3(0, 0.01, 0);			//// gravity
-	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
+//	Vector3 g=Vector3::Unit(1)*(double)-1.;			//// gravity
+    Vector3 g=Vector3(0, -0.3, 0);			//// gravity
+//	enum class TimeIntegration{ExplicitEuler,ImplicitEuler} time_integration=TimeIntegration::ExplicitEuler;	//// set to ExplicitEuler by default; change it to ImplicitEuler when you work on Task 2 (Option 2)
 
 	////Implicit time integration
-	SparseMatrixT K;
-	VectorX u,b;
+//	SparseMatrixT K;
+//	VectorX u,b;
 
 	virtual void Initialize()
 	{
-        
-        //// Project work
-        //// Initialize the particles
-        
-        
-        
-		////Initialize default spring parameters for standard tests
-		auto ks_0 = (double) 1, kd_0 = (double) 1;
-		switch(time_integration){
-		case TimeIntegration::ExplicitEuler:{
-			ks_0=(double)5e2;
-			kd_0=(double)1e1;
-		}break;
-		case TimeIntegration::ImplicitEuler:{
-			ks_0=(double)1e5;
-			kd_0=(double)1e1;			
-		}break;}
+		separation_distances.resize(innate_constraints.size());
+		for (int i = 0; i < (int)innate_constraints.size(); i++) {
+            const std::pair<int, int> &s = innate_constraints[i];
+			separation_distances[i] = (particles.X(s.first)-particles.X(s.second)).norm();}
+        std::cout << "Passed 67 \n" << std::endl;
 
-		////Allocate arrays for springs and parameters
-		rest_length.resize(springs.size());
-		for(int i=0;i<(int)springs.size();i++){const Vector2i& s=springs[i];
-			rest_length[i]=(particles.X(s[0])-particles.X(s[1])).norm();}
-		ks.resize(springs.size(),ks_0);
-		kd.resize(springs.size(),kd_0);
-//        connections = (int) springs.size();
-
-		////Allocate sparse matrix if using implicit time integration 
-		////This function needs to be called for only once since the mesh doesn't change during the simulation)
-		if(time_integration==TimeIntegration::ImplicitEuler)
-			Initialize_Implicit_K_And_b();
 	}
 
 	virtual void Advance(const double dt)
 	{
-		switch(time_integration){
-		case TimeIntegration::ExplicitEuler:
-			Advance_Explicit_Euler(dt);break;
-		case TimeIntegration::ImplicitEuler:
-			Advance_Implicit_Euler(dt);break;}
+        AdvancePBD(dt);
 	}
 	
 	////Set boundary nodes
 	void Set_Boundary_Node(const int p,const Vector3 v=Vector3::Zero()){boundary_nodes[p]=v;}
 	
-	bool Is_Boundary_Node(const int p){return boundary_nodes.find(p)!=boundary_nodes.end();}
-
-	//////////////////////////////////////////////////////////////////////////
-	//// P1 TASK: explicit Euler integration and spring force calculation
-
-	//////////////////////////////////////////////////////////////////////////
-	//// YOUR IMPLEMENTATION (TASK 1): explicit Euler time integration 
-	void Advance_Explicit_Euler(const double dt)
-	{
-		//// Step 0: Clear the force on each particle (already done for you)
-		Clear_Force();
-
-		//// Step 1: add a body force to each particle
-		Apply_Body_Force(dt);
-
-		//// Step 2: calculate the spring force for each spring and add it to the two connecting particles (Hint: you may want to implement the function Spring_Force and call it in your for-loop)
-		Apply_Spring_Force(dt);
-
-		//// Step 3: enforce the boundary conditions (traversing the particles in the unordered_set, set its velocity to be the value read from the unordered_set, and its force to be zero)
-		Enforce_Boundary_Condition();
-
-		//// Step 4: time integration by updating the particle velocities according to their forces and updating particle positions according to the positions
-		Time_Integration(dt);
-	}
+	bool Is_Boundary_Node(const int p) {
+        return boundary_nodes.find(p) != boundary_nodes.end();
+    }
     
-    void Advance_Position_Based_Dynamics(const int dt) {
-        std::vector<Vector3> next_positions;		////position
-        
-        // TODO Step 1: update velocities.
+    
+    void AdvancePBD(double dt) {
+        std::vector<Vector3> next_positions;
+        // TODO Step 1: apply forces.
+        ApplyForce(dt);
+        // TODO Step 2: damp velocities.
+        DampVelocities();
+        // TODO Step 3: calculate next positions.
+        Project(next_positions, dt);
+        // TODO Step 4: Generate collision constraints and project them.
+        auto collision_constraints = GenerateCollisionConstraints();
+        ProjectCollisionConstraints(collision_constraints, dt);
+        // TODO: Step 6: update next positions array with collisions.
+        Project(next_positions, dt);
+        // TODO Step 5: propagate constraints.
+        ProjectDistanceConstraints(next_positions, dt);
+        // TODO Step 7: Enforce boundary conditions
+        //  (reset movement since boundary particles are locked in place).
+        for (int i = 0; i < (int)particles.Size(); i++) {
+            if (Is_Boundary_Node(i)) {
+                next_positions[i] = particles.X(i);
+            }
+        }
+        // TODO Step 5: Commit updates to particles.
+        UpdateParticles(next_positions, dt);
+    }
+    
+    void ApplyForce(const double dt)  {
         for (int i = 0; i < (int) particles.Size(); i++) {
+            particles.F(i) = g;
             particles.V(i) += particles.W(i) * particles.F(i) * dt;
         }
-        // TODO Step 2: damp velocities.
+    }
+    
+    static Matrix3 GetCrossProductMatrix(Vector3& vec) {
+        Matrix3 mat = Matrix3::Zero();
+    
+        mat(0, 1) = -vec[2];
+        mat(0, 2) = vec[1];
+    
+        mat(1, 0) = vec[2];
+        mat(1, 2) = -vec[0];
+    
+        mat(2, 0) = -vec[1];
+        mat(2, 1) = vec[0];
+        return mat;
+    }
+    
+    void DampVelocities() {
+        Vector3 sum_angular_momentum = Vector3::Zero();
+        Matrix3 inertia_tensor = Matrix3::Zero();
+        std::vector<Vector3> radii;
         
-        // TODO Step 3: calculate next positions.
+        // accumulate mass, positions, velocities
+        double sum_mass = 0.;
+        Vector3 sum_positions = Vector3::Zero();
+        Vector3 sum_velocities = Vector3::Zero();
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            sum_mass += particles.M(i);
+            sum_positions += particles.X(i) * particles.M(i);
+            sum_velocities += particles.V(i) * particles.M(i);
+        }
+        
+        // find x_cm, v_cm
+        Vector3 x_cm = sum_positions / sum_mass;
+        Vector3 v_cm = sum_velocities / sum_mass;
+        
+        for (int i = 0; i < (int) particles.Size(); i++) {
+            Vector3 r = particles.X(i) - x_cm;
+            auto r_cross_v = r.cross(particles.V(i));
+            Matrix3 r_matrix = GetCrossProductMatrix(r);
+            inertia_tensor += (r_matrix * r_matrix.transpose()) * particles.M(i);
+            
+            sum_angular_momentum += r_cross_v * particles.M(i);
+            
+            radii.emplace_back(r);
+        }
+   
+        if (inertia_tensor.determinant() != 0) {
+            Vector3 omega = inertia_tensor.inverse() * sum_angular_momentum;
+            for (int i = 0; i < (int) particles.Size(); i++) {
+                Vector3 delta_v = v_cm + (omega.cross(radii[i])) - particles.V(i);
+                particles.V(i) += delta_v * DAMPING_COEFFICIENT;
+            }
+        }
+    }
+    
+    void Project(std::vector<Vector3>& next_positions, double dt) {
+        next_positions.clear();
         for (int i = 0; i < (int) particles.Size(); i++) {
             next_positions.emplace_back(particles.X(i) + particles.V(i) * dt);
         }
-        
-        // TODO Step 4: generate collision constraints.
-        
-        
-        // TODO iterate NUM_ITERATIONS times and propagate constraints.
+    }
+    
+    std::vector<std::pair<int, int>> GenerateCollisionConstraints() {
+        std::vector<std::pair<int, int>> collision_pairs;
+        std::set<std::string> seen_collisions;
+        for (int i = 0; i < particles.Size(); i++) {
+            for (int j = i; j < particles.Size(); j++) {
+                if (i != j) {
+                    if ( (particles.X(i) - particles.X(j)).norm() < (particles.R(i) + particles.R(j)) ) {
+                        collision_pairs.emplace_back(std::make_pair(i, j));
+                    }
+                }
+            }
+        }
+        return collision_pairs;
+    }
+    
+    void ProjectCollisionConstraints(std::vector<std::pair<int, int>> &constraints, const double dt) {
         auto step = 0;
         while (step++ < NUM_ITERATIONS) {
             // TODO: propagate collision constraints
+            for (auto& constraint : constraints) {
+                
+                int i = constraint.first;
+                int j = constraint.second;
+                Vector3 normal = (particles.X(i) - particles.X(j)).normalized();
+                Vector3 v_proj_i = particles.V(i).dot(normal) * normal;
+                Vector3 v_proj_j = particles.V(j).dot(normal) * normal;
+                
+                // TODO: why 0.1? I had a bug and tried to trouble-shoot,
+                //  somehow one of the two projection vectors turns out bigger than the other.
+                particles.V(i) += 0.1 * v_proj_j;
+                particles.V(j) -= v_proj_i;
+            }
         }
-        
-        // TODO Step 5: update velocities, positions.
+    }
+    
+    void ProjectDistanceConstraints(std::vector<Vector3> &new_positions, const double dt) {
+        for (int i = 0; i < innate_constraints.size(); i++) {
+            std::pair<int, int> constraint = innate_constraints[i];
+            int first = constraint.first;
+            int second = constraint.second;
+            double& default_separation = separation_distances[i];
+            
+            Vector3 delta_p = new_positions[first] - new_positions[second];
+            double current_separation = delta_p.norm();
+            Vector3 delta_x = (particles.X(first) - particles.X(second));
+            
+            Vector3 correction = innate_constraint_strengths[i] * (current_separation - default_separation) * (delta_p / current_separation);
+            
+            new_positions[first] += correction * -(particles.W(first) / (particles.W(first) + particles.W(second)));
+            new_positions[second] += correction * (particles.W(second) / (particles.W(first) + particles.W(second)));
+            
+        }
+    }
+    
+    void UpdateParticles(const std::vector<Vector3>& next_positions, const double dt) {
         for (int i = 0; i < (int) particles.Size(); i++) {
             particles.V(i) = (next_positions[i] - particles.X(i)) / dt;
             particles.X(i) = next_positions[i];
         }
-        
     }
     
-    void Damp_Velocities() {
-        Vector3 sum_positions = Vector3::Zero();
-        Vector3 sum_velocities = Vector3::Zero();
-        Vector3 sum_angular_momentum = Vector3::Zero();
-        Matrix3 inertia_tensor = Matrix3::Zero();
-        std::vector<Vector3> radii;
-        for (int i = 0; i < (int) particles.Size(); i++) {
-            sum_positions += particles.X(i);
-            sum_velocities += particles.V(i);
-        }
-        
-        Vector3 x_cm = sum_positions / particles.Size();
-        Vector3 v_cm = sum_velocities / particles.Size();
-        
-        for (int i = 0; i < (int) particles.Size(); i++) {
-            Vector3 r = particles.X(i) - x_cm;
-            auto r_v = r.cross(particles.V(i));
-            inertia_tensor += r_v;
-            
-            for (int j = 0; j < 3; j++) {
-                inertia_tensor(j, j) += r_v[j];
-            }
-            
-            
-            Vector3 linear_momentum = particles.M(i) * particles.V(i);
-            sum_angular_momentum += r.cross(linear_momentum);
-            
-            inertia_tensor +=
-            radii.emplace_back(r);
-        }
-        
-        for (int i = 0; i < (int) particles.Size(); i++) {
-            auto omega =
-            particles.V(i) -= v_cm;
-            particles.W(i) -= sum_angular_momentum.dot(radii[i]) / particles.M(i);
-        }
-    }
-    
-    
-    
-
-	void Clear_Force()
-	{
-		for (int i=0; i<particles.Size(); i++) {
-            particles.F(i)=Vector3::Zero();
-        }
-	}
-
-	void Apply_Body_Force(const double dt)
-	{
-		/* Your implementation start */
-        for (auto i=0; i < particles.Size(); i++) {
-            particles.F(i) += g * particles.M(i);
-        }
-		/* Your implementation end */	
-	}
-
-	void Apply_Spring_Force(const double dt)
-	{
-		/* Your implementation start */
-        if (connections == 0) connections = (int) springs.size();
-//        if (connections < (int) visualizer_springs.size()) visualizer_springs = real_springs;
-        for (int i=0; i<springs.size(); i++) {
-    
-            Vector3 f = Spring_Force(i);  // find force
-            const Vector2i& spring = springs[i];      // get spring
-            auto pI = spring[0];                 // get particle index
-            auto pJ = spring[1];                 // get particle index
-            particles.F(pI) += f;                  // add force to particle
-            particles.F(pJ) -= f;                  // add reaction force to other particle
-        }
-		/* Your implementation end */	
-	}
 
 	void Enforce_Boundary_Condition()
 	{
@@ -220,63 +223,13 @@ public:
                 particles.F(i) = Vector3::Zero();
             }
         }
-		/* Your implementation end */	
+		/* Your implementation end */
 	}
-
-	void Time_Integration(const double dt)
-	{
-		/* Your implementation start */
-        for (int i=0; i<particles.Size(); i++) {
-            auto acceleration = particles.F(i) / particles.M(i);
-            particles.V(i) += acceleration * dt;
-            particles.X(i) += particles.V(i) * dt;
-        }
-		/* Your implementation end */		
-	}
-	
-	Vector3 Spring_Force(const int spring_index)
-	{
-		//// This is an auxiliary function to compute the spring force f=f_s+f_d for the spring with spring_index. 
-		//// You may want to call this function in Apply_Spring_Force
-		
-		/* Your implementation start */
-        auto& spring = this->springs[spring_index];
-        auto& i = spring[0];
-        auto& j = spring[1];
-        
-        auto& xI = this->particles.X(i);
-        auto& xJ = this->particles.X(j);
-        auto xDiff = xJ - xI;
-        auto distance = xDiff.norm();
-        auto direction = xDiff.normalized();
-        
-        auto& vI = this->particles.V(i);
-        auto& vJ = this->particles.V(j);
-        auto vDiff = vJ - vI;
-        
-        auto& ksIJ = this->ks[spring_index];
-        auto& kdIJ = this->kd[spring_index];
-        
-        auto& restLength = this->rest_length[spring_index];
-        
-        Vector3 f_s = ksIJ * (distance - restLength) * direction;
-        Vector3 f_d = kdIJ * (vDiff - (vDiff.dot(direction) * direction));
-        
-        return f_s + f_d;
-        /* Your implementation end */
-	}
+ 
 
 	//////////////////////////////////////////////////////////////////////////
-	//// TASK 2 (OPTION 1): creating bending springs for hair strand simulation
 	void Initialize_Hair_Strand()
 	{
-		//// You need to initialize a hair model by setting the springs and particles to simulate human hair.
-		//// A key component for a hair simulator is the bending spring (e.g., by connecting particles with a certain index offset).
-		//// Think about how to realize these bending and curly effects with the explicit spring model you have implemented in TASK 1.
-		//// You may also want to take a look at the function Initialize_Simulation_Data() in MassSpringInteractiveDriver.h for the model initialization.
-		
-		/* Your implementation start */
-        
         //// initialize the particles
         double length = 2.;                                      // hair length
         auto n = /*4;*/ (int) (length * 30);                     // number of particles for modeling hair
@@ -285,16 +238,6 @@ public:
         particles.Resize(n);                                // resize the particle array
         connections = 0;                                         // initialize the number of connections
         auto ks_0 = (double) 1, kd_0 = (double) 1;
-        switch(time_integration){
-            case TimeIntegration::ExplicitEuler:{
-                ks_0=(double)5e2;
-                kd_0=(double)1e1;
-            }break;
-            case TimeIntegration::ImplicitEuler:{
-                ks_0=(double)1e5;
-                kd_0=(double)1e1;
-            }break;
-        }
         
         // initialize the particles
         int angle = 0;
@@ -312,115 +255,36 @@ public:
         // initialize connection springs
         auto l1 = (particles.X(1) - particles.X(0)).norm();
         for (int i = 0; i < n-1; i++) {
-            Vector2i spring(i, i+1);
-            springs.emplace_back(spring);
-            real_springs.emplace_back(spring);
-            rest_length.push_back(l1);
-            ks.push_back(ks_0 * 2);
-            kd.push_back(kd_0 * 2);
+            std::pair<int, int> constraint = {i, i+1};
+            innate_constraints.emplace_back(constraint);
+            visualizer_springs.emplace_back(constraint.first, constraint.second );
+            innate_constraint_strengths.emplace_back(ks_0);
             connections++;
         }
-        visualizer_springs = real_springs;
         ////set boundary conditions
         Set_Boundary_Node(0);
         
-        //// initialize the curl springs
+        //// initialize the curl constraints
         auto ks_1 = ks_0 / 100;
         auto kd_1 = kd_0 / 100;
         
         for (int i=2; i < 10; i++) {
-            addBendSprings(n, i, ks_1 * 5, kd_1 * 5);
+            addBendConstraints(n, i, ks_1 * 5, kd_1 * 5);
         }
         
         for (int i = 13; i < 30; i+=3) {
-            addBendSprings(n, i, ks_1 * 5, kd_1 * 5);
+            addBendConstraints(n, i, ks_1 * 5, kd_1 * 5);
         }
 		/* Your implementation end */
 	}
-    void addBendSprings(int totalSprings, int step, double ksVal, double kdVal)
+    void addBendConstraints(int totalSprings, int step, double ksVal, double kdVal)
     {
         auto l = (particles.X(step) - particles.X(0)).norm();
         for (int i = 0; i < totalSprings-step; i++) {
-            springs.emplace_back(Vector2i(i, i + step));
-            rest_length.push_back(l);
-            ks.push_back(ksVal);
-            kd.push_back(kdVal);
+            innate_constraints.emplace_back(i, i + step);
+            innate_constraint_strengths.emplace_back(ksVal);
         }
     }
-
-	//////////////////////////////////////////////////////////////////////////
-	//// TASK 2 (OPTION 2): implicit time integration for inextensible cloth simulation
-	//// The rest part of this file is all for this task.
-	
-	////Construct K, step 1: initialize the matrix structure 
-	void Initialize_Implicit_K_And_b()
-	{
-		int n=3*particles.Size();
-		K.resize(n,n);u.resize(n);u.fill((double)0);b.resize(n);b.fill((double)0);
-		std::vector<TripletT> elements;
-		for(auto& spring : springs){
-            int i=spring[0];
-            int j=spring[1];
-			Add_Block_Triplet_Helper(i,i,elements);
-			Add_Block_Triplet_Helper(i, j,elements);
-			Add_Block_Triplet_Helper(j,i,elements);
-			Add_Block_Triplet_Helper(j,j,elements);}
-		K.setFromTriplets(elements.begin(),elements.end());
-		K.makeCompressed();	
-	}
-	
-	////Construct K, step 2: fill nonzero elements in K
-	void Update_Implicit_K_And_b(const double dt)
-	{
-		////Clear K and b
-		K.setZero();
-		b.fill((double) 0);
-
-		/* Your implementation start */
-  
-		/* Your implementation end */
-	}
-
-	////Construct K, step 2.1: compute spring force derivative
-	void Compute_Ks_Block(const int s,Matrix3& Ks)
-	{
-		/* Your implementation start */
-  
-		/* Your implementation end */
-	}
-
-	////Construct K, step 2.2: compute damping force derivative
-	void Compute_Kd_Block(const int s,Matrix3& Kd)
-	{
-		/* Your implementation start */
-  
-		/* Your implementation end */
-	}
-
-	////Implicit Euler time integration
-	void Advance_Implicit_Euler(const double dt)
-	{
-		//// clear force
-		Clear_Force();
-		//// add a body force to each particle as in explicit Euler
-		Apply_Body_Force(dt);
-		//// calculate the spring force as in explicit Euler
-		Apply_Spring_Force(dt);
-		//// enforce boundary condition
-		Enforce_Boundary_Condition();
-
-		Update_Implicit_K_And_b(dt);
-
-		for(int i=0;i<particles.Size();i++){
-			for(int j=0;j<3;j++)u[i*3+j]=particles.V(i)[j];}	////set initial guess to be the velocity from the last time step
-
-		SparseSolver::CG(K,u,b);	////solve Ku=b using Conjugate Gradient
-
-		for(int i=0;i<particles.Size();i++){
-			Vector3 v;for(int j=0;j<3;j++)v[j]=u[i*3+j];
-			particles.V(i)=v;
-			particles.X(i)+=particles.V(i)*dt;}
-	}
 
 	////Hint: you may want to use these functions when assembling your implicit matrix
 	////Add block nonzeros to sparse matrix elements (for initialization)
