@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
-//// Dartmouth Physical Computing Programming Assignment 1: Mass Spring
-//// Author: AMITTAI WEKESA
+//// Dartmouth Physical Computing Programming Final Project: Position Based Dynamics
+//// Author: AMITTAI
 ////////////////////////////////////////////////////////////////////////// 
 
 #ifndef __SoftBodyMassSpring_h__
@@ -23,9 +23,10 @@ public:
     std::vector<double> innate_constraint_strengths;
     std::vector<Vector2i> visualizer_springs;
     std::vector<double> separation_distances;
+    std::vector<Vector3> next_positions;
     
 	////Boundary nodes
-	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_notes stores the mapping from node index to its specified velocity. E.g., a fixed node will have a zero velocity.
+	std::unordered_map<int,Vector3> boundary_nodes;		//// boundary_nodes stores all nodes that are fixed in place.
 
 	//// Gravitational Force
     Vector3 g=Vector3(0, -0.3, 0);			//// gravity
@@ -54,7 +55,6 @@ public:
     
     
     void AdvancePBD(double dt) {
-        std::vector<Vector3> next_positions;
         // TODO Step 1: apply forces.
         ApplyForce(dt);
         // TODO Step 2: damp velocities.
