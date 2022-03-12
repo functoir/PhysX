@@ -32,8 +32,8 @@ void Test_Particles_And_Mesh()
 
     Particles<d> particles;
 	particles.Resize(3);
-
-    particles.Add_Element();
+    
+    particles.AddElement();
     particles.X(0)=Vector3::Ones();
     particles.V(0)=Vector3::Ones()*(double)2;
     std::cout<<"[Particle] #particles: "<<particles.Size()<<std::endl;

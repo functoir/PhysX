@@ -278,7 +278,7 @@ public:
 
 	void Add_Particle(Vector2 pos)
 	{
-		int i=fluid.particles.Add_Element();	////return the last element's index
+		int i= fluid.particles.AddElement();	////return the last element's index
 		fluid.particles.X(i)=pos;
 		fluid.particles.C(i)=(double)(rand()%2000-1000)/(double)1000;	////particle vorticity, a random number between [-1,1]
 	}

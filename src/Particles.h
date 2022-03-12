@@ -68,14 +68,10 @@ public:
 		idx->resize((size_type)size,0);
         
         //// project extensions
-//        neighbors->resize((size_type)size);
-//        cardinality->resize((size_type)size);
-//        stiffness->resize((size_type)size);
-//        equality->resize((size_type)size);
         w->resize((size_type)size);
 	}
 
-	int Add_Element()
+	int AddElement()
 	{
 		x->push_back(VectorD::Zero());
 		v->push_back(VectorD::Zero());
@@ -88,10 +84,6 @@ public:
 		idx->push_back(0);
         
         //// project extensions
-        neighbors->push_back(std::set<int>());
-        cardinality->push_back(0);
-        stiffness->push_back(0);
-        equality->push_back(false);
         w->push_back((double)0);
 		return (int)x->size()-1;
 	}
@@ -103,33 +95,19 @@ public:
 	////functions for x
     
     //// Extension methods for Final Project.
-    std::set<int>& Neighbors(const int i) {
-        return (*neighbors)[i];
-    }
-    
-    int Cardinality(const int i) {
-        return (*cardinality)[i];
-    }
-    
-    double Stiffness(const int i) {
-        return (*stiffness)[i];
-    }
-    
-    bool Equality(const int i) {
-        return (*equality)[i];
-    }
-    
-    double W(const int i) {
+    double& W(const int i) {
         return (*w)[i];
     }
     
-    void InitializeWeights() {
-        for (int i = 0; i < Size(); i++) {
-            (*w)[i] = 1. / M(i);
+    void InitializeWeights(int index=-1) {
+        if (index < 0) {
+            for (int i = 0; i < Size(); i++) {
+                (*w)[i] = 1.0 / (*m)[i];
+            }
+        } else {
+            (*w)[index] = 1.0 / (*m)[index];
         }
     }
-    
-    
     
 	VectorD& X(const int i)
 	{return (*x)[i];}

@@ -8,7 +8,7 @@
 #include "Common.h"
 #include "Particles.h"
 
-class SoftBodyMassSpring
+class SoftBodyConstraintDynamics
 {
 public:
 	////Spring parameters
@@ -63,9 +63,10 @@ public:
         Project(next_positions, dt);
         // TODO Step 4: Generate collision constraints and project them.
         auto collision_constraints = GenerateCollisionConstraints();
-        ProjectCollisionConstraints(collision_constraints, dt);
+//        ProjectCollisionConstraints(collision_constraints, dt);
+        ProjectCollisionConstraints2(collision_constraints, next_positions, dt);
         // TODO: Step 6: update next positions array with collisions.
-        Project(next_positions, dt);
+//        Project(next_positions, dt);
         // TODO Step 5: propagate constraints.
         ProjectDistanceConstraints(next_positions, dt);
         // TODO Step 7: Enforce boundary conditions
@@ -77,11 +78,30 @@ public:
         }
         // TODO Step 5: Commit updates to particles.
         UpdateParticles(next_positions, dt);
+        
+        //TODO: While working on Particle Sand, I realized that I might want to have
+        // forces modified externally (for collisions with env objects)
+        // so I:
+        //       1. Made ApplyForce() not reset forces in the particles, just add gravitational forces to it.
+        //       2. Added a function to reset forces at the end of the AdvancePBD() routine.
+        //            That way;
+        //               (a). I can have ParticleSand apply env collision forces before calling AdvancePBD()
+        //               (b). I can have AdvancePBD() achieve results with those forces factored in.
+        //               (c). I can still have an accurate model because forces are reset at the end of each
+        //                    AdvancePBD() call (not the beginning of the next one0.
+        ResetForces();
     }
+    
+    void ResetForces() {
+        for (int i = 0; i < (int)particles.Size(); i++) {
+            particles.F(i) = Vector3::Zero();
+        }
+    }
+    
     
     void ApplyForce(const double dt)  {
         for (int i = 0; i < (int) particles.Size(); i++) {
-            particles.F(i) = g;
+            particles.F(i) += particles.M(i) * g;
             particles.V(i) += particles.W(i) * particles.F(i) * dt;
         }
     }
@@ -139,10 +159,10 @@ public:
         }
     }
     
-    void Project(std::vector<Vector3>& next_positions, double dt) {
-        next_positions.clear();
+    void Project(std::vector<Vector3>& next_pos, double dt) {
+        next_pos.clear();
         for (int i = 0; i < (int) particles.Size(); i++) {
-            next_positions.emplace_back(particles.X(i) + particles.V(i) * dt);
+            next_pos.emplace_back(particles.X(i) + particles.V(i) * dt);
         }
     }
     
@@ -175,8 +195,44 @@ public:
                 
                 // TODO: why 0.1? I had a bug and tried to trouble-shoot,
                 //  somehow one of the two projection vectors turns out bigger than the other.
-                particles.V(i) += 0.1 * v_proj_j;
+//                particles.V(i) += 0.1 * v_proj_j;
+//                particles.V(j) -= v_proj_i;
+    
+    
+    
+//                std::cout << "VI = " << particles.V(i).transpose() << std::endl;
+//                std::cout << "VJ = " << particles.V(j).transpose() << std::endl;
+//                std::cout << "normal = " << normal.transpose() << std::endl;
+//                std::cout << "v_proj_i = " << v_proj_i.transpose() << std::endl;
+//                std::cout << "v_proj_j = " << v_proj_j.transpose() << std::endl;
+                particles.V(i) += v_proj_j;
                 particles.V(j) -= v_proj_i;
+            }
+        }
+    }
+    
+    void ProjectCollisionConstraints2(std::vector<std::pair<int, int>> &constraints, std::vector<Vector3>& new_positions, const double dt)
+    {
+        auto step = 0;
+        while (step++ < NUM_ITERATIONS) {
+            // TODO: propagate collision constraints
+            for (auto &constraint: constraints) {
+                int first = constraint.first;
+                int second = constraint.second;
+    
+                Vector3 normal1 = (particles.X(first) - particles.X(second)).normalized();
+                Vector3 normal2 = -normal1;
+    
+    
+                Vector3 contact_point_1 = particles.X(first) + normal1 * particles.R(first);
+                Vector3 contact_point_2 = particles.X(second) + normal2 * particles.R(second);
+    
+                Vector3 corrective_1 = (new_positions[first] - contact_point_1).dot(normal1) * normal1;
+                Vector3 corrective_2 = (new_positions[second] - contact_point_2).dot(normal2) * normal2;
+    
+    
+                new_positions[first] -= 0.05 * corrective_1; // * DAMPING_COEFFICIENT;
+                new_positions[second] -= 0.05 * corrective_2; //* DAMPING_COEFFICIENT;
             }
         }
     }
@@ -196,7 +252,6 @@ public:
             
             new_positions[first] += correction * -(particles.W(first) / (particles.W(first) + particles.W(second)));
             new_positions[second] += correction * (particles.W(second) / (particles.W(first) + particles.W(second)));
-            
         }
     }
     
@@ -268,10 +323,10 @@ public:
         }
 		/* Your implementation end */
 	}
-    void addBendConstraints(int totalSprings, int step, double ksVal)
+    void addBendConstraints(int total_constraints, int step, double ksVal)
     {
         auto l = (particles.X(step) - particles.X(0)).norm();
-        for (int i = 0; i < totalSprings-step; i++) {
+        for (int i = 0; i < total_constraints - step; i++) {
             innate_constraints.emplace_back(i, i + step);
             innate_constraint_strengths.emplace_back(ksVal);
         }

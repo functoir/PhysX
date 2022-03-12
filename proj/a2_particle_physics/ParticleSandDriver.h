@@ -30,10 +30,10 @@ public:
 	virtual void Initialize()
 	{
 		////driver initialization, initialize simulation data
-		Add_Particle(VectorD::Unit(1)*1.,.4,1.);
-		Add_Particle(VectorD::Unit(1)*2.,.2,1.);
-		Add_Particle(VectorD::Unit(0)*.2+VectorD::Unit(1)*2.5,.1,1.);
-		Add_Particle(VectorD::Unit(0)*-.2+VectorD::Unit(1)*2.5,.3,1.);
+        AddParticle(VectorD::Unit(1) * 1., .4, 1.);
+        AddParticle(VectorD::Unit(1) * 2., .2, 1.);
+        AddParticle(VectorD::Unit(0) * .2 + VectorD::Unit(1) * 2.5, .1, 1.);
+        AddParticle(VectorD::Unit(0) * -.2 + VectorD::Unit(1) * 2.5, .3, 1.);
 
 		bowl=new Bowl<d>(VectorD::Unit(1)*8,8);
 		sand.env_objects.push_back(bowl);
@@ -60,7 +60,7 @@ public:
 			opengl_circle->Initialize();}
 
 		for(int i=0;i<sand.particles.Size();i++){
-			Add_Solid_Circle(i);}
+            AddSolidCircle(i);}
 
 		Initialize_My_Object();
 	}
@@ -104,22 +104,22 @@ public:
 		Vector3f pos=opengl_window->Unproject(Vector3f((float)x,(float)y,win_pos[2]));
 		VectorD p_pos;for(int i=0;i<d;i++)p_pos[i]=(double)pos[i];
 		double r=.1*static_cast<float>(rand()%1000)/1000.+.15;
-		Add_Particle(p_pos,r,1.);
-		Add_Solid_Circle(sand.particles.Size()-1);
+        AddParticle(p_pos, r, 1.);
+        AddSolidCircle(sand.particles.Size() - 1);
 		return true;
 	}
 
 protected:
-	void Add_Particle(VectorD pos,double r=.1,double m=1.)
+	void AddParticle(VectorD pos, double r=.1, double m=1.)
 	{
-		int i=sand.particles.Add_Element();	////return the last element's index
+		int i= sand.particles.AddElement();	////return the last element's index
 		sand.particles.X(i)=pos;
 		sand.particles.V(i)=VectorD::Zero();
 		sand.particles.R(i)=r;
 		sand.particles.M(i)=m;
 	}
 
-	void Add_Solid_Circle(const int i)
+	void AddSolidCircle(const int i)
 	{
 		OpenGLColor c;
 		for(int i=0;i<3;i++){

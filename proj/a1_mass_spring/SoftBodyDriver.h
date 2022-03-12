@@ -9,13 +9,13 @@
 #include "Common.h"
 #include "Mesh.h"
 #include "InClassDemoDriver.h"
-#include "SoftBodyMassSpring.h"
+#include "SoftBodyConstraintDynamics.h"
 
 class MassSpringInteractivDriver : public InClassDemoDriver
 {
 	using Base=Driver;
 public:
-	SoftBodyMassSpring soft_body;
+	SoftBodyConstraintDynamics soft_body;
 	const double dt=(double).02;
 
 	////visualization data
@@ -91,14 +91,15 @@ public:
             std::cout << "test 1 init done" << std::endl;
 		} break;
         
-        case 2: {
+        case 2: { // colliding pendulums
             auto length=(double)1;
-            int n = 4;
+            int n = 6;
             double dx=length/(double)n;
             soft_body.particles.Resize(3*n + 1);
+            double step = length / (double) n;
             
-            Vector3 second_start(-0.5, 0, 0);
-            Vector3 third_start = Vector3(-0.25, 0, 0);
+            Vector3 second_start(-2 * step, 0, 0);
+            Vector3 third_start = Vector3(-step, 0, 0);
             
             for(int i=0;i<n;i++){
                 soft_body.particles.X(i)=Vector3::Unit(0)*(double)i * dx;
@@ -113,6 +114,7 @@ public:
                 soft_body.particles.M(i+2*n)=(double)2;
                 soft_body.particles.R(i+2*n) = 0.01;
                 
+                //// TODO: add a random free particle.
                 if (i == n-1) {
                     soft_body.particles.X(3 * n) = Vector3::Unit(1) * (double)(i + 1.) * dx;
                     soft_body.particles.M(3 * n) = (double)1;
@@ -181,7 +183,7 @@ public:
             
             soft_body.visualizer_springs.clear();
             for (auto& edge : soft_body.innate_constraints) {
-                soft_body.innate_constraint_strengths.emplace_back(0.3);
+                soft_body.innate_constraint_strengths.emplace_back(0.7);
                 soft_body.visualizer_springs.emplace_back(edge.first, edge.second);
             }
 		}break;
@@ -190,9 +192,6 @@ public:
 		////YOUR IMPLEMENTATION (TASK 2: OPTION 1): simulate a single hair strand
 		case 5:{
 			soft_body.Initialize_Hair_Strand();
-   
-   
-//            soft_body.visualizer_springs = soft_body.real_springs;
 		}break;
         
         case 6: { // falling particles
@@ -252,33 +251,6 @@ protected:
 			edge_hashset.insert(Sorted(Vector2i(vtx[1],vtx[2])));
 			edge_hashset.insert(Sorted(Vector2i(vtx[2],vtx[0])));}
 		for(const auto& edge:edge_hashset)edges.push_back(edge);
-	}	
-
-	void Build_Beam_Particles_And_Springs(Particles<3>& particles,std::vector<Vector2i>& edges,int n,double dx,Vector3 pos=Vector3::Zero())
-	{
-		particles.Resize(n*4);
-		for(int i=0;i<particles.Size();i++) {
-			particles.M(i)=(double)1;
-        }
-		for(int i=0; i < n; i++) {
-			particles.X(i*4)=pos+Vector3(dx*(double)i,(double)0,(double)0);
-			particles.X(i*4+1)=pos+Vector3(dx*(double)i,(double)0,(double)dx);
-			particles.X(i*4+2)=pos+Vector3(dx*(double)i,(double)dx,(double)0);
-			particles.X(i*4+3)=pos+Vector3(dx*(double)i,(double)dx,(double)dx);
-			edges.push_back(Vector2i(i*4,i*4+1));
-			edges.push_back(Vector2i(i*4+1,i*4+3));
-			edges.push_back(Vector2i(i*4+3,i*4+2));
-			edges.push_back(Vector2i(i*4+2,i*4));
-			if(i<n-1){
-				edges.push_back(Vector2i(i*4,i*4+4));
-				edges.push_back(Vector2i(i*4+1,i*4+5));
-				edges.push_back(Vector2i(i*4+2,i*4+6));
-				edges.push_back(Vector2i(i*4+3,i*4+7));
-				
-				edges.push_back(Vector2i(i*4,i*4+7));
-				edges.push_back(Vector2i(i*4+1,i*4+6));
-				edges.push_back(Vector2i(i*4+2,i*4+5));
-				edges.push_back(Vector2i(i*4+3,i*4+4));}}
 	}
     
     void BuildBeamParticlesAndConstraints(int n, double dx, Vector3 pos=Vector3::Zero())
