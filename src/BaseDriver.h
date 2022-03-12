@@ -265,7 +265,7 @@ public:
 	}
 };
 
-class InClassDemoDriver : public Driver, public OpenGLViewer
+class BaseDriver : public Driver, public OpenGLViewer
 {using VectorD=Vector3;using VectorDi=Vector2i;using Base=Driver;
 	////simulation data
 	double dt=.02;

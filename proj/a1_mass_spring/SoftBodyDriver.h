@@ -8,10 +8,10 @@
 #include <memory>
 #include "Common.h"
 #include "Mesh.h"
-#include "InClassDemoDriver.h"
+#include "BaseDriver.h"
 #include "SoftBodyConstraintDynamics.h"
 
-class MassSpringInteractivDriver : public InClassDemoDriver
+class MassSpringInteractivDriver : public BaseDriver
 {
 	using Base=Driver;
 public:
