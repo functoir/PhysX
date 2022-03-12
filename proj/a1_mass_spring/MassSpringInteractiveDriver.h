@@ -195,7 +195,7 @@ public:
 //            soft_body.visualizer_springs = soft_body.real_springs;
 		}break;
         
-        case 6: {
+        case 6: { // falling particles
             auto length=(double)20;
             int n = 500;
             double dx=length/(double)n;
