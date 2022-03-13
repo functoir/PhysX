@@ -6,8 +6,8 @@
 #ifndef __ParticleSandDriver_h__
 #define __ParticleSandDriver_h__
 #include <random>
-#include "Common.h"
-#include "Driver.h"
+#include "src/Common.h"
+#include "src/Driver.h"
 #include "OpenGLMarkerObjects.h"
 #include "OpenGLCommon.h"
 #include "OpenGLWindow.h"

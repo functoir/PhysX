@@ -2,9 +2,9 @@
 #define __ImplicitGeometry_h__
 
 #include <random>
-#include "Common.h"
-#include "Driver.h"
-#include "Particles.h"
+#include "src/Common.h"
+#include "src/Driver.h"
+#include "src/Particles.h"
 #include "OpenGLMesh.h"
 #include "OpenGLCommon.h"
 #include "OpenGLWindow.h"

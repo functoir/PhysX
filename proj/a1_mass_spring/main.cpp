@@ -11,9 +11,10 @@
 #define __Main_cpp__
 
 int main(int argc,char* argv[]) {
+    
     ////default arguments
     int test = 1;
-    int scale = 3;
+    int scale = 5;
     
     //parse from command line
     for (int i = 0; i < argc; i++) {

@@ -5,8 +5,8 @@
 
 #ifndef __SoftBodyMassSpring_h__
 #define __SoftBodyMassSpring_h__
-#include "Common.h"
-#include "Particles.h"
+#include "src/Common.h"
+#include "src/Particles.h"
 
 class SoftBodyConstraintDynamics
 {

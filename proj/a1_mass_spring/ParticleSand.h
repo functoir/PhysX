@@ -5,8 +5,8 @@
 
 #ifndef __ParticleSand_h__
 #define __ParticleSand_h__
-#include "Common.h"
-#include "Particles.h"
+#include "src/Common.h"
+#include "src/Particles.h"
 #include "ImplicitGeometry.h"
 #include "SoftBodyConstraintDynamics.h"
 //#include "BaseDriver.h"

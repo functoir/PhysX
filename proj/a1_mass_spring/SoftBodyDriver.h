@@ -6,9 +6,9 @@
 #ifndef __MassSpringInteractiveDriver_h__
 #define __MassSpringInteractiveDriver_h__
 #include <memory>
-#include "Common.h"
-#include "Mesh.h"
-#include "BaseDriver.h"
+#include "src/Common.h"
+#include "src/Mesh.h"
+#include "src/BaseDriver.h"
 #include "SoftBodyConstraintDynamics.h"
 
 class MassSpringInteractivDriver : public BaseDriver
