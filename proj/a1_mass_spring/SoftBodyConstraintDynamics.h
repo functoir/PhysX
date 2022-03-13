@@ -65,30 +65,24 @@ public:
         auto collision_constraints = GenerateCollisionConstraints();
 //        ProjectCollisionConstraints(collision_constraints, dt);
         ProjectCollisionConstraints2(collision_constraints, next_positions, dt);
-        // TODO: Step 6: update next positions array with collisions.
-//        Project(next_positions, dt);
         // TODO Step 5: propagate constraints.
         ProjectDistanceConstraints(next_positions, dt);
-        // TODO Step 7: Enforce boundary conditions
+        // TODO Step 6: Enforce boundary conditions
         //  (reset movement since boundary particles are locked in place).
-        for (int i = 0; i < (int)particles.Size(); i++) {
-            if (Is_Boundary_Node(i)) {
-                next_positions[i] = particles.X(i);
-            }
-        }
-        // TODO Step 5: Commit updates to particles.
+        EnforceBoundaryConditions();
+        // TODO Step 7: Commit updates to particles.
         UpdateParticles(next_positions, dt);
         
         //TODO: While working on Particle Sand, I realized that I might want to have
         // forces modified externally (for collisions with env objects)
         // so I:
-        //       1. Made ApplyForce() not reset forces in the particles, just add gravitational forces to it.
-        //       2. Added a function to reset forces at the end of the AdvancePBD() routine.
-        //            That way;
-        //               (a). I can have ParticleSand apply env collision forces before calling AdvancePBD()
-        //               (b). I can have AdvancePBD() achieve results with those forces factored in.
-        //               (c). I can still have an accurate model because forces are reset at the end of each
-        //                    AdvancePBD() call (not the beginning of the next one0.
+    //       1. Made ApplyForce() not reset forces in the particles, just add gravitational forces to it.
+    //       2. Added a function to reset forces at the end of the AdvancePBD() routine.
+    //            That way;
+//               (a). I can have ParticleSand apply env collision forces before calling AdvancePBD()
+//               (b). I can have AdvancePBD() achieve results with those forces factored in.
+//               (c). I can still have an accurate model because forces are reset at the end of each
+//                    AdvancePBD() call (not the beginning of the next one0.
         ResetForces();
     }
     
@@ -263,16 +257,12 @@ public:
     }
     
 
-	void Enforce_Boundary_Condition()
-	{
-		/* Your implementation start */
-        for (int i=0; i<particles.Size(); i++) {
+	void EnforceBoundaryConditions() {
+        for (int i = 0; i < (int)particles.Size(); i++) {
             if (Is_Boundary_Node(i)) {
-                particles.V(i) = boundary_nodes[i];
-                particles.F(i) = Vector3::Zero();
+                next_positions[i] = particles.X(i);
             }
         }
-		/* Your implementation end */
 	}
  
 
